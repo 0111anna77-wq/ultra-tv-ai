@@ -42,6 +42,12 @@ async function siteAudit(){
   const rssLink=await ev('(()=>[...document.querySelectorAll(".lf-actions button")].some(x=>x.textContent.includes("Initem")))()');
   console.log('RSS_INITEM_BUTTON',rssLink);
   if(!rssLink)throw Error('LostFilm RSS entry cannot open series browser');
+  // Simulate a TVmaze result for another tracked show. This validates generic
+  // source wiring without pretending that its third-party video actually plays.
+  const auto=await ev('(()=>{const show=window.UltraTV.state.data.boys||{};show.imdb="tt1190634";window.UltraTV.state.data.boys=show;window.UltraTVPlayer.close();window.UltraTVPlayer.open("boys");return {iframe:document.querySelector("#ut-media iframe")?.src,source:document.querySelector(".ut-source-name")?.textContent||document.querySelector("#ut-select-source")?.textContent}})()');
+  console.log('AUTO_DISCOVERY',JSON.stringify(auto));
+  if(!auto.iframe?.includes('/embed/imdb/tt1190634'))throw Error('Automatic IMDb lookup not wired to Initem');
+
 
   const ss=await send('Page.captureScreenshot',{format:'png'});
   fs.writeFileSync(path.join(process.cwd(),'ultratv-initem-source-test.png'),Buffer.from(ss.data,'base64'));
