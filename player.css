@@ -30,3 +30,37 @@
 .ut-link{margin-top:6px}
 .epactions button.watch-entry{background:#473b28;color:#f4ca83;border-color:#775d34}
 @media(max-width:850px){.ut-layout{grid-template-columns:1fr}.ut-overlay{padding:8px}.ut-dialog{max-height:98vh}.ut-heading{padding:15px}.ut-layout{padding:14px;gap:15px}.ut-fields{grid-template-columns:1fr}}
+
+/* v0.4: player-first experience. Controls are secondary. */
+.ut-dialog{width:min(1180px,100%)}
+.ut-layout{display:block;padding:20px 24px 8px}
+.ut-view{min-width:0}
+.ut-media{width:100%;aspect-ratio:16/9;background:#080a0e;display:grid;place-items:center;overflow:hidden}
+.ut-iframe{width:100%;height:100%;border:0;display:block;background:#050505}
+.ut-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 5px}
+.ut-toolbar label{display:flex;align-items:center;gap:10px;color:#bcc6cf;font-size:13px;min-width:0}
+.ut-toolbar select{background:#252c33;color:#f8f8f8;border:1px solid #525d66;border-radius:8px;max-width:min(430px,75vw);font-size:13px;padding:10px}
+.ut-tool{color:#e2bc83;background:transparent;border:1px solid #4c4336;border-radius:8px;padding:10px 12px;font-size:13px;cursor:pointer}
+.ut-manage{border-top:1px solid #3a4149;margin:8px 24px 22px;color:#a3adb7}
+.ut-manage>summary{list-style:none;cursor:pointer;color:#9da6b0;font-size:12px;padding:12px 0}
+.ut-manage>summary::-webkit-details-marker{display:none}
+.ut-manage[open]>summary{color:#e2bc83}
+.ut-manage-inside{padding:6px 0 18px}
+.ut-manage-inside h3{margin:4px 0 12px;font-size:15px;color:#f5f3ef}
+.ut-sources{max-height:210px}
+.ut-add{margin-top:14px}
+.ut-check{display:flex!important;flex-direction:row;align-items:center;gap:9px}
+.ut-check input{width:auto!important}
+.ut-view .ut-save{display:block;margin:4px auto 0}
+.ut-placeholder small{max-width:520px}
+.ut-placeholder{font-size:48px}
+@media(max-width:850px){
+.ut-layout{padding:12px 13px 4px}
+.ut-manage{margin:6px 13px 18px}
+.ut-heading{padding:13px}
+.ut-heading h2{font-size:18px}
+.ut-toolbar{gap:8px}
+.ut-toolbar select{max-width:65vw}
+.ut-placeholder{font-size:34px}
+.ut-placeholder small{font-size:12px}
+}
