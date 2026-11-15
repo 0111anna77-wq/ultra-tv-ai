@@ -94,6 +94,7 @@ function playerModule(){
       const data=await response.json();
       if(!data||typeof data!=='object')return;
       remoteOptions={shows:data.shows||{},embeds:data.embeds||{},episodes:data.episodes||{}};
+      app.draw();
       const box=$('#ut-offers');if(box)box.innerHTML=officialLinks();
       if(current&&!$('#ut-video')&&!$('#ut-media iframe')){
         if(current.autoChoose){
@@ -317,7 +318,7 @@ function playerModule(){
     }
     if(best){e.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:'nearest'});}
   });
-  window.UltraTVPlayer={open,close};
+  window.UltraTVPlayer={open,close,hasEpisode:(key,episode)=>!!episode&&playableFor(key,episode)};
   loadOptions();
 }
 playerModule();
