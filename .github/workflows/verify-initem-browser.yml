@@ -1,0 +1,33 @@
+name: Validate Initem player in cloud Chrome
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/verify-initem-browser.yml'
+      - 'scripts/verify_initem_browser.js'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Chrome installed
+        run: |
+          command -v google-chrome
+          google-chrome --version
+      - name: Test Initem title, voice options and playback
+        run: node scripts/verify_initem_browser.js
+      - name: Save screenshots for inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: initem-browser-screenshots
+          path: |
+            initem-mobland.png
+            initem-silo.png
+          if-no-files-found: ignore
