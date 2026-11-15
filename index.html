@@ -37,7 +37,7 @@
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
 <nav class="nav" aria-label="Разделы"><button class="active" data-view="feed"><span>▤</span> Лента серий</button><button data-view="catalog"><span>◈</span> Каталог</button><button data-view="discover"><span>✧</span> Новинки</button><button data-view="search"><span>⌕</span> Поиск</button><button data-view="settings"><span>⚙</span> Настройки</button></nav>
-<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v0.7 · Отслеживание озвучек</div></aside>
+<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v0.8 · LostFilm + выбор озвучек</div></aside>
 <main class="main"><div class="top"><span>Твои сериалы · все новые эпизоды в одной ленте</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Релизы LostFilm поступают из открытой RSS-ленты; публикация серии не гарантирует, что у неё есть встроенный плеер или подтверждённая аудиодорожка. Видео на сайте не хранятся.</footer></main></div>
 <div id="dialog-root"></div>
 <div id="player-root"></div>
@@ -143,7 +143,7 @@ function releaseSection(){
         <span class="lf-meta">${esc(r.title)} · ${esc(date)}</span>
         <div class="lf-actions">
           ${safeLink?`<a class="btn ghost sm" href="${esc(safeLink)}" rel="noopener noreferrer" target="_blank">Описание релиза ↗</a>`:''}
-          ${ep&&window.UltraTVPlayer?.hasEpisode(x.key,ep)?`<button class="btn ghost sm" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">Открыть доступный плеер (озвучка может отличаться)</button>`:''}
+          ${ep&&window.UltraTVPlayer?.hasEpisode(x.key,ep)?`<button class="btn ghost sm" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">Открыть доступный плеер (озвучка может отличаться)</button>`:window.UltraTVPlayer?.hasSeriesBrowser(x.key)?`<button class="btn ghost sm" data-open="${esc(x.key)}">Проверить новую серию в Initem ↗</button>`:''}
         </div></div>`;
     }).join('')}</div>`:''}
     <p class="lf-footnote">✓ Выход озвучки подтверждён RSS. Это не означает, что плеер с озвучкой LostFilm найден или доступен.</p>
@@ -220,6 +220,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=7" defer></script>
+<script src="./player.js?v=8" defer></script>
 </body>
 </html>
