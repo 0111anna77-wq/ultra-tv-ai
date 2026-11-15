@@ -82,3 +82,14 @@
 .ut-offers-links a{display:inline-block;border:1px solid #5a6570;border-radius:8px;padding:8px 12px;color:#e2bc83;background:#232b34;text-decoration:none}
 .ut-offers-links a:hover{border-color:#e2bc83}
 @media(max-width:850px){.ut-episode-inner{display:block}.ut-episode-pills{margin-top:12px}.ut-toolbar label{flex-wrap:wrap}}
+
+
+/* Manual time bookmarks for cross-origin players; NEVER presented as auto-resume. */
+.ut-bookmark{margin:13px 0;padding:14px;background:#22292f;border:1px solid #504c45;border-radius:12px;color:#f1e8da}
+.ut-bookmark-heading{font-weight:650;font-size:14px;margin-bottom:9px;color:#e9c68f}
+.ut-bookmark-form{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.ut-bookmark-form input{width:130px;min-height:42px;color:#f4f5f4;background:#151c23;border:1px solid #57606c;border-radius:9px;padding:10px 11px;font-size:15px;letter-spacing:.4px}
+.ut-bookmark-form button{min-height:42px;border:1px solid #6e5a3d;color:#f1d2a6;background:#34302a;border-radius:9px;padding:10px 12px;font-size:13px;cursor:pointer}
+.ut-bookmark-form button:hover,.ut-bookmark-form button:focus-visible{border-color:#edc790;background:#453b2c}
+#ut-bookmark-status{display:block;margin:10px 0 0;color:#f3d395;font-size:12px}
+.ut-bookmark p{font-size:12px;color:#b9c3cc;line-height:1.6;margin:7px 0 0}
