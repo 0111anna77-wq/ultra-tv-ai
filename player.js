@@ -57,6 +57,7 @@ function playerModule(){
     if(!current)return;
     stopMedia();current=null;
     const root=$('#player-root');if(root)root.innerHTML='';
+    app.draw();
   }
   function episodesFor(key){
     const known=(app.showInfo(key)?.episodes||[]).filter(e=>e.number!=null&&(!e.airdate||app.released(e)));
@@ -126,6 +127,7 @@ function playerModule(){
         ep=allEpisodes[allEpisodes.length-1]||null;
         if(ep)current.episodeId=String(ep.id);
       }
+      if(ep)app.recordOpen(current.key,ep);
       const rows=list().map((src,i)=>({...src,index:i})).sort((a,b)=>preference(a)-preference(b));
       const last=state().lastSource?.[keyOf()];
       const preferred=rows.find(r=>r.url===last)||rows[0];
