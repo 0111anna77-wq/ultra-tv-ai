@@ -167,7 +167,7 @@ function playerModule(){
     const s=state(),episodeKey=key+':'+ep.id,publicKey=key+':'+app.epCode(ep);
     return !!((remoteOptions.episodes?.[publicKey]||[]).length ||
       (remoteOptions.episodes?.[episodeKey]||[]).length ||
-      (remoteOptions.embeds?.[key]||[]).length ||
+      (remoteOptions.embeds?.[key]||[]).some(src=>src.mode!=='browse') ||
       (s.sources[episodeKey]||[]).length ||
       (s.sources['show:'+key]||[]).length);
   }
@@ -208,7 +208,7 @@ function playerModule(){
     qsa('.ut-source button[data-ut-source]').forEach(el=>el.classList.toggle('ut-active',Number(el.dataset.utSource)===index));
     if(type==='embed'){
       media.innerHTML=`<iframe class="ut-iframe" title="Плеер ${esc(src.name||'Видео')}" src="${esc(src.url)}" loading="eager" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"></iframe>`;
-      message('Встроенный плеер: '+(src.name||'Источник')+' · '+(labels[src.dub]||labels.Unknown)+'. Если изображение не появляется, сервис может запрещать встраивание.');
+      message(src.mode==='browse'?'Экспериментальный плеер. Выбери нужный сезон, серию и озвучку внутри него: текущая серия и LostFilm не гарантированы. При региональной блокировке используй другие источники.':'Встроенный плеер: '+(src.name||'Источник')+' · '+(labels[src.dub]||labels.Unknown)+'. Если изображение не появляется, сервис может запрещать встраивание.');
       const link=document.createElement('a');link.href=src.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Открыть плеер отдельно ↗';$('#ut-player-message')?.append(' ',link);
       return;
     }
