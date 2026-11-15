@@ -188,7 +188,7 @@ async function fetchShow(x){let old=showInfo(x.key),j=null;
  return true;
 }
 async function refresh(force=false){if(busy)return;busy=true;failures=0;draw();const shows=all();for(let i=0;i<shows.length;i++){
- const x=shows[i];if(!force&&state.data[x.key]&&Object.hasOwn(state.data[x.key],'imdb')&&Date.now()-state.data[x.key].fetchedAt<6*60*60*1000)continue;
+ const x=shows[i];if(!force&&state.data[x.key]&&Object.prototype.hasOwnProperty.call(state.data[x.key],'imdb')&&Date.now()-state.data[x.key].fetchedAt<6*60*60*1000)continue;
  try{if(!await fetchShow(x))failures++;}catch(e){console.warn('Не удалось загрузить',x.key,e);failures++;}
  persist();if(i%3===0||i===shows.length-1)draw();await delay(650);
  }busy=false;persist();draw();}
