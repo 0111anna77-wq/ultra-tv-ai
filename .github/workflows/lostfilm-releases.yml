@@ -1,0 +1,48 @@
+name: Update LostFilm release feed
+
+on:
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/lostfilm-releases.yml'
+      - 'scripts/update_lostfilm.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lostfilm-rss-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check RSS parser
+        run: |
+          python3 -m py_compile scripts/update_lostfilm.py
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          from update_lostfilm import parse_feed
+          doc = b'<rss><channel><item><title>Demo (Example). Episode (S02E03)</title></item></channel></rss>'
+          assert parse_feed(doc)[0]['episode'] == 3
+          PY
+      - name: Fetch and validate LostFilm RSS
+        run: python3 scripts/update_lostfilm.py
+      - name: Publish releases only if changed
+        shell: bash
+        run: |
+          if git diff --quiet -- releases.json; then
+            echo 'No new release data'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add releases.json
+          git commit -m 'Update LostFilm episode release feed'
+          git push
