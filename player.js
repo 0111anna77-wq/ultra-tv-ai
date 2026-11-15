@@ -6,7 +6,7 @@ function playerModule(){
   const $ = (s, root=document) => root.querySelector(s);
   const qsa = (selector, root=document) => [...root.querySelectorAll(selector)];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const labels = {LostFilm:'LostFilm',Dub:'Полноценный дубляж',Other:'Другая озвучка',Unknown:'Не указана'};
+  const labels = {LostFilm:'LostFilm',Dub:'Полноценный дубляж',DubReported:'Дубляж (заявлен)',Other:'Другая озвучка',Unknown:'Не указана'};
   let current = null, hls = null, lastProgress = 0, hlsPromise = null;
   let remoteOptions={shows:{},embeds:{},episodes:{}};
   function state(){ const s=app.state; if(!s.sources || typeof s.sources!=='object')s.sources={};if(!s.progress || typeof s.progress!=='object')s.progress={};return s;}
@@ -56,11 +56,22 @@ function playerModule(){
     stopMedia();current=null;
     const root=$('#player-root');if(root)root.innerHTML='';
   }
+  function episodesFor(key){
+    const known=(app.showInfo(key)?.episodes||[]).filter(e=>e.number!=null&&(!e.airdate||app.released(e)));
+    if(known.length)return known;
+    return Object.keys(remoteOptions.episodes||{}).filter(k=>k.startsWith(key+':S')).map(k=>{
+      const m=k.match(/:S(\d+)E(\d+)$/);if(!m)return null;
+      return {id:'registry-'+m[1]+'-'+m[2],season:Number(m[1]),number:Number(m[2]),name:'Серия '+Number(m[2]),airdate:null};
+    }).filter(Boolean);
+  }
   function list(){
     const s=state(),episodeKey=keyOf(),showKey='show:'+current.key;
     const ep=Array.isArray(s.sources[episodeKey])?s.sources[episodeKey]:[];
     const show=Array.isArray(s.sources[showKey])?s.sources[showKey]:[];
-    const sharedEpisode=Array.isArray(remoteOptions.episodes?.[episodeKey])?remoteOptions.episodes[episodeKey]:[];
+    const selected=episodesFor(current.key).find(e=>String(e.id)===String(current.episodeId));
+    const publicKey=selected?current.key+':'+app.epCode(selected):'';
+    const sharedEpisode=[...(Array.isArray(remoteOptions.episodes?.[episodeKey])?remoteOptions.episodes[episodeKey]:[]),
+      ...(Array.isArray(remoteOptions.episodes?.[publicKey])?remoteOptions.episodes[publicKey]:[])];
     const sharedShow=Array.isArray(remoteOptions.embeds?.[current.key])?remoteOptions.embeds[current.key]:[];
     return [...ep.map((src,i)=>({...src,__key:episodeKey,__index:i})),
       ...sharedEpisode.map(src=>({...src,__remote:true,__key:'public:episode'})),
@@ -84,7 +95,7 @@ function playerModule(){
       if(!data||typeof data!=='object')return;
       remoteOptions={shows:data.shows||{},embeds:data.embeds||{},episodes:data.episodes||{}};
       const box=$('#ut-offers');if(box)box.innerHTML=officialLinks();
-      if(current&&!$('#ut-video')&&!$('#ut-media iframe')&&list().length)render(true);
+      if(current&&!$('#ut-video')&&!$('#ut-media iframe')&&(list().length||episodesFor(current.key).length))render(true);
     }catch(e){console.warn('Каталог официальных вариантов просмотра недоступен',e);}
   }
   function render(autoPick){
@@ -92,8 +103,7 @@ function playerModule(){
       stopMedia();
       const x=app.getEntry(current.key);
       if(!x){close();return;}
-      const allEpisodes=(app.showInfo(current.key)?.episodes||[]).filter(e=>e.number!==null&&e.number!==undefined&&(!e.airdate||app.released(e)))
-        .sort((a,b)=>a.season-b.season||a.number-b.number);
+      const allEpisodes=episodesFor(current.key).sort((a,b)=>a.season-b.season||a.number-b.number);
       let ep=allEpisodes.find(e=>String(e.id)===String(current.episodeId));
       if(!ep){
         ep=allEpisodes[allEpisodes.length-1]||null;
@@ -147,7 +157,7 @@ function playerModule(){
   }
   function open(key,epId){
     const x=app.getEntry(key);if(!x)return;
-    const eps=(app.showInfo(key)?.episodes||[]).filter(e=>e.number!==null&&e.number!==undefined&&(!e.airdate||app.released(e)));
+    const eps=episodesFor(key);
     const requested=eps.find(e=>String(e.id)===String(epId));
     const latest=[...eps].sort((a,b)=>(b.airdate||'').localeCompare(a.airdate||'')||b.season-a.season||b.number-a.number)[0];
     const selected=requested||latest;
@@ -260,7 +270,7 @@ function playerModule(){
     if(!current)return;
     if(e.target?.id==='ut-select-source'){selectSource(Number(e.target.value));return;}
     if(e.target?.id==='ut-season'){
-      const eps=(app.showInfo(current.key)?.episodes||[]).filter(ep=>ep.season===Number(e.target.value)&&ep.number!=null&&(!ep.airdate||app.released(ep)));
+      const eps=episodesFor(current.key).filter(ep=>ep.season===Number(e.target.value));
       const first=eps.sort((a,b)=>a.number-b.number)[0];
       if(first){current.episodeId=String(first.id);render(true);}
     }
