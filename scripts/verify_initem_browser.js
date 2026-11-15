@@ -59,6 +59,11 @@ async function siteAudit(){
   console.log('WATCH_TOGGLE',JSON.stringify(manual));
   if(!manual.found||manual.before===manual.after||manual.restored!==manual.before)throw Error('Watch mark action did not toggle and persist');
 
+  const subscription=await ev('(()=>{const app=window.UltraTV,s=app.state;document.querySelector("[data-view=catalog]").click();const before=!!document.querySelector("[data-toggle-follow=mobland]");const was=s.tracked.mobland!==false;document.querySelector("[data-toggle-follow=mobland]").click();const off=s.tracked.mobland===false;const stillVisible=!!document.querySelector("[data-toggle-follow=mobland]");const notice=!!document.querySelector("[data-action=tracking-undo]");document.querySelector("[data-action=tracking-undo]")?.click();const restored=s.tracked.mobland===true;const visibleRestored=!!document.querySelector("[data-toggle-follow=mobland]");return {before,was,off,stillVisible,notice,restored,visibleRestored}})()');
+  console.log('FOLLOW_CATALOG_UNDO',JSON.stringify(subscription));
+  if(!subscription.before||!subscription.was||!subscription.off||!subscription.stillVisible||!subscription.notice||!subscription.restored||!subscription.visibleRestored)throw Error('Catalog subscription disappeared without undo');
+
+
   const bookmark=await ev('(()=>{window.UltraTVPlayer.open("mobland");const f=document.querySelector("#ut-media iframe");const input=document.querySelector("#ut-bookmark-time");if(!f||!input)return {ready:false};input.value="24:35";document.querySelector("[data-ut-save-bookmark]").click();const saved=window.UltraTV.state.bookmarks["mobland:S02E08"]?.seconds;const sameFrame=f===document.querySelector("#ut-media iframe");const status=document.querySelector("#ut-bookmark-status")?.textContent;window.UltraTVPlayer.close();const rail=[...document.querySelectorAll(".recent-item")].find(x=>x.dataset.open==="mobland")?.textContent;return {ready:true,saved,sameFrame,status,rail}})()');
   console.log('MINUTE_BOOKMARK',JSON.stringify(bookmark));
   if(!bookmark.ready||bookmark.saved!==1475||!bookmark.sameFrame||!bookmark.rail?.includes('24:35'))throw Error('Manual minute saving or resume rail regression');
