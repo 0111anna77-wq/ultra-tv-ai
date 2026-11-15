@@ -54,7 +54,7 @@ function playerModule(){
           <details class="ut-add" ${rows.length?'':'open'}><summary>＋ Добавить источник</summary>
             <form id="ut-form"><label>Ссылка (HTTPS)<input id="ut-url" type="url" placeholder="https://.../video.mp4 или страница" required autocomplete="url"></label>
               <label>Название<input id="ut-name" maxlength="60" placeholder="Основной плеер"></label>
-              <div class="ut-fields"><label>Озвучка<select id="ut-dub"><option value="LostFilm">LostFilm</option><option value="Dub">Полноценный дубляж</option><option value="Other">Другая</option><option value="Unknown">Не указана</option></select></label>
+              <div class="ut-fields"><label>Озвучка<select id="ut-dub"><option value="Unknown">Не указана</option><option value="LostFilm">LostFilm</option><option value="Dub">Полноценный дубляж</option><option value="Other">Другая</option></select></label>
               <label>Тип ссылки<select id="ut-kind"><option value="auto">Определить автоматически</option><option value="video">MP4 / WebM</option><option value="hls">HLS (.m3u8)</option><option value="page">Веб-страница</option></select></label></div>
               <button type="submit" class="ut-save">Сохранить источник</button><div class="ut-muted">Ссылки сохраняются только в этом браузере и входят в резервную копию каталога.</div></form></details>
         </div>
@@ -96,7 +96,7 @@ function playerModule(){
       message('Выбран источник: '+src.name+'. Озвучка: '+(labels[src.dub]||labels.Unknown));
       return;
     }
-    media.innerHTML='<video id="ut-video" controls playsinline preload="metadata" aria-label="Видеоплеер Ultra TV"></video>';
+    media.innerHTML='<video id="ut-video" tabindex="0" controls playsinline preload="metadata" aria-label="Видеоплеер Ultra TV"></video>';
     const video=$('#ut-video');
     video.addEventListener('loadedmetadata',()=>{
       const p=Number(state().progress[keyOf()]||0);
@@ -125,10 +125,10 @@ function playerModule(){
         if(Hls.isSupported()){
           hls=new Hls({enableWorker:true});
           hls.on(Hls.Events.ERROR,(_evt,data)=>{if(data.fatal)message('Ошибка HLS-потока: '+(data.details||'источник недоступен'));});
-          hls.loadSource(src.url);hls.attachMedia(video);
+          hls.loadSource(src.url);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play().catch(()=>{}));
         }else if(video.canPlayType('application/vnd.apple.mpegurl'))video.src=src.url;
         else message('Этот браузер не поддерживает HLS. Открой поток во внешнем плеере.');
-      }else video.src=src.url;
+      }else {video.src=src.url;video.play().catch(()=>{});}
       if(!current||current!==token)return;
       message('Источник: '+(src.name||'Основной')+' · '+(labels[src.dub]||labels.Unknown));
       const status=$('#ut-player-message');
