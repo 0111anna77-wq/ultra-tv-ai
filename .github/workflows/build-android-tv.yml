@@ -23,8 +23,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Android SDK installed on GitHub runner
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          test -d "$ANDROID_HOME"
+          ls "$ANDROID_HOME/platforms"
       - name: Gradle 8.10.2
         uses: gradle/actions/setup-gradle@v4
         with:
