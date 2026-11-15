@@ -143,7 +143,7 @@ function releaseSection(){
         <span class="lf-meta">${esc(r.title)} · ${esc(date)}</span>
         <div class="lf-actions">
           ${safeLink?`<a class="btn ghost sm" href="${esc(safeLink)}" rel="noopener noreferrer" target="_blank">Описание релиза ↗</a>`:''}
-          ${ep?`<button class="btn ghost sm" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">Проверить имеющиеся плееры</button>`:''}
+          ${ep&&window.UltraTVPlayer?.hasEpisode(x.key,ep)?`<button class="btn ghost sm" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">Открыть доступный плеер (озвучка может отличаться)</button>`:''}
         </div></div>`;
     }).join('')}</div>`:''}
     <p class="lf-footnote">✓ Выход озвучки подтверждён RSS. Это не означает, что плеер с озвучкой LostFilm найден или доступен.</p>
@@ -220,6 +220,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=6" defer></script>
+<script src="./player.js?v=7" defer></script>
 </body>
 </html>
