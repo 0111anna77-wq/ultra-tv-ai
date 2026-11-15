@@ -6,7 +6,7 @@ function playerModule(){
   const $ = (s, root=document) => root.querySelector(s);
   const qsa = (selector, root=document) => [...root.querySelectorAll(selector)];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const labels = {LostFilm:'LostFilm',Dub:'Полноценный дубляж',DubReported:'Дубляж (заявлен)',Other:'Другая озвучка',Unknown:'Не указана'};
+  const labels = {LostFilm:'LostFilm',Dub:'Полноценный дубляж',DubReported:'Дубляж (заявлен)',RuReported:'Русская озвучка (заявлена)',Other:'Другая озвучка',Unknown:'Не указана'};
   let current = null, hls = null, lastProgress = 0, hlsPromise = null;
   let remoteOptions={shows:{},embeds:{},episodes:{}};
   function state(){ const s=app.state; if(!s.sources || typeof s.sources!=='object')s.sources={};if(!s.progress || typeof s.progress!=='object')s.progress={};return s;}
@@ -95,7 +95,14 @@ function playerModule(){
       if(!data||typeof data!=='object')return;
       remoteOptions={shows:data.shows||{},embeds:data.embeds||{},episodes:data.episodes||{}};
       const box=$('#ut-offers');if(box)box.innerHTML=officialLinks();
-      if(current&&!$('#ut-video')&&!$('#ut-media iframe')&&(list().length||episodesFor(current.key).length))render(true);
+      if(current&&!$('#ut-video')&&!$('#ut-media iframe')){
+        if(current.autoChoose){
+          const available=episodesFor(current.key).filter(e=>playableFor(current.key,e));
+          const candidate=newest(available);
+          if(candidate)current.episodeId=String(candidate.id);
+        }
+        if(list().length||episodesFor(current.key).length)render(true);
+      }
     }catch(e){console.warn('Каталог официальных вариантов просмотра недоступен',e);}
   }
   function render(autoPick){
@@ -155,14 +162,25 @@ function playerModule(){
       root.querySelector('.ut-close')?.focus({preventScroll:true});
       if(autoPick&&preferred)selectSource(preferred.index);
   }
+  function playableFor(key,ep){
+    const s=state(),episodeKey=key+':'+ep.id,publicKey=key+':'+app.epCode(ep);
+    return !!((remoteOptions.episodes?.[publicKey]||[]).length ||
+      (remoteOptions.episodes?.[episodeKey]||[]).length ||
+      (remoteOptions.embeds?.[key]||[]).length ||
+      (s.sources[episodeKey]||[]).length ||
+      (s.sources['show:'+key]||[]).length);
+  }
+  function newest(eps){
+    return [...eps].sort((a,b)=>(b.airdate||'').localeCompare(a.airdate||'')||
+      b.season-a.season||b.number-a.number)[0]||null;
+  }
   function open(key,epId){
     const x=app.getEntry(key);if(!x)return;
     const eps=episodesFor(key);
     const requested=eps.find(e=>String(e.id)===String(epId));
-    const latest=[...eps].sort((a,b)=>(b.airdate||'').localeCompare(a.airdate||'')||b.season-a.season||b.number-a.number)[0];
-    const selected=requested||latest;
+    const selected=requested||newest(eps.filter(e=>playableFor(key,e)))||newest(eps);
     close();
-    current={key,episodeId:selected?String(selected.id):null};
+    current={key,episodeId:selected?String(selected.id):null,autoChoose:!requested};
     render(true);
   }
   async function getHls(){
@@ -258,7 +276,7 @@ function playerModule(){
     const closer=e.target.closest('[data-ut-close]');if(closer){close();return;}
     const conf=e.target.closest('[data-ut-config]');if(conf){const el=$('#ut-manage');if(el){el.open=true;el.scrollIntoView({block:'nearest'});}return;}
     const source=e.target.closest('[data-ut-source]');if(source){selectSource(Number(source.dataset.utSource));return;}
-    const epButton=e.target.closest('[data-ut-episode]');if(epButton){current.episodeId=epButton.dataset.utEpisode;render(true);return;}
+    const epButton=e.target.closest('[data-ut-episode]');if(epButton){current.autoChoose=false;current.episodeId=epButton.dataset.utEpisode;render(true);return;}
     const del=e.target.closest('[data-ut-delete]');
     if(del && window.confirm('Удалить сохранённую ссылку на эту серию?')){
       const s=state(),i=Number(del.dataset.utDelete),src=list()[i];
@@ -272,7 +290,7 @@ function playerModule(){
     if(e.target?.id==='ut-season'){
       const eps=episodesFor(current.key).filter(ep=>ep.season===Number(e.target.value));
       const first=eps.sort((a,b)=>a.number-b.number)[0];
-      if(first){current.episodeId=String(first.id);render(true);}
+      if(first){current.autoChoose=false;current.episodeId=String(first.id);render(true);}
     }
   });
   document.addEventListener('submit',e=>{if(e.target?.id==='ut-form'){e.preventDefault();add();}});
