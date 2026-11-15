@@ -9,6 +9,8 @@ from urllib.parse import urlsplit
 urls = [
   'https://api.initem.ws/embed/kp/5512084',
   'https://api.initem.ws/embed/imdb/tt31510819',
+  'https://api.initem.ws/embed/imdb/tt14688458',
+  'https://api.initem.ws/embed/imdb/tt12637874',
   'https://kinobd.net/docs/api-docs.json',
   'https://kinobd.net/api/player/search?query=MobLand',
   'https://api.kinobox.tv/api/players?kinopoisk=5512084',
@@ -27,6 +29,17 @@ for url in urls:
             print('CSP',res.headers.get('Content-Security-Policy','-')[:200])
             print('TITLE',re.search(r'<title[^>]*>([^<]+)',text,re.I).group(1)[:120] if re.search(r'<title[^>]*>([^<]+)',text,re.I) else '-')
             print('COUNTS',json.dumps({w:len(re.findall(w,text,re.I)) for w in ('LostFilm','translation','season','episode','iframe','videoplayer')}))
+            if host=='api.initem.ws':
+                matches=list(re.finditer(r'LostFilm',text,re.I))
+                snippets=[]
+                for m in matches[:5]:
+                    snippet=text[max(0,m.start()-80):min(len(text),m.end()+85)]
+                    snippet=re.sub(r'https?://[^\\s\\x22\\x27<>]+','[URL]',snippet)
+                    snippet=re.sub(r'[A-Za-z0-9_-]{70,}','[TOKEN]',snippet)
+                    snippets.append(re.sub(r'\\s+',' ',snippet)[:175])
+                print('LOSTFILM_CONTEXTS',json.dumps(snippets,ensure_ascii=False))
+                print('EPISODE9_INDICATORS',json.dumps({k:bool(re.search(k,text,re.I)) for k in (r'S02E09',r'season_2/episode_9',r'episode[^\\x22]{0,25}9')}))
+
             if 'json' in content_type.lower():
                 try:
                     obj=json.loads(text)
