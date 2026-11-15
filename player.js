@@ -4,6 +4,7 @@ function playerModule(){
   const app = window.UltraTV;
   if (!app) return;
   const $ = (s, root=document) => root.querySelector(s);
+  const qsa = (selector, root=document) => [...root.querySelectorAll(selector)];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const labels = {LostFilm:'LostFilm',Dub:'Полноценный дубляж',Other:'Другая озвучка',Unknown:'Не указана'};
   let current = null, hls = null, lastProgress = 0, hlsPromise = null;
@@ -89,7 +90,7 @@ function playerModule(){
     stopMedia();
     current.selected=index;
     const token=current, type=kindOf(src), media=$('#ut-media');
-    $$('.ut-source button[data-ut-source]').forEach(el=>el.classList.toggle('ut-active',Number(el.dataset.utSource)===index));
+    qsa('.ut-source button[data-ut-source]').forEach(el=>el.classList.toggle('ut-active',Number(el.dataset.utSource)===index));
     if(type==='page'){
       media.innerHTML=`<div class="ut-placeholder">↗<small>Это веб-страница. Она откроется в отдельной вкладке, поскольку сторонние плееры не всегда разрешают встраивание.</small><a class="ut-link" target="_blank" rel="noopener noreferrer" href="${esc(src.url)}">Открыть сайт с видео ↗</a></div>`;
       message('Выбран источник: '+src.name+'. Озвучка: '+(labels[src.dub]||labels.Unknown));
