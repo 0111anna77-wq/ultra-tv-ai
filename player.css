@@ -64,3 +64,21 @@
 .ut-placeholder{font-size:34px}
 .ut-placeholder small{font-size:12px}
 }
+
+/* v0.5 Direct playback, lightweight episode controls inside the player. */
+.ut-episode-picker{margin-top:12px;border:1px solid #3a4149;background:#151b22;border-radius:10px;overflow:hidden}
+.ut-episode-picker>summary{cursor:pointer;padding:13px 15px;color:#e4d5bd;font-size:13px;font-weight:600;list-style-position:inside}
+.ut-episode-inner{display:flex;flex-wrap:wrap;align-items:start;gap:15px;padding:10px 15px 15px;border-top:1px solid #343c45}
+.ut-episode-inner>label{display:flex;align-items:center;gap:9px;color:#c6cbd1;font-size:13px;white-space:nowrap}
+.ut-episode-inner select{color:#fff;background:#262c34;border:1px solid #58616a;border-radius:8px;padding:9px}
+.ut-episode-pills{display:flex;flex:1;gap:7px;flex-wrap:wrap}
+.ut-episode-pills button{border:1px solid #4c5560;border-radius:8px;padding:8px 11px;color:#d9dde0;background:#252c35;font-size:12px}
+.ut-episode-pills button:hover{border-color:#e2bc83}
+.ut-episode-pills button.ut-episode-active{background:#493b27;color:#efd0a5;border-color:#b38b50}
+.ut-source-name{font-size:12px;color:#b7bdc5}
+.ut-offers{font-size:12px;margin-top:12px}
+.ut-offers-title{color:#b5bec8;margin:0 0 9px}
+.ut-offers-links{display:flex;gap:8px;flex-wrap:wrap}
+.ut-offers-links a{display:inline-block;border:1px solid #5a6570;border-radius:8px;padding:8px 12px;color:#e2bc83;background:#232b34;text-decoration:none}
+.ut-offers-links a:hover{border-color:#e2bc83}
+@media(max-width:850px){.ut-episode-inner{display:block}.ut-episode-pills{margin-top:12px}.ut-toolbar label{flex-wrap:wrap}}
