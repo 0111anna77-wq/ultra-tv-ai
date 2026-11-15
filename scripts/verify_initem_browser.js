@@ -22,6 +22,20 @@ async function audit(url,name){
  const screen=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
  fs.writeFileSync(path.join(process.cwd(),name+'.png'),Buffer.from(screen.data,'base64'));
 }
+async function siteAudit(){
+  const url='https://ultra-tv-ai.pages.dev/';
+  await send('Page.navigate',{url});
+  await pause(4500);
+  const basic=await ev('(()=>({url:location.href,title:document.title,releaseCount:window.UltraTV?.releases?.entries?.length||0,containsLostfilm:document.body.innerText.includes("Новые озвучки LostFilm"),moblandRelease:document.body.innerText.includes("Нервный срыв"),playerBridge:!!window.UltraTVPlayer}))()');
+  console.log('ULTRA_SITE',JSON.stringify(basic));
+  if(!basic.playerBridge)throw Error('Ultra TV Player did not initialize');
+  await ev('window.UltraTVPlayer.open("mobland");"opened"');
+  await pause(2000);
+  const player=await ev('(()=>({title:document.querySelector("#player-root h2")?.textContent,sourceNames:[...document.querySelectorAll("#ut-select-source option")].map(x=>x.textContent),iframe:document.querySelector("#ut-media iframe")?.src||null,episodeButtons:document.querySelectorAll("[data-ut-episode]").length}))()');
+  console.log('ULTRA_PLAYER',JSON.stringify(player));
+  const ss=await send('Page.captureScreenshot',{format:'png'});
+  fs.writeFileSync(path.join(process.cwd(),'ultratv-initem-source-test.png'),Buffer.from(ss.data,'base64'));
+}
 (async()=>{
  try{
   const active=path.join(profile,'DevToolsActivePort');
@@ -39,6 +53,7 @@ async function audit(url,name){
   await send('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});
   await audit('https://api.initem.ws/embed/imdb/tt31510819','initem-mobland');
   await audit('https://api.initem.ws/embed/imdb/tt14688458','initem-silo');
+  await siteAudit();
  }catch(e){console.log('FAIL',e.stack);process.exitCode=1}
  finally{try{ws?.close()}catch{}child.kill();await pause(500);try{fs.rmSync(profile,{recursive:true,force:true})}catch{}}
 })();
