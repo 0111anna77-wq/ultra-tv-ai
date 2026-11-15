@@ -31,4 +31,5 @@ jobs:
             initem-mobland.png
             initem-silo.png
             ultratv-initem-source-test.png
+            ultratv-mobile-v10.png
           if-no-files-found: ignore
