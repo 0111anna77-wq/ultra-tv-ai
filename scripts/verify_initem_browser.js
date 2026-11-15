@@ -33,6 +33,16 @@ async function siteAudit(){
   await pause(2000);
   const player=await ev('(()=>({title:document.querySelector("#player-root h2")?.textContent,sourceNames:[...document.querySelectorAll("#ut-select-source option")].map(x=>x.textContent),iframe:document.querySelector("#ut-media iframe")?.src||null,episodeButtons:document.querySelectorAll("[data-ut-episode]").length}))()');
   console.log('ULTRA_PLAYER',JSON.stringify(player));
+  // The user's browser can play Initem. In US cloud Chrome we only assert
+  // correct default selection; upstream video remains geo-blocked here.
+  if(!player.sourceNames.some(x=>x.includes('RUTUBE')))throw Error('RUTUBE fallback missing');
+  if(!player.sourceNames.some(x=>x.includes('Initem')))throw Error('Initem multi-voice option missing');
+  if(!player.iframe?.startsWith('https://api.initem.ws/embed/'))throw Error('Initem not selected by default');
+  if(!basic.releaseCount)throw Error('No LostFilm metadata loaded');
+  const rssLink=await ev('(()=>[...document.querySelectorAll(".lf-actions button")].some(x=>x.textContent.includes("Initem")))()');
+  console.log('RSS_INITEM_BUTTON',rssLink);
+  if(!rssLink)throw Error('LostFilm RSS entry cannot open series browser');
+
   const ss=await send('Page.captureScreenshot',{format:'png'});
   fs.writeFileSync(path.join(process.cwd(),'ultratv-initem-source-test.png'),Buffer.from(ss.data,'base64'));
 }
