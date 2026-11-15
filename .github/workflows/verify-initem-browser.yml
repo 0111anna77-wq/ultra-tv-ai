@@ -30,4 +30,5 @@ jobs:
           path: |
             initem-mobland.png
             initem-silo.png
+            ultratv-initem-source-test.png
           if-no-files-found: ignore
