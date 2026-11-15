@@ -321,11 +321,25 @@ function playerModule(){
       if(!key||seconds===null){if(status)status.textContent='Укажи время в формате 24:35 или 1:02:35';return;}
       state().bookmarks ||= {};
       state().bookmarks[key]={seconds,at:Date.now(),manual:true};
-      app.persist();app.draw();render(false);
+      app.persist();app.draw();
+      if(status)status.textContent='Отметка: '+prettyTime(seconds)+' · сохранено вручную';
+      const form=$('.ut-bookmark-form');
+      if(form&&!form.querySelector('[data-ut-clear-bookmark]')){
+        const button=document.createElement('button');button.type='button';
+        button.setAttribute('data-ut-clear-bookmark','');button.textContent='Сбросить';
+        form.appendChild(button);
+      }
+      // NEVER rerender here: replacing an iframe would restart a playing video.
       return;
     }
     if(e.target.closest('[data-ut-clear-bookmark]')){
-      const key=bookmarkKey();if(key&&state().bookmarks){delete state().bookmarks[key];app.persist();app.draw();render(false);}
+      const key=bookmarkKey();
+      if(key&&state().bookmarks){
+        delete state().bookmarks[key];app.persist();app.draw();
+        const status=$('#ut-bookmark-status');if(status)status.textContent='Отметка сброшена';
+        const input=$('#ut-bookmark-time');if(input)input.value='';
+        e.target.closest('[data-ut-clear-bookmark]').remove();
+      }
       return;
     }
     const conf=e.target.closest('[data-ut-config]');if(conf){const el=$('#ut-manage');if(el){el.open=true;el.scrollIntoView({block:'nearest'});}return;}
