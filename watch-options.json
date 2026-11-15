@@ -1,8 +1,207 @@
 {
-  "version": 2,
+  "version": 3,
   "updated": "2026-11-16",
-  "disclaimer": "В каталоге отображаются только подтверждённые встраиваемые плееры с разрешённым показом. Платные площадки и ссылки на подписки исключены. Если источник не найден, сайт сообщает об этом явно.",
+  "disclaimer": "RUTUBE публичные embed ссылки: доступность без оплаты проверена по API; из внешнего источника подтверждено реальное воспроизведение S01E01. Статус is_licensed=true возвращён платформой для всех 18 видео, независимая проверка прав и озвучки не проводилась. Пропавшие и недоступные видео не заменяются автоматически.",
   "shows": {},
   "embeds": {},
-  "episodes": {}
+  "episodes": {
+    "mobland:S01E01": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/87d139b9113f629c5120d9e6e1968b57",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/87d139b9113f629c5120d9e6e1968b57/"
+      }
+    ],
+    "mobland:S01E02": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/dcb0bdc45560744a6fcddbcfea88c839",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/dcb0bdc45560744a6fcddbcfea88c839/"
+      }
+    ],
+    "mobland:S01E03": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/22a25d54d39f27d3ae39175b883a06bb",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/22a25d54d39f27d3ae39175b883a06bb/"
+      }
+    ],
+    "mobland:S01E04": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/1fc752cefd1e0cb9eac48c466275d978",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/1fc752cefd1e0cb9eac48c466275d978/"
+      }
+    ],
+    "mobland:S01E05": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/ee60fa43ad2e413575f0ba96a2456bfc",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/ee60fa43ad2e413575f0ba96a2456bfc/"
+      }
+    ],
+    "mobland:S01E06": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/f87b323b697a4a6029dd3363d10ab624",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/f87b323b697a4a6029dd3363d10ab624/"
+      }
+    ],
+    "mobland:S01E07": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/c895b152d7273f60cc48ee7030afe10c",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/c895b152d7273f60cc48ee7030afe10c/"
+      }
+    ],
+    "mobland:S01E08": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/9b723d0cf60d28c6ee362e7e69491d5b",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/9b723d0cf60d28c6ee362e7e69491d5b/"
+      }
+    ],
+    "mobland:S01E09": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/3b5e0029d98de7604c92a5fc9df4ad6f",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/3b5e0029d98de7604c92a5fc9df4ad6f/"
+      }
+    ],
+    "mobland:S01E10": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/f040dfd65011cd9f5445e536c2e6dfd7",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/f040dfd65011cd9f5445e536c2e6dfd7/"
+      }
+    ],
+    "mobland:S02E01": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/7845783a5fa37a0aa857aedd5e94a6ba",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/7845783a5fa37a0aa857aedd5e94a6ba/"
+      }
+    ],
+    "mobland:S02E02": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/e0278c058abbfa8f1e872ce55b9eae5a",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/e0278c058abbfa8f1e872ce55b9eae5a/"
+      }
+    ],
+    "mobland:S02E03": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/a6b0efa192953c7e2c57f93d368855e4",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/a6b0efa192953c7e2c57f93d368855e4/"
+      }
+    ],
+    "mobland:S02E04": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/ca75417ae1e3961e3754259398ed85f7",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/ca75417ae1e3961e3754259398ed85f7/"
+      }
+    ],
+    "mobland:S02E05": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/93edd417e0ce91e5a7fdcb44d510a37c",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/93edd417e0ce91e5a7fdcb44d510a37c/"
+      }
+    ],
+    "mobland:S02E06": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/f0793d3ed9fb7f92fc1076c7e8e08911",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/f0793d3ed9fb7f92fc1076c7e8e08911/"
+      }
+    ],
+    "mobland:S02E07": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/496305553b5810cbfaad1408b4b641cb",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/496305553b5810cbfaad1408b4b641cb/"
+      }
+    ],
+    "mobland:S02E08": [
+      {
+        "name": "RUTUBE · Дубляж (по описанию)",
+        "url": "https://rutube.ru/play/embed/9c7194f106792164690216e3a5946367",
+        "kind": "embed",
+        "embedded": true,
+        "dub": "DubReported",
+        "platform": "rutube",
+        "page": "https://rutube.ru/video/9c7194f106792164690216e3a5946367/"
+      }
+    ]
+  }
 }
