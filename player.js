@@ -42,7 +42,9 @@ function playerModule(){
     if(/\.(mp4|webm|ogv|ogg|m4v)$/.test(path))return 'video';
     return 'page';
   }
-  const preference = src => src.dub==='LostFilm'?0:src.dub==='Dub'?1:src.dub==='Other'?2:3;
+  // Explicitly verified LostFilm links outrank anything else. For ordinary entries,
+  // default to the multi-voice browser; keep episode-specific RUTUBE as a fallback.
+  const preference = src => src.dub==='LostFilm'?0:src.platform==='initem'?1:src.dub==='Dub'?2:src.dub==='Other'?3:4;
   const episode = (key,id) => app.showInfo(key)?.episodes?.find(e=>String(e.id)===String(id));
   const keyOf = () => current && (current.key+':'+current.episodeId);
   function message(msg){const el=$('#ut-player-message');if(el)el.textContent=msg;}
@@ -318,7 +320,11 @@ function playerModule(){
     }
     if(best){e.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:'nearest'});}
   });
-  window.UltraTVPlayer={open,close,hasEpisode:(key,episode)=>!!episode&&playableFor(key,episode)};
+  window.UltraTVPlayer={
+    open,close,
+    hasEpisode:(key,episode)=>!!episode&&playableFor(key,episode),
+    hasSeriesBrowser:key=>(remoteOptions.embeds?.[key]||[]).some(src=>src.mode==='browse')
+  };
   loadOptions();
 }
 playerModule();
