@@ -37,7 +37,7 @@
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
 <nav class="nav" aria-label="Разделы"><button class="active" data-view="feed"><span>▤</span> Лента серий</button><button data-view="catalog"><span>◈</span> Каталог</button><button data-view="discover"><span>✧</span> Новинки</button><button data-view="search"><span>⌕</span> Поиск</button><button data-view="settings"><span>⚙</span> Настройки</button></nav>
-<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v0.8 · LostFilm + выбор озвучек</div></aside>
+<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v0.9 · Автопоиск плееров</div></aside>
 <main class="main"><div class="top"><span>Твои сериалы · все новые эпизоды в одной ленте</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Релизы LostFilm поступают из открытой RSS-ленты; публикация серии не гарантирует, что у неё есть встроенный плеер или подтверждённая аудиодорожка. Видео на сайте не хранятся.</footer></main></div>
 <div id="dialog-root"></div>
 <div id="player-root"></div>
@@ -178,7 +178,7 @@ async function request(path){for(let i=0;i<3;i++){try{const r=await fetch(API+pa
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 function chooseShow(results,x){const exact=results.filter(z=>norm(z.show?.name)===norm(x.en));const list=exact.length?exact:results.filter(z=>norm(z.show?.name).includes(norm(x.en))||norm(x.en).includes(norm(z.show?.name)));
  if(!list.length)return null;return list.sort((a,b)=>Math.abs(Number(a.show?.premiered?.slice(0,4)||2000)-x.year)-Math.abs(Number(b.show?.premiered?.slice(0,4)||2000)-x.year))[0]?.show||null}
-function pack(show,episodes){return {id:show.id,name:show.name,image:safeImage(show.image?.medium||show.image?.original),premiered:show.premiered,url:show.url,rating:show.rating?.average||null,genres:show.genres||[],episodes:(episodes||[]).filter(e=>e.id&&e.season!=null).map(e=>({id:e.id,name:e.name,season:e.season,number:e.number,airdate:e.airdate})),fetchedAt:Date.now()}}
+function pack(show,episodes){return {id:show.id,name:show.name,imdb:/^tt\d{5,12}$/.test(String(show.externals?.imdb||''))?show.externals.imdb:null,image:safeImage(show.image?.medium||show.image?.original),premiered:show.premiered,url:show.url,rating:show.rating?.average||null,genres:show.genres||[],episodes:(episodes||[]).filter(e=>e.id&&e.season!=null).map(e=>({id:e.id,name:e.name,season:e.season,number:e.number,airdate:e.airdate})),fetchedAt:Date.now()}}
 async function fetchShow(x){let old=showInfo(x.key),j=null;
  if(old?.id)j=await request(`/shows/${old.id}?embed=episodes`);
  else{const results=await request('/search/shows?q='+encodeURIComponent(x.en));const resolved=chooseShow(results||[],x);if(!resolved)return false;j=await request(`/shows/${resolved.id}?embed=episodes`)}
@@ -188,7 +188,7 @@ async function fetchShow(x){let old=showInfo(x.key),j=null;
  return true;
 }
 async function refresh(force=false){if(busy)return;busy=true;failures=0;draw();const shows=all();for(let i=0;i<shows.length;i++){
- const x=shows[i];if(!force&&state.data[x.key]&&Date.now()-state.data[x.key].fetchedAt<6*60*60*1000)continue;
+ const x=shows[i];if(!force&&state.data[x.key]&&Object.hasOwn(state.data[x.key],'imdb')&&Date.now()-state.data[x.key].fetchedAt<6*60*60*1000)continue;
  try{if(!await fetchShow(x))failures++;}catch(e){console.warn('Не удалось загрузить',x.key,e);failures++;}
  persist();if(i%3===0||i===shows.length-1)draw();await delay(650);
  }busy=false;persist();draw();}
@@ -220,6 +220,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=8" defer></script>
+<script src="./player.js?v=9" defer></script>
 </body>
 </html>
