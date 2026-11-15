@@ -1,0 +1,32 @@
+.ut-overlay{position:fixed;inset:0;background:#05070bdc;z-index:80;display:grid;place-items:center;padding:20px}
+.ut-dialog{background:#1b2027;border:1px solid #65615a;border-radius:18px;width:min(1150px,100%);max-height:96vh;overflow:auto;box-shadow:0 20px 90px #000a;color:#f8f7f5}
+.ut-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:20px 25px;border-bottom:1px solid #3c424a}
+.ut-heading h2{font-size:23px;margin:6px 0}.ut-heading p{font-size:13px;color:#adb7bf;margin:0}.ut-kicker{color:#e2bc83;font-size:11px;letter-spacing:1.4px}
+.ut-close{background:#2b3138;border:1px solid #666;color:#fff;border-radius:10px;padding:10px 16px;font-size:17px}
+.ut-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:22px;padding:22px}
+.ut-media{background:#090c10;aspect-ratio:16/9;border:1px solid #383f49;border-radius:12px;overflow:hidden;display:grid;place-items:center}
+.ut-media video{width:100%;height:100%;background:#000;display:block}
+.ut-placeholder{display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;text-align:center;font-size:37px;color:#e2bc83;padding:28px;width:100%;height:100%}
+.ut-placeholder small{font-size:13px;max-width:450px;color:#aeb8c3;font-weight:400;line-height:1.6}
+.ut-message{font-size:13px;color:#e2bc83;margin:14px 0 0;line-height:1.7}
+.ut-footnote,.ut-muted{font-size:12px;color:#98a4ad;line-height:1.6}
+.ut-footnote{margin-top:8px}
+.ut-controls h3{margin:0 0 12px;font-size:17px}
+.ut-sources{display:grid;gap:7px;max-height:240px;overflow:auto}
+.ut-source{display:flex;gap:6px;align-items:stretch}
+.ut-source button{border-radius:9px;background:#262d35;border:1px solid #49515a;color:#eee;text-align:left;padding:9px 12px}
+.ut-source button:first-child{flex:1;min-width:0}
+.ut-source button.ut-active,.ut-source button:first-child:focus{border-color:#e2bc83;background:#3a3228}
+.ut-source button b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ut-source button small{display:block;font-size:11px;color:#aab1b9;margin-top:5px}
+.ut-source .ut-delete{color:#f0a99e;padding:9px 13px}
+.ut-add{border-top:1px solid #46505a;margin-top:16px;padding-top:14px}
+.ut-add summary{cursor:pointer;color:#e2bc83;padding:10px 0;font-size:14px}
+.ut-add form{display:grid;gap:12px;margin-top:11px}
+.ut-add label{display:grid;gap:6px;font-size:12px;color:#b1bbc5;min-width:0}
+.ut-add input,.ut-add select{width:100%;background:#11171d;border:1px solid #58616a;color:#fff;border-radius:9px;padding:11px;min-width:0;font-size:13px}
+.ut-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ut-save,.ut-link{background:#e2bc83;border:0;border-radius:9px;color:#211b13;font-weight:700;padding:12px;text-align:center;cursor:pointer;font-size:13px;text-decoration:none}
+.ut-link{margin-top:6px}
+.epactions button.watch-entry{background:#473b28;color:#f4ca83;border-color:#775d34}
+@media(max-width:850px){.ut-layout{grid-template-columns:1fr}.ut-overlay{padding:8px}.ut-dialog{max-height:98vh}.ut-heading{padding:15px}.ut-layout{padding:14px;gap:15px}.ut-fields{grid-template-columns:1fr}}
