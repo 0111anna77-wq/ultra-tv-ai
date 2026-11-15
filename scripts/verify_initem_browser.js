@@ -48,6 +48,18 @@ async function siteAudit(){
   console.log('AUTO_DISCOVERY',JSON.stringify(auto));
   if(!auto.iframe?.includes('/embed/imdb/tt1190634'))throw Error('Automatic IMDb lookup not wired to Initem');
 
+  // Confirm the personal features with a real DOM, not only source-code syntax.
+  const recent=await ev('(()=>{window.UltraTVPlayer.close();return {history:window.UltraTV.state.recent?.mobland,rail:!!document.querySelector(".recent-section"),button:document.querySelector(".recent-item")?.textContent?.trim().slice(0,100)}})()');
+  console.log('RESUME_RAIL',JSON.stringify(recent));
+  if(!recent.history||!recent.rail||!recent.button)throw Error('Last selected episode was not saved into the resume rail');
+  const follow=await ev('(()=>{document.querySelector("[data-view=discover]").click();const key="spider-noir";const before=window.UltraTV.state.tracked[key];document.querySelector("[data-toggle-follow="+key+"]").click();const after=window.UltraTV.state.tracked[key];document.querySelector("[data-toggle-follow="+key+"]").click();return {before,after,restored:window.UltraTV.state.tracked[key]}})()');
+  console.log('FOLLOW_TOGGLE',JSON.stringify(follow));
+  if(follow.before!==true||follow.after!==false||follow.restored!==true)throw Error('Favorite switch is not reversible');
+  const manual=await ev('(()=>{const s=window.UltraTV.state;s.data.mobland={id:999,name:"MobLand",image:"",episodes:[{id:20508,season:2,number:8,name:"Test",airdate:"2026-11-01"}],fetchedAt:Date.now()};document.querySelector("[data-view=feed]").click();const btn=document.querySelector(".episode-row .episode-mark");if(!btn)return {found:false};const key=btn.dataset.watch;const before=!!s.watched[key];btn.click();const after=!!s.watched[key];document.querySelector("[data-watch]").click();return {found:true,before,after,restored:!!s.watched[key]}})()');
+  console.log('WATCH_TOGGLE',JSON.stringify(manual));
+  if(!manual.found||manual.before===manual.after||manual.restored!==manual.before)throw Error('Watch mark action did not toggle and persist');
+
+
 
   const ss=await send('Page.captureScreenshot',{format:'png'});
   fs.writeFileSync(path.join(process.cwd(),'ultratv-initem-source-test.png'),Buffer.from(ss.data,'base64'));
