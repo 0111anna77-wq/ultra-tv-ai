@@ -1,7 +1,7 @@
 {
-  "version": 3,
+  "version": 4,
   "updated": "2026-11-16",
-  "disclaimer": "RUTUBE публичные embed ссылки: доступность без оплаты проверена по API; из внешнего источника подтверждено реальное воспроизведение S01E01. Статус is_licensed=true возвращён платформой для всех 18 видео, независимая проверка прав и озвучки не проводилась. Пропавшие и недоступные видео не заменяются автоматически.",
+  "disclaimer": "Публичные плееры RUTUBE привязаны к сериям по сезонам. Все 64 видеозаписи прошли проверку API is_licensed=true, is_paid=false, is_deleted=false и достаточной продолжительности. Реальное воспроизведение внутри Ultra TV подтверждено для MobLand S01E01; остальные могут иметь региональные и другие ограничения. Заявления об озвучке взяты только из названий роликов.",
   "shows": {},
   "embeds": {},
   "episodes": {
@@ -201,6 +201,512 @@
         "dub": "DubReported",
         "platform": "rutube",
         "page": "https://rutube.ru/video/9c7194f106792164690216e3a5946367/"
+      }
+    ],
+    "fallout:S02E04": [
+      {
+        "page": "https://rutube.ru/video/54242e6c4a023fcc41c1bd3f51a36852/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/54242e6c4a023fcc41c1bd3f51a36852",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E07": [
+      {
+        "page": "https://rutube.ru/video/18b299efddc02c64df780618a881088d/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/18b299efddc02c64df780618a881088d",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E10": [
+      {
+        "page": "https://rutube.ru/video/8ad4108ab2c912c7dbef2fc2d2816d6f/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/8ad4108ab2c912c7dbef2fc2d2816d6f",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E08": [
+      {
+        "page": "https://rutube.ru/video/c2534eb0d4e558422f0b5f9a0664c94f/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/c2534eb0d4e558422f0b5f9a0664c94f",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E05": [
+      {
+        "page": "https://rutube.ru/video/de7e39fc41460ddf1cc8cdb7b4ef063c/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/de7e39fc41460ddf1cc8cdb7b4ef063c",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E01": [
+      {
+        "page": "https://rutube.ru/video/69a0f02e00c7dc498404cbad9370c252/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/69a0f02e00c7dc498404cbad9370c252",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E04": [
+      {
+        "page": "https://rutube.ru/video/09180d0cf74da6c591a44791815dc135/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/09180d0cf74da6c591a44791815dc135",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E10": [
+      {
+        "page": "https://rutube.ru/video/22472069a610f36d784cb05fc122ac21/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/22472069a610f36d784cb05fc122ac21",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E07": [
+      {
+        "page": "https://rutube.ru/video/37d7dce360eb7977d8724dbc93494fad/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/37d7dce360eb7977d8724dbc93494fad",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E03": [
+      {
+        "page": "https://rutube.ru/video/d7eb8658d387fb4e50fd27895f33666f/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/d7eb8658d387fb4e50fd27895f33666f",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E09": [
+      {
+        "page": "https://rutube.ru/video/d047ea72a7bf99abc21f2bf8dea9f50f/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/d047ea72a7bf99abc21f2bf8dea9f50f",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S02E07": [
+      {
+        "page": "https://rutube.ru/video/903690f01c8e84f9169e34f107c33623/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/903690f01c8e84f9169e34f107c33623",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E04": [
+      {
+        "page": "https://rutube.ru/video/d298b46e15d312cfe1d22be5f86d903e/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/d298b46e15d312cfe1d22be5f86d903e",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S02E08": [
+      {
+        "page": "https://rutube.ru/video/433e106679fd1d8bdc86b0f9299b413e/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/433e106679fd1d8bdc86b0f9299b413e",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E05": [
+      {
+        "page": "https://rutube.ru/video/db69684cc9cc1ab5ddb5fe76cc3f7a46/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/db69684cc9cc1ab5ddb5fe76cc3f7a46",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E02": [
+      {
+        "page": "https://rutube.ru/video/16d12c6227111e23732776964d78d693/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/16d12c6227111e23732776964d78d693",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E01": [
+      {
+        "page": "https://rutube.ru/video/f46e01152d428f828a3c9840dcbeb8fb/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/f46e01152d428f828a3c9840dcbeb8fb",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E01": [
+      {
+        "page": "https://rutube.ru/video/52fee813d21722dc725c165e2e03b4fb/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/52fee813d21722dc725c165e2e03b4fb",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E10": [
+      {
+        "page": "https://rutube.ru/video/3b14a201b0c92be18cef7a8a6c343b9e/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/3b14a201b0c92be18cef7a8a6c343b9e",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E04": [
+      {
+        "page": "https://rutube.ru/video/77bb66b53dc7752eb08624a8a5c32458/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/77bb66b53dc7752eb08624a8a5c32458",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E03": [
+      {
+        "page": "https://rutube.ru/video/fbf4f6e0d514fe1030e01c4e6fec8ead/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/fbf4f6e0d514fe1030e01c4e6fec8ead",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S02E05": [
+      {
+        "page": "https://rutube.ru/video/f514a1e19c0f819e373a5215ad41c1b3/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/f514a1e19c0f819e373a5215ad41c1b3",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E08": [
+      {
+        "page": "https://rutube.ru/video/43ae5e387278fc21fd8349bc51f762ee/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/43ae5e387278fc21fd8349bc51f762ee",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E09": [
+      {
+        "page": "https://rutube.ru/video/a648d87d7dfc9f3e77732b66d8c0376a/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/a648d87d7dfc9f3e77732b66d8c0376a",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S02E01": [
+      {
+        "page": "https://rutube.ru/video/f7a85a73448a29b5a354abb8ed3abaf6/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/f7a85a73448a29b5a354abb8ed3abaf6",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E02": [
+      {
+        "page": "https://rutube.ru/video/fe2654c40744f051bafb84ba154a3614/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/fe2654c40744f051bafb84ba154a3614",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S02E06": [
+      {
+        "page": "https://rutube.ru/video/808bc91838e55d287f0013e250687db6/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/808bc91838e55d287f0013e250687db6",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E08": [
+      {
+        "page": "https://rutube.ru/video/ccf5490d1e007001b7c01ae508d97275/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/ccf5490d1e007001b7c01ae508d97275",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E06": [
+      {
+        "page": "https://rutube.ru/video/ab7256022b162b059d00012e30d7a135/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/ab7256022b162b059d00012e30d7a135",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E03": [
+      {
+        "page": "https://rutube.ru/video/37ff4be454437ba369dbd1ca44b89df7/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/37ff4be454437ba369dbd1ca44b89df7",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E07": [
+      {
+        "page": "https://rutube.ru/video/a35ecf1f1d7040b741ca5988484a9ded/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/a35ecf1f1d7040b741ca5988484a9ded",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S02E02": [
+      {
+        "page": "https://rutube.ru/video/e66cd6c9573311db7704d84a235bef42/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/e66cd6c9573311db7704d84a235bef42",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E05": [
+      {
+        "page": "https://rutube.ru/video/48e715d41d811ce16a3f6960a383b697/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/48e715d41d811ce16a3f6960a383b697",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E06": [
+      {
+        "page": "https://rutube.ru/video/e70ed30f8c5bbdce3c354043ea9bdb77/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/e70ed30f8c5bbdce3c354043ea9bdb77",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E07": [
+      {
+        "page": "https://rutube.ru/video/d75f084fc1db4e88419d6726fbdb3315/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/d75f084fc1db4e88419d6726fbdb3315",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E02": [
+      {
+        "page": "https://rutube.ru/video/0ba481b8ed559062b94154ea24684609/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/0ba481b8ed559062b94154ea24684609",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E09": [
+      {
+        "page": "https://rutube.ru/video/c65286edf31ba5d5fed197fcf754a2cf/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/c65286edf31ba5d5fed197fcf754a2cf",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E01": [
+      {
+        "page": "https://rutube.ru/video/b221258265ec1a947bacd42360d9bcc4/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/b221258265ec1a947bacd42360d9bcc4",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S02E03": [
+      {
+        "page": "https://rutube.ru/video/ddbd46f7eab83a0ce3d0a26d7fa6ce60/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/ddbd46f7eab83a0ce3d0a26d7fa6ce60",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E06": [
+      {
+        "page": "https://rutube.ru/video/74c24b80e5bb45da17e64bcd5af43ac6/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/74c24b80e5bb45da17e64bcd5af43ac6",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E05": [
+      {
+        "page": "https://rutube.ru/video/5e5543b1d4c0ce3bcee48d614a48630d/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/5e5543b1d4c0ce3bcee48d614a48630d",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E02": [
+      {
+        "page": "https://rutube.ru/video/e92ec3a7bd4db094221aafdd80be9c1f/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/e92ec3a7bd4db094221aafdd80be9c1f",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S03E08": [
+      {
+        "page": "https://rutube.ru/video/fbd8502015aa35ab4515ecfa304dfb1c/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/fbd8502015aa35ab4515ecfa304dfb1c",
+        "platform": "rutube"
+      }
+    ],
+    "fallout:S01E06": [
+      {
+        "page": "https://rutube.ru/video/e4d2495daf86b9886142595240168570/",
+        "name": "RUTUBE · Русская озвучка (заявлена)",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "RuReported",
+        "url": "https://rutube.ru/play/embed/e4d2495daf86b9886142595240168570",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S02E04": [
+      {
+        "page": "https://rutube.ru/video/1acaf8627743ea3283910d7852781481/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/1acaf8627743ea3283910d7852781481",
+        "platform": "rutube"
+      }
+    ],
+    "silo:S01E03": [
+      {
+        "page": "https://rutube.ru/video/5dbb47aadbf133f1d03020239e12fb33/",
+        "name": "RUTUBE · Озвучка не проверена",
+        "embedded": true,
+        "kind": "embed",
+        "dub": "Unknown",
+        "url": "https://rutube.ru/play/embed/5dbb47aadbf133f1d03020239e12fb33",
+        "platform": "rutube"
       }
     ]
   }
