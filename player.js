@@ -74,7 +74,14 @@ function playerModule(){
     const publicKey=selected?current.key+':'+app.epCode(selected):'';
     const sharedEpisode=[...(Array.isArray(remoteOptions.episodes?.[episodeKey])?remoteOptions.episodes[episodeKey]:[]),
       ...(Array.isArray(remoteOptions.episodes?.[publicKey])?remoteOptions.episodes[publicKey]:[])];
-    const sharedShow=Array.isArray(remoteOptions.embeds?.[current.key])?remoteOptions.embeds[current.key]:[];
+    const sharedConfigured=Array.isArray(remoteOptions.embeds?.[current.key])?remoteOptions.embeds[current.key]:[];
+    // Search dynamically by the IMDb ID TVmaze supplies. This is a discovery
+    // route, not evidence that a translation or specific episode is playable.
+    const imdb=String(app.showInfo(current.key)?.imdb||'');
+    const automatic= /^tt\d{5,12}$/.test(imdb)&&!sharedConfigured.some(src=>src.platform==='initem')?
+      [{name:'Initem β · поиск озвучек по IMDb (не проверено)',url:'https://api.initem.ws/embed/imdb/'+imdb,
+        kind:'embed',embedded:true,dub:'Unknown',platform:'initem',mode:'browse',autoDiscovered:true}]:[];
+    const sharedShow=[...sharedConfigured,...automatic];
     return [...ep.map((src,i)=>({...src,__key:episodeKey,__index:i})),
       ...sharedEpisode.map(src=>({...src,__remote:true,__key:'public:episode'})),
       ...show.map((src,i)=>({...src,__key:showKey,__index:i})),
@@ -323,7 +330,7 @@ function playerModule(){
   window.UltraTVPlayer={
     open,close,
     hasEpisode:(key,episode)=>!!episode&&playableFor(key,episode),
-    hasSeriesBrowser:key=>(remoteOptions.embeds?.[key]||[]).some(src=>src.mode==='browse')
+    hasSeriesBrowser:key=>(remoteOptions.embeds?.[key]||[]).some(src=>src.mode==='browse')||/^tt\d{5,12}$/.test(String(app.showInfo(key)?.imdb||''))
   };
   loadOptions();
 }
