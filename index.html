@@ -17,12 +17,12 @@
 .overlay{position:fixed;inset:0;background:#000b;z-index:50;padding:15px;display:grid;place-items:center}.dialog{width:min(850px,100%);max-height:94vh;overflow:auto;background:#1b2027;border:1px solid #575553;border-radius:19px;box-shadow:0 25px 80px #000c}.dialogtop{display:grid;grid-template-columns:155px 1fr;gap:23px;padding:25px;border-bottom:1px solid var(--line)}.dialogtop .poster{max-width:155px}.dialogtop h2{font-size:27px;margin:7px 0}.dialogtop p{color:#b2b6bd;line-height:1.5;font-size:13px}.dialogbody{padding:22px 25px 27px}.dialog .row{align-items:center}.close{float:right}.ep{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid #3a414b}.ep b{font-size:13px}.ep small{display:block;color:var(--muted);margin-top:5px}.epactions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.epactions select{max-width:170px}.epactions button,.epactions select{font-size:12px;background:#2b3038;color:white;border:1px solid #535963;border-radius:8px;padding:8px 9px}.epactions button.done{color:var(--green);border-color:#538267}.topline{display:flex;align-items:start;justify-content:space-between;gap:13px}.setting{border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--card);line-height:1.65;color:#bbc1c9}.setting h3{color:white;margin:0 0 8px}.setting+.setting{margin-top:13px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:920px){.app{grid-template-columns:1fr}.side{padding:11px 15px;border-right:0;border-bottom:1px solid #333a41;gap:10px;flex-direction:row;align-items:center;flex-wrap:wrap}.brand{margin-right:auto}.nav{display:flex;gap:4px;flex-wrap:wrap}.nav button{padding:11px;font-size:12px}.nav button span{display:none}.sidefoot{display:none}.main{padding:22px 19px 50px}.hero{padding:31px}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}@media(max-width:540px){.top{display:none}.side{display:block}.brand{padding-bottom:12px}.nav{display:flex;justify-content:space-between}.nav button{padding:10px 6px;font-size:11px}.hero{padding:24px;margin:17px 0 24px}.hero h1{font-size:31px}.item{grid-template-columns:45px minmax(0,1fr);gap:11px}.thumb{width:45px;height:62px}.item-date{grid-column:2;text-align:left}.item-date small{display:inline;margin-left:10px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dialogtop{grid-template-columns:90px 1fr;gap:15px;padding:17px}.dialogtop .poster{max-width:90px}.dialogtop h2{font-size:21px}.dialogbody{padding:17px}.ep{grid-template-columns:1fr}.epactions{justify-content:flex-start}.filters select{max-width:none;flex:1}}
 </style>
-<link rel="stylesheet" href="./player.css?v=5">
+<link rel="stylesheet" href="./player.css?v=6">
 </head>
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
 <nav class="nav" aria-label="Разделы"><button class="active" data-view="feed"><span>▤</span> Лента серий</button><button data-view="catalog"><span>◈</span> Каталог</button><button data-view="discover"><span>✧</span> Новинки</button><button data-view="search"><span>⌕</span> Поиск</button><button data-view="settings"><span>⚙</span> Настройки</button></nav>
-<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v0.5 · Прямой переход к просмотру</div></aside>
+<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v0.6 · Просмотр доступных серий</div></aside>
 <main class="main"><div class="top"><span>Твои сериалы · все новые эпизоды в одной ленте</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Наличие LostFilm и полноценного дубляжа не определяется автоматически. Видео не хранится на сайте; источники просмотра пользователь добавляет самостоятельно. Обновление выполняется при открытии страницы или по кнопке.</footer></main></div>
 <div id="dialog-root"></div>
 <div id="player-root"></div>
@@ -147,6 +147,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 })();
 </script>
-<script src="./player.js?v=5" defer></script>
+<script src="./player.js?v=6" defer></script>
 </body>
 </html>
