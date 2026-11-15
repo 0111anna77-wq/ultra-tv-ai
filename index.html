@@ -31,13 +31,37 @@
 .lf-chip{display:inline-block;color:#f4cd89;background:#393123;padding:3px 7px;border-radius:7px;font-size:11px;margin-left:6px}
 .lf-footnote{color:#d9c6a8!important}
 @media(max-width:540px){.lf-panel{padding:13px}.lf-list{max-height:510px}.lf-actions{flex-wrap:wrap}}
+
+/* Episode watch-state management and a personal resume rail. */
+.card-unit{min-width:0;display:flex;flex-direction:column;gap:7px}
+.card-unit .card{width:100%;display:block;flex:1}
+.follow-tag{width:100%;background:#1c2229;border:1px solid #47505a;border-radius:9px;color:#d7dee4;font-size:12px;min-height:37px;padding:8px 6px;text-align:center}
+.follow-tag.active{color:#e3c38c;border-color:#5e503b;background:#29251f}
+.follow-tag:hover,.follow-tag:focus-visible{border-color:#b99b67;background:#34302a}
+.episode-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+.episode-row .item{height:100%}
+.episode-mark{min-width:136px;padding:10px;background:#202830;border:1px solid #45515c;border-radius:12px;color:#d4dce4;font-size:12px}
+.episode-mark:hover{border-color:#b99b67}
+.episode-mark.done{color:#a2d9b7;background:#202e2b;border-color:#4b806a}
+.recent-section{border:1px solid #514735;background:linear-gradient(120deg,#29251e,#1c2228 45%);border-radius:16px;margin-bottom:22px;padding:18px}
+.recent-section .row h2{font-size:21px}
+.recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.recent-item{display:flex;align-items:center;gap:12px;background:#20262d;border:1px solid #424852;border-radius:11px;padding:9px;text-align:left;color:var(--text);width:100%}
+.recent-item:hover{border-color:#b99b67;background:#31333a}
+.recent-item .thumb{flex:0 0 56px}
+.recent-text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.recent-text strong{font-size:14px}
+.recent-text small{font-size:12px;color:#c5cbd0}
+.recent-text em{font-size:11px;font-style:normal;color:#e8c78f}
+.recent-footnote{line-height:1.55;margin:12px 0 0}
+@media(max-width:540px){.recent-section{padding:13px}.recent-grid{grid-template-columns:1fr}.episode-row{grid-template-columns:1fr}.episode-mark{justify-self:end;min-width:170px}}
 </style>
 <link rel="stylesheet" href="./player.css?v=6">
 </head>
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
 <nav class="nav" aria-label="Разделы"><button class="active" data-view="feed"><span>▤</span> Лента серий</button><button data-view="catalog"><span>◈</span> Каталог</button><button data-view="discover"><span>✧</span> Новинки</button><button data-view="search"><span>⌕</span> Поиск</button><button data-view="settings"><span>⚙</span> Настройки</button></nav>
-<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v0.9 · Автопоиск плееров</div></aside>
+<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v1.0 · Личный просмотр</div></aside>
 <main class="main"><div class="top"><span>Твои сериалы · все новые эпизоды в одной ленте</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Релизы LostFilm поступают из открытой RSS-ленты; публикация серии не гарантирует, что у неё есть встроенный плеер или подтверждённая аудиодорожка. Видео на сайте не хранятся.</footer></main></div>
 <div id="dialog-root"></div>
 <div id="player-root"></div>
@@ -81,7 +105,7 @@ const dateRU=s=>s?new Date(s+'T12:00:00').toLocaleDateString('ru-RU',{day:'numer
 const pad=n=>String(n||0).padStart(2,'0');
 const safeImage=s=>typeof s==='string'&&/^https:\/\//.test(s)?s:'';
 const fromStore=(key)=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
-const base={tracked:{},extras:{},watched:{},dubs:{},prefs:{},firstSeen:{},data:{},sources:{},progress:{}};
+const base={tracked:{},extras:{},watched:{},dubs:{},prefs:{},firstSeen:{},data:{},sources:{},progress:{},recent:{}};
 let saved=fromStore(STORE),state={...base,...(saved||{})};
 for(const k of Object.keys(base))if(!state[k]||Array.isArray(state[k])||typeof state[k]!=='object')state[k]={};
 if(!saved){for(const x of seeds)state.tracked[x.key]=true;const old=fromStore('ultra-tv-v1');if(old){state.watched=old.watched||{};state.dubs=old.dubs||{};state.prefs=old.prefs||{};}}
@@ -161,14 +185,40 @@ async function loadReleaseFeed(){
   if(view==='feed')draw();
 }
 
-function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<button class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span>${tracked?' <span class="tag">✓ В каталоге</span>':''}</button>`}
-function hEpisode({x,ep,added}){let k=idKey(x.key,ep),dub=state.dubs[k],lf=releaseFor(x,ep);return `<button class="item" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">${miniPoster(x)}<span><strong class="item-title">${esc(x.ru)} <span class="chip">${epCode(ep)}</span></strong><span class="item-meta">${esc(ep.name||'Новая серия')} · ${state.watched[k]?'✓ Просмотрено':lf?'✓ Озвучка LostFilm опубликована (плеер не проверен)':dub?'Отмечено вручную: '+esc(dub):'Озвучка не проверена'}</span></span><span class="item-date">${dateRU(ep.airdate)}<small>Добавлено: ${dateRU(added)}</small></span></button>`}
+
+function recordOpen(key,ep){
+  if(!getEntry(key)||!ep||!Number.isInteger(Number(ep.season))||!Number.isInteger(Number(ep.number))||Number(ep.number)<1)return;
+  state.recent[key]={episodeId:String(ep.id||''),season:Number(ep.season),number:Number(ep.number),at:Date.now()};
+  const recent=Object.entries(state.recent).sort((a,b)=>Number(b[1]?.at||0)-Number(a[1]?.at||0)).slice(0,40);
+  state.recent=Object.fromEntries(recent);
+  persist();
+}
+function recentItems(){
+  return Object.entries(state.recent||{}).map(([key,info])=>({x:getEntry(key),info}))
+    .filter(({x,info})=>x&&state.tracked[x.key]!==false&&info&&Number.isFinite(info.at)&&Number.isInteger(info.season)&&Number.isInteger(info.number))
+    .sort((a,b)=>b.info.at-a.info.at).slice(0,6);
+}
+function recentSection(){
+  const items=recentItems();
+  if(!items.length)return '';
+  return '<section class="recent-section"><div class="row"><div><h2>Вернуться к просмотру</h2><p>Последние открытые серии · не список уже просмотренных</p></div><button type="button" class="btn ghost sm" data-action="clear-recent">Очистить историю</button></div><div class="recent-grid">'+
+    items.map(({x,info})=>{
+      const ep=(showInfo(x.key)?.episodes||[]).find(e=>Number(e.season)===info.season&&Number(e.number)===info.number);
+      const id=ep?.id||info.episodeId||'';
+      const code='S'+pad(info.season)+'E'+pad(info.number);
+      return '<button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
+        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small><em>▶ Открыть плеер</em></span></button>';
+    }).join('')+'</div><p class="subtle recent-footnote">Initem управляет воспроизведением самостоятельно: сохранён выбранный эпизод каталога, но не точная минута видео.</p></section>';
+}
+
+function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<div class="card-unit"><button type="button" class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span></button><button type="button" class="follow-tag ${tracked?'active':''}" data-toggle-follow="${esc(x.key)}" aria-label="${tracked?'Убрать из отслеживания':'Отслеживать сериал'} ${esc(x.ru)}">${tracked?'✓ Отслеживается':'＋ Следить за сериалом'}</button></div>`}
+function hEpisode({x,ep,added}){let k=idKey(x.key,ep),dub=state.dubs[k],lf=releaseFor(x,ep),seen=!!state.watched[k];return `<div class="episode-row"><button type="button" class="item" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">${miniPoster(x)}<span><strong class="item-title">${esc(x.ru)} <span class="chip">${epCode(ep)}</span></strong><span class="item-meta">${esc(ep.name||'Новая серия')} · ${seen?'✓ Просмотрено':lf?'✓ Озвучка LostFilm опубликована (плеер не проверен)':dub?'Отмечено вручную: '+esc(dub):'Озвучка не проверена'}</span></span><span class="item-date">${dateRU(ep.airdate)}<small>Добавлено: ${dateRU(added)}</small></span></button><button type="button" class="episode-mark ${seen?'done':''}" data-watch="${esc(k)}" aria-label="${seen?'Отметить не просмотренной':'Отметить просмотренной'}: ${esc(x.ru)} ${epCode(ep)}">${seen?'✓ Просмотрено':'○ Просмотрено?'}</button></div>`}
 function empty(title,desc){return `<div class="emptybox"><b>${esc(title)}</b>${esc(desc)}</div>`}
 function filters(){return `<div class="filters"><label class="sr-only" for="genre">Выбрать жанр</label><select id="genre">${genres.map(([v,l])=>`<option value="${v}" ${flt===v?'selected':''}>${l}</option>`).join('')}</select><label class="sr-only" for="filter-q">Найти сериал</label><input id="filter-q" placeholder="Найти сериал…" value="${esc(query)}" autocomplete="off"><label class="sr-only" for="sort-by">Порядок сортировки</label><select id="sort-by"><option value="added" ${sort==='added'?'selected':''}>Сначала добавленные</option><option value="aired" ${sort==='aired'?'selected':''}>Сначала по дате выхода</option><option value="rating" ${sort==='rating'?'selected':''}>По рейтингу TVmaze</option></select></div>`}
 function draw(){const el=$('#main-content'),track=entries(),feed=getFeed();$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
 
 
- if(view==='feed'){const list=visibleFeed();el.innerHTML=`<div class="row"><div><h2>Последние серии</h2><p>Общий список · даты премьер и озвучек отслеживаются отдельно</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Проверить новые серии</button></div></div>${releaseSection()}${filters()}<div class="filters"><label class="subtle"><input id="unwatched" type="checkbox" ${onlyUnwatched?'checked':''}> Только непросмотренные</label><span class="subtle">Показано ${Math.min(feedLimit,list.length)} из ${list.length}</span></div><div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Обновляем расписание и новые серии…':`Не удалось обновить ${failures} сериалов. Останутся последние сохранённые сведения.`}</div><div class="feed">${list.length?list.slice(0,feedLimit).map(hEpisode).join(''):empty(busy?'Собираем эпизоды…':'Пока нет серий в этой выборке',busy?'Данные появятся после загрузки TVmaze.':'Попробуй другой жанр или обнови расписание.')}</div>${list.length>feedLimit?'<button class="btn more" data-action="more">Показать ещё ↓</button>':''}<div style="margin-top:37px"><div class="row"><div><h2>Твои сериалы</h2><p>Все 25 сериалов из нашей подборки и добавленные тобой</p></div><button class="btn sm" data-view="catalog">Смотреть все →</button></div><div class="grid">${track.slice(0,8).map(hCard).join('')}</div></div>`;return;}
+ if(view==='feed'){const list=visibleFeed();el.innerHTML=`<div class="row"><div><h2>Последние серии</h2><p>Общий список · даты премьер и озвучек отслеживаются отдельно</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Проверить новые серии</button></div></div>${recentSection()}${releaseSection()}${filters()}<div class="filters"><label class="subtle"><input id="unwatched" type="checkbox" ${onlyUnwatched?'checked':''}> Только непросмотренные</label><span class="subtle">Показано ${Math.min(feedLimit,list.length)} из ${list.length}</span></div><div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Обновляем расписание и новые серии…':`Не удалось обновить ${failures} сериалов. Останутся последние сохранённые сведения.`}</div><div class="feed">${list.length?list.slice(0,feedLimit).map(hEpisode).join(''):empty(busy?'Собираем эпизоды…':'Пока нет серий в этой выборке',busy?'Данные появятся после загрузки TVmaze.':'Попробуй другой жанр или обнови расписание.')}</div>${list.length>feedLimit?'<button class="btn more" data-action="more">Показать ещё ↓</button>':''}<div style="margin-top:37px"><div class="row"><div><h2>Твои сериалы</h2><p>Только выбранные сериалы. Остальные доступны в «Новинках».</p></div><button class="btn sm" data-view="discover">Настроить подписки →</button></div><div class="grid">${track.slice(0,8).map(hCard).join('')}</div></div>`;return;}
  if(view==='catalog'||view==='discover'){let items=(view==='catalog'?track:seeds).filter(matchEntry);items.sort((a,b)=>(lastEpisode(b)?.airdate||'').localeCompare(lastEpisode(a)?.airdate||'')||niceName(a).localeCompare(niceName(b),'ru'));el.innerHTML=`<div class="row"><div><h2>${view==='catalog'?'Мой каталог':'Подборка 2026 года'}</h2><p>${view==='catalog'?'Сортировка по самой новой серии каждого сериала':'Подборка из предыдущего обсуждения — все 25 названий'}</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Обновить</button><button class="btn primary sm" data-view="search">＋ Добавить</button></div></div>${filters()}<div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Загружаем данные о сериалах…':`Обновление недоступно для ${failures} сериалов. Список сохранён.`}</div><div class="grid">${items.length?items.map(hCard).join(''):empty('Ничего не найдено','Измени фильтр жанра или поисковую фразу.')}</div>`;return;}
  if(view==='search'){el.innerHTML=`<div class="row"><div><h2>Добавить сериал</h2><p>Поиск по TVmaze (английские названия работают надёжнее)</p></div></div><div class="filters"><input id="remote-search" class="field" placeholder="Например, Severance или The Last of Us" style="flex:1"><button class="btn primary" data-action="lookup">Найти</button></div><div id="remote-results">${empty('Ищи по названию','Выбери сериал в результатах и добавь в каталог.')}</div>`;return;}
  if(view==='settings'){el.innerHTML=`<div class="setting"><h3>Новые эпизоды — в начало списка</h3>При первом добавлении сериалов все серии получают одну дату импорта, поэтому внутри этой даты порядок определяется датой премьеры. Когда позже появляется новая серия и каталог обновляется, она получает новую дату добавления и поднимается наверх. Даты сохраняются в браузере.</div><div class="setting"><h3>Озвучка</h3>По умолчанию: <b>LostFilm → полноценный профессиональный дубляж</b>. Многоголосый закадровый перевод не считаем дубляжом. Из RSS автоматически отмечаем опубликованные переводы LostFilm, а доступность соответствующей дорожки в плеере проверяется отдельно. Другие переводы пока можно отмечать вручную. Через кнопку «Смотреть» можно добавить свои ссылки на видео и выбрать источник.</div><div class="setting"><h3>Сохранение коллекции</h3><p>Пока каталог сохраняется в браузере отдельно на каждом устройстве. Автоматической синхронизации между приставками ещё нет.</p><button class="btn primary" data-action="export">↓ Скачать резервную копию</button> <button class="btn ghost" data-action="import">↑ Восстановить копию</button><input id="import-json" type="file" accept=".json,application/json" hidden></div><div class="setting"><h3>Данные и обновления</h3>Данные о расписании поступают из TVmaze при открытии каталога и при нажатии кнопки обновления. RSS-новости LostFilm собираются отдельно по расписанию GitHub Actions (при включённых Actions), независимо от телевизора или ПК. Из RSS не извлекаются видео и плееры. Даты премьер — из TVmaze.</div>`;$('#import-json').addEventListener('change',importFile);}
@@ -204,7 +254,8 @@ async function lookup(){const q=$('#remote-search')?.value.trim();if(!q)return;$
 async function addCustom(id,name,year){const existing=all().find(x=>showInfo(x.key)?.id===id);if(existing){state.tracked[existing.key]=true;persist();window.UltraTVPlayer?.open(existing.key);return}const key='user-'+id;const x={key,ru:name,en:name,genres:['drama'],year:Number(year)||2026};state.extras[key]=x;state.tracked[key]=true;persist();setView('catalog');try{await fetchShow(x);persist();draw();}catch(e){setStatus('Сериал добавлен, но сведения о сериях пока недоступны. Нажми «Обновить».')}}
 function saveFile(){const blob=new Blob([JSON.stringify({version:2,state},null,2)],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='ultra-tv-collection.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 async function importFile(e){const f=e.target.files?.[0];if(!f)return;try{const j=JSON.parse(await f.text());if(j.version!==2||!j.state||!j.state.tracked)throw Error('Несовместимый формат');if(!confirm('Заменить текущую коллекцию резервной копией?'))return;state={...base,...j.state};persist();setView('feed')}catch(err){alert('Импорт не удался: '+err.message)}}
-document.addEventListener('click',e=>{const n=e.target.closest('[data-view]');if(n){setView(n.dataset.view);return}const a=e.target.closest('[data-action]');if(a){const act=a.dataset.action;if(act==='close')closeDetail();if(act==='refresh'){loadReleaseFeed();refresh(true)}if(act==='more'){feedLimit+=50;draw()}if(act==='lookup')lookup();if(act==='export')saveFile();if(act==='import')$('#import-json')?.click();if(act==='toggle-track'){state.tracked[a.dataset.key]=state.tracked[a.dataset.key]===false;persist();closeDetail();draw()}return}
+document.addEventListener('click',e=>{const n=e.target.closest('[data-view]');if(n){setView(n.dataset.view);return}const a=e.target.closest('[data-action]');if(a){const act=a.dataset.action;if(act==='close')closeDetail();if(act==='refresh'){loadReleaseFeed();refresh(true)}if(act==='more'){feedLimit+=50;draw()}if(act==='lookup')lookup();if(act==='export')saveFile();if(act==='import')$('#import-json')?.click();if(act==='clear-recent'){state.recent={};persist();draw()}if(act==='toggle-track'){state.tracked[a.dataset.key]=state.tracked[a.dataset.key]===false;persist();closeDetail();draw()}return}
+ const follow=e.target.closest('[data-toggle-follow]');if(follow){const key=follow.dataset.toggleFollow;if(getEntry(key)){state.tracked[key]=state.tracked[key]===false;persist();draw()}return}
  const b=e.target.closest('[data-watch]');if(b){state.watched[b.dataset.watch]=!state.watched[b.dataset.watch];persist();const dialog=$('#dialog-root .dialog');if(dialog){const cur=dialog.querySelector('#season').value;const k=dialog.querySelector('[data-action="toggle-track"]').dataset.key;openDetail(k);$('#season').value=cur;$('#season').dispatchEvent(new Event('change'));}draw();return}
  const open=e.target.closest('[data-open]');if(open){if(window.UltraTVPlayer)window.UltraTVPlayer.open(open.dataset.open,open.dataset.episode);else openDetail(open.dataset.open,open.dataset.episode);return}
  const add=e.target.closest('[data-add]');if(add){addCustom(Number(add.dataset.add),add.dataset.name,add.dataset.year);return}
@@ -213,13 +264,13 @@ document.addEventListener('change',e=>{const t=e.target;if(t.id==='genre'){flt=t
 document.addEventListener('input',e=>{if(e.target.id==='filter-q'){const value=e.target.value;const s=e.target.selectionStart;query=value;draw();const n=$('#filter-q');n?.focus();n?.setSelectionRange(s,s);}});
 document.addEventListener('keydown',e=>{if($('#player-root').innerHTML)return;if(e.key==='Escape'&&$('#dialog-root').innerHTML){closeDetail();return}if(e.key==='Enter'&&document.activeElement?.id==='remote-search'){lookup();return}const t=document.activeElement;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)||!t||['INPUT','TEXTAREA','SELECT'].includes(t.tagName))return;
  const context=$('#dialog-root .dialog')||document;const active=$$('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled)',context).filter(el=>el.getClientRects().length);let best=null,score=Infinity;const r=t.getBoundingClientRect();if(!r.width)return;for(const el of active){if(el===t)continue;const b=el.getBoundingClientRect(),dx=b.left+b.width/2-r.left-r.width/2,dy=b.top+b.height/2-r.top-r.height/2,dir=e.key.replace('Arrow','');if((dir==='Right'&&dx<=6)||(dir==='Left'&&dx>=-6)||(dir==='Down'&&dy<=6)||(dir==='Up'&&dy>=-6))continue;const main=dir==='Left'||dir==='Right'?Math.abs(dx):Math.abs(dy),cross=dir==='Left'||dir==='Right'?Math.abs(dy):Math.abs(dx),val=main+cross*2;if(val<score){score=val;best=el}}if(best){e.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:'nearest',behavior:'smooth'})}});
-window.UltraTV={get state(){return state},get releases(){return releaseData},persist,draw,getEntry,showInfo,idKey,epCode,released,openDetail,closeDetail};
+window.UltraTV={get state(){return state},get releases(){return releaseData},persist,draw,recordOpen,getEntry,showInfo,idKey,epCode,released,openDetail,closeDetail};
  $('#date-now').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});draw();loadReleaseFeed();refresh();
 setInterval(()=>{if(!document.hidden)loadReleaseFeed();},900000);
 setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=9" defer></script>
+<script src="./player.js?v=10" defer></script>
 </body>
 </html>
