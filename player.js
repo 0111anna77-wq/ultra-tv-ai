@@ -47,6 +47,34 @@ function playerModule(){
   const preference = src => src.dub==='LostFilm'?0:src.platform==='initem'?1:src.dub==='Dub'?2:src.dub==='Other'?3:4;
   const episode = (key,id) => app.showInfo(key)?.episodes?.find(e=>String(e.id)===String(id));
   const keyOf = () => current && (current.key+':'+current.episodeId);
+
+  function bookmarkKey(){
+    if(!current)return null;
+    const ep=episodesFor(current.key).find(e=>String(e.id)===String(current.episodeId));
+    return ep?current.key+':'+app.epCode(ep):null;
+  }
+  function prettyTime(seconds){
+    const n=Math.max(0,Math.floor(Number(seconds)||0));
+    const p=v=>String(v).padStart(2,'0');
+    return n>=3600?Math.floor(n/3600)+':'+p(Math.floor(n%3600/60))+':'+p(n%60):Math.floor(n/60)+':'+p(n%60);
+  }
+  function parseTime(text){
+    if(!/^\d{1,3}(?::[0-5]?\d){0,2}$/.test(String(text||'').trim()))return null;
+    const parts=String(text).trim().split(':').map(Number);
+    let seconds=parts.length===1?parts[0]*60:parts.length===2?parts[0]*60+parts[1]:
+      parts[0]*3600+parts[1]*60+parts[2];
+    return Number.isSafeInteger(seconds)&&seconds>0&&seconds<=24*3600?seconds:null;
+  }
+  function bookmarkBlock(){
+    const key=bookmarkKey(),record=key&&state().bookmarks?.[key],stored=record&&Number.isFinite(record.seconds)?record.seconds:null;
+    return '<div class="ut-bookmark"><div class="ut-bookmark-heading">⏱ На какой минуте остановился?</div>'+
+      '<div class="ut-bookmark-form"><label for="ut-bookmark-time" class="sr-only">Минута и секунда остановки</label>'+
+      '<input id="ut-bookmark-time" type="text" inputmode="numeric" maxlength="8" placeholder="Напр. 24:35" value="'+(stored!=null?esc(prettyTime(stored)):'')+'">'+
+      '<button type="button" data-ut-save-bookmark>Запомнить</button>'+
+      (stored!=null?'<button type="button" data-ut-clear-bookmark>Сбросить</button>':'')+'</div>'+
+      '<small id="ut-bookmark-status">'+(stored!=null?'Отметка: '+esc(prettyTime(stored))+' · сохранено вручную':'Отметка не задана')+'</small>'+
+      '<p>Initem не передаёт нашему сайту точную минуту. Пока время указываем вручную — оно появится в «Вернуться к просмотру». Плеер не перемотается автоматически.</p></div>';
+  }
   function message(msg){const el=$('#ut-player-message');if(el)el.textContent=msg;}
   function stopMedia(){
     const v=$('#ut-video');
@@ -150,6 +178,7 @@ function playerModule(){
             <label>Сезон <select id="ut-season">${seasons.map(n=>`<option value="${n}" ${selectedSeason===n?'selected':''}>${n}</option>`).join('')}</select></label>
             <div class="ut-episode-pills">${seasonEpisodes.map(item=>`<button type="button" class="${ep&&String(ep.id)===String(item.id)?'ut-episode-active':''}" data-ut-episode="${esc(item.id)}" title="${esc(item.name||'')}" aria-label="Серия ${item.number}">Серия ${item.number}</button>`).join('')}</div>
           </div></details>`:'<p class="ut-muted">Сведения об эпизодах ещё загружаются. Плеер всего сериала можно подключить уже сейчас.</p>'}
+          ${bookmarkBlock()}
           <div id="ut-offers" class="ut-offers">${officialLinks()}</div>
           <div id="ut-player-message" class="ut-message" aria-live="polite">${rows.length?'Источник загружается.':'Ни одной подтверждённой ссылки на встроенный плеер пока нет.'}</div>
         </div>
@@ -286,6 +315,19 @@ function playerModule(){
     if(play){e.preventDefault();open(play.dataset.playerKey,play.dataset.playerEpisode);return;}
     if(!current)return;
     const closer=e.target.closest('[data-ut-close]');if(closer){close();return;}
+    if(e.target.closest('[data-ut-save-bookmark]')){
+      const key=bookmarkKey(),raw=$('#ut-bookmark-time')?.value,seconds=parseTime(raw);
+      const status=$('#ut-bookmark-status');
+      if(!key||seconds===null){if(status)status.textContent='Укажи время в формате 24:35 или 1:02:35';return;}
+      state().bookmarks ||= {};
+      state().bookmarks[key]={seconds,at:Date.now(),manual:true};
+      app.persist();app.draw();render(false);
+      return;
+    }
+    if(e.target.closest('[data-ut-clear-bookmark]')){
+      const key=bookmarkKey();if(key&&state().bookmarks){delete state().bookmarks[key];app.persist();app.draw();render(false);}
+      return;
+    }
     const conf=e.target.closest('[data-ut-config]');if(conf){const el=$('#ut-manage');if(el){el.open=true;el.scrollIntoView({block:'nearest'});}return;}
     const source=e.target.closest('[data-ut-source]');if(source){selectSource(Number(source.dataset.utSource));return;}
     const epButton=e.target.closest('[data-ut-episode]');if(epButton){current.autoChoose=false;current.episodeId=epButton.dataset.utEpisode;render(true);return;}
