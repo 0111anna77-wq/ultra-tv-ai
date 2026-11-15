@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "updated": "2026-11-16",
+  "disclaimer": "Официальные страницы просмотра, не встроенные видеоплееры. Доступность зависит от региона и подписки; русская озвучка не подтверждена.",
+  "shows": {
+    "mobland": [
+      {
+        "name": "Paramount+",
+        "url": "https://www.paramountplus.com/shows/mobland/",
+        "kind": "external",
+        "cost": "Подписка",
+        "region": "В зависимости от страны"
+      },
+      {
+        "name": "SkyShowtime",
+        "url": "https://www.skyshowtime.com/nl/stream/tv/gengsztervilag/12e9e904-d7dc-3f84-b362-7287cf837b90",
+        "kind": "external",
+        "cost": "Подписка",
+        "region": "Нидерланды"
+      }
+    ],
+    "daredevil": [
+      {
+        "name": "Disney+",
+        "url": "https://www.disneyplus.com/browse/entity-85e7a914-c8e6-41db-95df-c740dc2cf1b7",
+        "kind": "external",
+        "cost": "Подписка",
+        "region": "В зависимости от страны"
+      }
+    ],
+    "dark-matter": [
+      {
+        "name": "Apple TV",
+        "url": "https://tv.apple.com/us/season/season-2/umc.cmc.2dt0p8uo2udcaeqx6u6coavuh?showId=umc.cmc.4luj45vtqpmjsvb6sc2675oeg",
+        "kind": "external",
+        "cost": "Подписка",
+        "region": "В зависимости от страны"
+      }
+    ]
+  },
+  "embeds": {}
+}
