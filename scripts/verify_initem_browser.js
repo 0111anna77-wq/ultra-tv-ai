@@ -63,6 +63,15 @@ async function siteAudit(){
 
   const ss=await send('Page.captureScreenshot',{format:'png'});
   fs.writeFileSync(path.join(process.cwd(),'ultratv-initem-source-test.png'),Buffer.from(ss.data,'base64'));
+  // Run a separate narrow viewport smoke test for the user's Xiaomi browser.
+  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await send('Page.navigate',{url:'https://ultra-tv-ai.pages.dev/'});
+  await pause(3200);
+  const mobile=await ev('(()=>({width:innerWidth,documentWidth:document.documentElement.scrollWidth,hasNav:!!document.querySelector(".nav"),hasFeed:!!document.querySelector("#main-content"),hasSubscribeButtons:!!document.querySelector(".follow-tag")}))()');
+  console.log('MOBILE_LAYOUT',JSON.stringify(mobile));
+  if(mobile.documentWidth>mobile.width+4||!mobile.hasNav||!mobile.hasFeed)throw Error('Horizontal overflow or missing main layout on mobile');
+  const mobileScreen=await send('Page.captureScreenshot',{format:'png'});
+  fs.writeFileSync(path.join(process.cwd(),'ultratv-mobile-v10.png'),Buffer.from(mobileScreen.data,'base64'));
 }
 (async()=>{
  try{
