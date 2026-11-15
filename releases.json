@@ -1,6 +1,137 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": null,
-  "entries": []
+  "updatedAt": "2026-11-15T22:32:08Z",
+  "entries": [
+    {
+      "id": "f37b92d625cf360a0d47",
+      "title": "Декстер: Воскрешение (Dexter: Resurrection). Живи свободно и умри. (S02E03)",
+      "seriesRu": "Декстер: Воскрешение",
+      "seriesEn": "Dexter: Resurrection",
+      "season": 2,
+      "episode": 3,
+      "published": "2026-11-15T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Dexter_Resurrection/season_2/episode_3/"
+    },
+    {
+      "id": "5d604226fa021f883fa3",
+      "title": "9-1-1 (9-1-1). Отцы и дети. (S10E05)",
+      "seriesRu": "9-1-1",
+      "seriesEn": "",
+      "season": 10,
+      "episode": 5,
+      "published": "2026-11-15T20:55:54Z",
+      "link": "https://www.lostfilm.download/mr/series/9-1-1/season_10/episode_5/"
+    },
+    {
+      "id": "9b8e5042c04e3cf92ed9",
+      "title": "Гангстерлэнд (MobLand). Нервный срыв. (S02E09)",
+      "seriesRu": "Гангстерлэнд",
+      "seriesEn": "MobLand",
+      "season": 2,
+      "episode": 9,
+      "published": "2026-11-15T19:30:32Z",
+      "link": "https://www.lostfilm.download/mr/series/MobLand/season_2/episode_9/"
+    },
+    {
+      "id": "6815677a61f6fad25537",
+      "title": "Король Талсы (Tulsa King). Динозавры. (S04E05)",
+      "seriesRu": "Король Талсы",
+      "seriesEn": "Tulsa King",
+      "season": 4,
+      "episode": 5,
+      "published": "2026-11-15T18:38:27Z",
+      "link": "https://www.lostfilm.download/mr/series/Tulsa_King/season_4/episode_5/"
+    },
+    {
+      "id": "d331bd7c086d070319c6",
+      "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Марнук. (S03E01)",
+      "seriesRu": "Властелин колец: Кольца власти",
+      "seriesEn": "The Lord of the Rings: The Rings of Power",
+      "season": 3,
+      "episode": 1,
+      "published": "2026-11-14T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lord_of_the_Rings__The_Rings_of_Power/season_3/episode_1/"
+    },
+    {
+      "id": "8f9d3a6afdd3bea0ca0c",
+      "title": "Подноготная (The Lowdown). Уходишь и возвращаешься. (S02E06)",
+      "seriesRu": "Подноготная",
+      "seriesEn": "The Lowdown",
+      "season": 2,
+      "episode": 6,
+      "published": "2026-11-14T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lowdown/season_2/episode_6/"
+    },
+    {
+      "id": "125ce856d0f39b7f3dcc",
+      "title": "Квест Вижена (VisionQuest). Навсегда. (S01E08)",
+      "seriesRu": "Квест Вижена",
+      "seriesEn": "VisionQuest",
+      "season": 1,
+      "episode": 8,
+      "published": "2026-11-13T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/VisionQuest/season_1/episode_8/"
+    },
+    {
+      "id": "8fe202a7fa4f9983e7ee",
+      "title": "Парижская полиция 1900 (Paris Police 1900). Вторая серия. (S03E02)",
+      "seriesRu": "Парижская полиция 1900",
+      "seriesEn": "Paris Police 1900",
+      "season": 3,
+      "episode": 2,
+      "published": "2026-11-12T13:59:49Z",
+      "link": "https://www.lostfilm.download/mr/series/Paris_Police_1900/season_3/episode_2/"
+    },
+    {
+      "id": "4af3ac0fd0a438eec266",
+      "title": "Басс из машины (Bass X Machina). За свою страну приходится убивать. (S01E06)",
+      "seriesRu": "Басс из машины",
+      "seriesEn": "Bass X Machina",
+      "season": 1,
+      "episode": 6,
+      "published": "2026-11-12T12:05:07Z",
+      "link": "https://www.lostfilm.download/mr/series/Bass_X_Machina/season_1/episode_6/"
+    },
+    {
+      "id": "e26303cc2073abc8e35f",
+      "title": "Город Бога: Борьба накаляется (City of God: The Fight Rages On). Эпизод 1. (S02E01)",
+      "seriesRu": "Город Бога: Борьба накаляется",
+      "seriesEn": "City of God: The Fight Rages On",
+      "season": 2,
+      "episode": 1,
+      "published": "2026-11-11T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/City_of_God_The_Fight_Rages_On/season_2/episode_1/"
+    },
+    {
+      "id": "2865c367db7f49b923f3",
+      "title": "Парижская полиция 1900 (Paris Police 1900). Первая серия. (S03E01)",
+      "seriesRu": "Парижская полиция 1900",
+      "seriesEn": "Paris Police 1900",
+      "season": 3,
+      "episode": 1,
+      "published": "2026-11-11T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Paris_Police_1900/season_3/episode_1/"
+    },
+    {
+      "id": "f3f9fc431645eda49c5a",
+      "title": "Басс из машины (Bass X Machina). Я делаю всё, чтобы выжить. (S01E05)",
+      "seriesRu": "Басс из машины",
+      "seriesEn": "Bass X Machina",
+      "season": 1,
+      "episode": 5,
+      "published": "2026-11-11T16:05:39Z",
+      "link": "https://www.lostfilm.download/mr/series/Bass_X_Machina/season_1/episode_5/"
+    },
+    {
+      "id": "f48a189b38a84cf59b0d",
+      "title": "Институт (Institute). Расплата. (S02E01)",
+      "seriesRu": "Институт",
+      "seriesEn": "Institute",
+      "season": 2,
+      "episode": 1,
+      "published": "2026-11-10T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Institute/season_2/episode_1/"
+    }
+  ]
 }
