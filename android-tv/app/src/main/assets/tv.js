@@ -15,7 +15,7 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   sourceChoice:store('tv-source-choice',{}),optionsOpen:false,directWatch:false,
   scheduleLoading:false,scheduleDone:0,scheduleMode:'mine',
   progress:store('tv-progress-v1',{}),progressDraft:{},
-  ruSummaries:store('tv-summary-ru-cache',{}),initemLastWrite:0};
+  ruSummaries:store('tv-summary-ru-cache',{}),initemLastWrite:0,initemAdPlaying:false};
 const root=$('#content');
 let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
@@ -52,6 +52,7 @@ function progressLabel(key){
  const p=getProgress(key);
  if(!p)return '';
  if(p.completed)return 'Просмотрена · '+episodeCode(p.season,p.episode);
+ if(p.kind==='initem'&&!p.confirmed&&Number(p.seconds)>0)return clock(p.seconds)+' · серия не определена';
  if((p.kind==='direct'||p.kind==='initem')&&Number(p.seconds)>0)return episodeCode(p.season,p.episode)+' · '+clock(p.seconds);
  if(p.confirmed)return 'Отмечено · '+episodeCode(p.season,p.episode);
  return 'Последний просмотр';
@@ -198,7 +199,9 @@ function settings(){
 
 function progressUI(x){
  const key=x.key,p=getProgress(key),v=progressDraft(key);
- const summary=(p?.kind==='direct'||p?.kind==='initem')&&Number(p.seconds)>0?
+ const summary=p?.kind==='initem'&&!p.confirmed&&Number(p.seconds)>0?
+   'Сохранено '+clock(p.seconds)+' · серия не определена':
+   (p?.kind==='direct'||p?.kind==='initem')&&Number(p.seconds)>0?
    'Сохранено '+episodeCode(p.season,p.episode)+' · '+clock(p.seconds):
    p?.confirmed?'Сохранено '+episodeCode(p.season,p.episode):
    p?.openedAt?'Последний просмотр':'Отметь серию';
@@ -366,17 +369,19 @@ function handleInitemMessage(event){
  const data=event.data;
  if(!data||typeof data!=='object'||Array.isArray(data))return false;
  const type=data.event;
- if(!['changeEpisode','viewProgress','startWatching','ended','playerReady'].includes(type))return false;
+ if(!['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop'].includes(type))return false;
  const x=item(S.show),sources=x?availableSources(x):[];
  const src=sources[S.source]||sources[0];
  if(!src||src.platform!=='initem')return false;
  const prev=getProgress(S.show)||{};
+ if(type==='adStart'){S.initemAdPlaying=true;return true;}
+ if(type==='adStop'){S.initemAdPlaying=false;return true;}
  if(type==='changeEpisode'){
    const season=Number(data.season),episode=Number(data.episode);
    if(!Number.isInteger(season)||!Number.isInteger(episode)||
       season<1||season>30||episode<1||episode>200)return false;
    const changed=Number(prev.season)!==season||Number(prev.episode)!==episode;
-   S.season=season;S.episode=episode;
+   S.season=season;S.episode=episode;S.initemLastWrite=0;
    S.progressDraft[S.show]={season,episode};
    setProgress(S.show,{kind:'initem',season,episode,source:S.source,
      confirmed:true,auto:true,completed:false,
@@ -385,6 +390,7 @@ function handleInitemMessage(event){
    return true;
  }
  if(type==='viewProgress'){
+   if(S.initemAdPlaying)return true;
    const seconds=Number(data.time),duration=Number(data.duration);
    if(!Number.isFinite(seconds)||seconds<0||seconds>86400 ||
       !Number.isFinite(duration)||duration<=0||duration>86400||
@@ -392,7 +398,8 @@ function handleInitemMessage(event){
    const now=Date.now();
    if(now-S.initemLastWrite<2500&&seconds<duration-5)return true;
    S.initemLastWrite=now;
-   setProgress(S.show,{kind:'initem',source:S.source,confirmed:true,auto:true,
+   setProgress(S.show,{kind:'initem',source:S.source,
+     confirmed:Boolean(prev.confirmed),auto:Boolean(prev.auto),
      season:S.season,episode:S.episode,seconds:Math.floor(Math.min(seconds,duration)),
      duration:Math.floor(duration),openedAt:now,completed:duration-seconds<5});
    return true;
@@ -402,7 +409,7 @@ function handleInitemMessage(event){
    return true;
  }
  if(type==='startWatching'){
-   setProgress(S.show,{kind:'initem',openedAt:Date.now(),auto:true});
+   setProgress(S.show,{kind:'initem',openedAt:Date.now()});
    return true;
  }
  return true;
@@ -417,7 +424,7 @@ function openShow(key){if(!item(key))return;navigate('detail',key);loadEpisodes(
 function watch(key){
  const x=item(key||S.show);if(!x)return;
  const previous=getProgress(x.key)||{};
- S.show=x.key;
+ S.show=x.key;S.initemAdPlaying=false;S.initemLastWrite=0;
  S.source=Number(S.sourceChoice[x.key]??previous.source??0)||0;
  S.season=Math.max(1,Number(previous.season)||1);
  S.episode=Math.max(1,Number(previous.episode)||1);
