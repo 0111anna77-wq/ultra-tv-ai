@@ -308,7 +308,6 @@ function bindNativeVideoProgress(){
  const video=$('#tv-video'),key=S.show;
  if(!video||!key)return;
  const source=video.getAttribute('src')||'';
- const state=getProgress(key)||{};
  video.addEventListener('loadedmetadata',()=>{
    const p=getProgress(key);
    const time=Number(p?.seconds)||0;
@@ -323,6 +322,9 @@ function bindNativeVideoProgress(){
    const now=Date.now();
    if(!force&&now-lastSaved<5000)return;
    if(!Number.isFinite(video.currentTime)||video.currentTime<0)return;
+   // Do not erase a saved position when a new player initializes at 00:00
+   // before its actual media metadata or playback has arrived.
+   if(video.readyState===0&&video.currentTime===0)return;
    const duration=Number.isFinite(video.duration)?video.duration:0;
    setProgress(key,{season:S.season,episode:S.episode,
      source:S.source,openedAt:now,
