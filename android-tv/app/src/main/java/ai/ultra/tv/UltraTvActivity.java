@@ -7,6 +7,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.view.MotionEvent;
+import android.view.inputmethod.InputMethodManager;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.KeyEvent;
@@ -28,7 +32,7 @@ import android.widget.FrameLayout;
  * its restrictions or expose the internal video clock.
  */
 public final class UltraTvActivity extends Activity {
-    private static final String HOME = "https://ultra-tv-ai.pages.dev/";
+    private static final String HOME = "https://ultra-tv-ai.pages.dev/tv.html";
     private FrameLayout container;
     private WebView webView;
     private AdBlockFilter adBlockFilter;
@@ -91,6 +95,31 @@ public final class UltraTvActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 if (!request.isForMainFrame()) return false;
                 Uri uri = request.getUrl();
+                if ("ultratv".equals(uri.getScheme())) {
+                    switch (uri.getHost() == null ? "" : uri.getHost()) {
+                        case "settings":
+                            runOnUiThread(() -> showFilterDialog());
+                            break;
+                        case "keyboard":
+                            webView.postDelayed(() -> {
+                                InputMethodManager ime = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                if (ime != null) ime.showSoftInput(webView, InputMethodManager.SHOW_IMPLICIT);
+                            }, 90);
+                            break;
+                        case "tap":
+                            try {
+                                float x = Float.parseFloat(uri.getQueryParameter("x"));
+                                float y = Float.parseFloat(uri.getQueryParameter("y"));
+                                if (Float.isFinite(x) && Float.isFinite(y)
+                                        && x > 0 && y > 0 && x < 1 && y < 1) {
+                                    webView.post(() -> touchWebView(x, y));
+                                }
+                            } catch (RuntimeException ignored) { }
+                            break;
+                        default: break;
+                    }
+                    return true;
+                }
                 if ("https".equals(uri.getScheme()) && "ultra-tv-ai.pages.dev".equals(uri.getHost())) return false;
                 if ("https".equals(uri.getScheme())) {
                     try {
@@ -192,6 +221,21 @@ public final class UltraTvActivity extends Activity {
         return super.dispatchKeyEvent(event);
     }
 
+    /** Inject a real touch for third-party iframe controls; synthetic JS events
+     * cannot cross the iframe's origin boundary. Touches stay inside WebView. */
+    private void touchWebView(float normalizedX, float normalizedY) {
+        if (webView == null || webView.getWidth() <= 0 || webView.getHeight() <= 0) return;
+        final float x = normalizedX * webView.getWidth();
+        final float y = normalizedY * webView.getHeight();
+        final long now = SystemClock.uptimeMillis();
+        MotionEvent down = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, x, y, 0);
+        webView.dispatchTouchEvent(down);
+        down.recycle();
+        MotionEvent up = MotionEvent.obtain(now, now + 65L, MotionEvent.ACTION_UP, x, y, 0);
+        webView.dispatchTouchEvent(up);
+        up.recycle();
+    }
+
     private void hideSystemBars() {
         getWindow().getDecorView().setSystemUiVisibility(
             View.SYSTEM_UI_FLAG_FULLSCREEN |
@@ -228,7 +272,9 @@ public final class UltraTvActivity extends Activity {
         // For the site's native modal, Back should close the player first.
         // Cross-origin iframe internals are deliberately not accessed.
         webView.evaluateJavascript(
-            "(function(){var x=document.querySelector('#player-root');" +
+            "(function(){if(window.UltraTVRemote&&window.UltraTVRemote.back){" +
+            "return !!window.UltraTVRemote.back();}" +
+            "var x=document.querySelector('#player-root');" +
             "if(x&&x.children.length&&window.UltraTVPlayer){" +
             "window.UltraTVPlayer.close();return true;}return false;})()",
             result -> {
