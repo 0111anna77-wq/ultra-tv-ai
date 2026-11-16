@@ -150,7 +150,7 @@ function player(){
  '<button class="primary" data-act="cursor" data-focus="player-cursor">◎ Указатель для плеера</button>'+
  '<button class="action" data-act="fullscreen">⛶ Полный экран</button></div>'+
  '<h1>'+esc(x.ru)+' · просмотр</h1>'+
- '<div id="tv-video-frame" class="player-frame">'+sourceMedia(src)+'</div>'+
+ '<div id="tv-video-frame" class="player-frame" role="button" tabindex="0" data-act="frame" aria-label="Плеер. OK — просмотр на весь экран">'+sourceMedia(src)+'</div>'+
  '<p class="player-help" id="player-help">«Указатель для плеера» сразу открывает полноэкранное видео. Стрелки — движение, OK — выбор. Курсор сам скрывается через 3 секунды и появляется при следующем движении.</p>'+
  '<div class="player-tools"><button class="action" data-act="reload">↻ Перезагрузить плеер</button></div>'+
  (src?'<p class="subtle">Источник: '+esc(src.name||'Видео')+'</p>':'<p class="banner">Для этого сериала пока нет источника. Данные обновляются через общий каталог.</p>')+
@@ -292,6 +292,7 @@ function buildFocusRows(){
     [...root.querySelectorAll('.settings-box button')].forEach((el,i)=>add('settings:'+i,[el]));
   }else if(S.page==='player'){
     add('player:toolbar',root.querySelectorAll('.player-main .player-tools:first-child button'));
+    add('player:video',root.querySelectorAll('.player-main [data-act="frame"]'));
     add('player:reload',root.querySelectorAll('.player-main [data-act="reload"]'));
     [...root.querySelectorAll('.player-side button')].forEach((el,i)=>add('player:side:'+i,[el]));
   }
@@ -365,7 +366,7 @@ document.addEventListener('click',e=>{
  if(act==='source'){S.source=Number(b.dataset.index)||0;refreshPlayer();}
  if(act==='season'){S.season=Number(b.dataset.season)||1;S.episode=1;S.source=0;refreshPlayer();}
  if(act==='episode'){S.episode=Number(b.dataset.episode)||1;S.source=0;refreshPlayer();}
- if(act==='cursor'){S.cursor?stopCursor():startCursor();}
+ if(act==='cursor'||act==='frame'){S.cursor?stopCursor():startCursor();}
  if(act==='fullscreen'){
   const frame=$('#tv-video-frame');try{frame?.requestFullscreen?.()}catch{}
  }
@@ -388,6 +389,9 @@ document.addEventListener('focusout',e=>{
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();goBack();return;}
  const isOk=e.key==='Enter'||e.key==='NumpadEnter'||e.key===' ';
+ if(isOk&&document.activeElement?.dataset?.act==='frame'){
+   e.preventDefault();e.stopImmediatePropagation();startCursor();return;
+ }
  if(e.target?.id==='tv-search'){
   if(isOk&&e.target.readOnly){
     e.preventDefault();e.stopImmediatePropagation();
