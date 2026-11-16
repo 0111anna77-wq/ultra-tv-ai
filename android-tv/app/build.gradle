@@ -8,8 +8,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 8
-        versionName '0.8-tv-clean-playback'
+        versionCode 9
+        versionName '0.9-tv-app-updater'
     }
     buildTypes {
         release { minifyEnabled false }
