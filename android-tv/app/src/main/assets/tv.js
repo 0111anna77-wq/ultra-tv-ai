@@ -151,7 +151,7 @@ function player(){
  '<button class="action" data-act="fullscreen">⛶ Полный экран</button></div>'+
  '<h1>'+esc(x.ru)+' · просмотр</h1>'+
  '<div id="tv-video-frame" class="player-frame">'+sourceMedia(src)+'</div>'+
- '<p class="player-help" id="player-help">Нажми «Указатель для плеера»: появится яркий курсор поверх видео. Стрелки — движение, OK — нажатие, «Назад» — выход. Также можно удерживать OK около секунды даже в полноэкранном режиме.</p>'+
+ '<p class="player-help" id="player-help">«Указатель для плеера» сразу открывает полноэкранное видео. Стрелки — движение, OK — выбор. Курсор сам скрывается через 3 секунды и появляется при следующем движении.</p>'+
  '<div class="player-tools"><button class="action" data-act="reload">↻ Перезагрузить плеер</button></div>'+
  (src?'<p class="subtle">Источник: '+esc(src.name||'Видео')+'</p>':'<p class="banner">Для этого сериала пока нет источника. Данные обновляются через общий каталог.</p>')+
  '</section><aside class="player-side"><h2>Источники</h2>'+
@@ -213,18 +213,38 @@ function signalNativePointer(enabled,x=.5,y=.5){
 function startCursor(){
   const frame=$('#tv-video-frame'),button=$('[data-act=cursor]');
   if(!frame||(!$('#tv-player-iframe')&&!$('#tv-video'))){notify('Видео ещё загружается');return;}
+  if(S.cursor)return;
   S.cursor=true;S.cursorFocus=button;
-  const r=frame.getBoundingClientRect();
-  const x=Math.min(.96,Math.max(.04,(r.left+r.width/2)/innerWidth));
-  const y=Math.min(.96,Math.max(.04,(r.top+r.height/2)/innerHeight));
-  signalNativePointer(true,x,y);
   button.textContent='● Указатель включён · Назад — выход';
   const help=$('#player-help');
-  if(help)help.textContent='Жёлтый курсор рисует сама приставка: стрелки — перемещение, OK — нажать, Назад — выйти. Если курсор не появился, удерживай OK одну секунду.';
+  if(help)help.textContent='Стрелки двигают указатель, OK нажимает. Через 3 секунды он исчезает и снова появляется при движении.';
+  // Do not trap D-pad scrolling in half of a page. Native fullscreen uses
+  // the real TV player and the native cursor is visible above its video.
+  const showPointer=()=>{
+    if(!S.cursor)return;
+    const r=frame.getBoundingClientRect();
+    const x=Math.min(.96,Math.max(.04,(r.left+r.width/2)/innerWidth));
+    const y=Math.min(.96,Math.max(.04,(r.top+r.height/2)/innerHeight));
+    signalNativePointer(true,x,y);
+  };
+  const fullscreenFallback=()=>{
+    if(!S.cursor)return;
+    // Some KION WebViews reject requestFullscreen. Still occupy the screen,
+    // rather than leaving the cursor trapped over a half-visible video.
+    frame.classList.add('tv-maximized');
+    showPointer();
+  };
+  if(document.fullscreenElement||!frame.requestFullscreen){fullscreenFallback();return;}
+  try{
+    const result=frame.requestFullscreen();
+    if(result&&typeof result.then==='function')result.then(showPointer).catch(fullscreenFallback);
+    else setTimeout(showPointer,80);
+  }catch(err){fullscreenFallback();}
 }
 function stopCursor(fromNative=false){
   if(!S.cursor&&!fromNative)return;
   S.cursor=false;
+  $('#tv-video-frame')?.classList.remove('tv-maximized');
   if(!fromNative)signalNativePointer(false);
   const help=$('#player-help');
   if(help)help.textContent='Курсор выключен. Нажми «Указатель для плеера» или удерживай OK.';
