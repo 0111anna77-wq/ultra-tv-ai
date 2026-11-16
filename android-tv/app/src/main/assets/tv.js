@@ -13,7 +13,8 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   cursor:false,cx:.5,cy:.5,cursorFocus:null,
   added:store('tv-manual-added',[]),discover:store('tv-discover-cache',[]),
   sourceChoice:store('tv-source-choice',{}),optionsOpen:false,directWatch:false,
-  scheduleLoading:false,scheduleDone:0,scheduleMode:'mine'};
+  scheduleLoading:false,scheduleDone:0,scheduleMode:'mine',
+  progress:store('tv-progress-v1',{}),progressDraft:{}};
 const root=$('#content');
 let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
@@ -33,6 +34,40 @@ const poster=x=>{
 };
 const imdb=x=>meta(x.key).imdb||x.imdb||'';
 const latest=()=>items().filter(x=>S.tracked[x.key]!==false);
+const getProgress=key=>S.progress[key]||null;
+const episodeCode=(season,episode)=>'S'+String(season||1).padStart(2,'0')+'E'+String(episode||1).padStart(2,'0');
+const clock=seconds=>{
+ const t=Math.max(0,Math.floor(Number(seconds)||0)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),ss=t%60;
+ return h?String(h)+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'):
+   String(m)+':'+String(ss).padStart(2,'0');
+};
+function setProgress(key,updates){
+ const prev=getProgress(key)||{};
+ S.progress[key]={...prev,...updates};
+ save('tv-progress-v1',S.progress);
+}
+function progressLabel(key){
+ const p=getProgress(key);
+ if(!p)return '';
+ if(p.completed)return 'Просмотрена · '+episodeCode(p.season,p.episode);
+ if(p.kind==='direct'&&Number(p.seconds)>0)return episodeCode(p.season,p.episode)+' · '+clock(p.seconds);
+ if(p.confirmed)return 'Отмечено · '+episodeCode(p.season,p.episode);
+ return 'Последний просмотр';
+}
+function progressDraft(key){
+ if(!S.progressDraft[key]){
+   const p=getProgress(key);
+   S.progressDraft[key]={season:Math.max(1,Number(p?.season)||1),
+     episode:Math.max(1,Number(p?.episode)||1)};
+ }
+ return S.progressDraft[key];
+}
+function changeProgressDraft(key,field,direction){
+ const v=progressDraft(key);
+ v[field]=Math.max(1,Math.min(field==='season'?30:99,v[field]+direction));
+ if(field==='season')v.episode=1;
+ return v;
+}
 function navigate(page,key){
   if(S.cursor)stopCursor();
   S.page=page; S.show=key||null;S.optionsOpen=false;
@@ -50,18 +85,25 @@ function notify(text){
 }
 const category=x=>(x.genres||[]).map(g=>tags[g]||g).slice(0,2).join(' · ');
 const thumb=x=>{
-  const url=poster(x);
+  const url=poster(x),label=progressLabel(x.key);
   return '<div class="art" data-poster="'+esc(x.key)+'">'+
     (url?'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async">':'<span class="no-art">▶</span>')+
-    ((S.recent||[]).some(a=>a.key===x.key)?'<span class="pill">Продолжить</span>':'')+'</div>';
+    (label?'<span class="pill">'+esc(label)+'</span>':'')+'</div>';
 };
 const card=x=>'<button class="card" data-act="detail" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'">'+
   thumb(x)+'<span class="card-title">'+esc(x.ru)+'</span><small class="card-sub">'+esc(x.year)+' · '+esc(category(x))+
   (Number(x.rating||meta(x.key).rating)?' · ★ '+esc(x.rating||meta(x.key).rating):'')+'</small></button>';
-const rail=(title,xs)=>xs.length?'<section class="rail"><h2>'+esc(title)+'</h2><div class="strip">'+xs.map(card).join('')+'</div></section>':'';
+const rail=(title,xs,action)=>xs.length?'<section class="rail"><h2>'+esc(title)+'</h2><div class="strip">'+
+   xs.map(x=>action==='continue'?card(x).replace('data-act="detail"','data-act="continue"'):card(x)).join('')+
+   '</div></section>':'';
 function home(){
- const data=latest(),rec=S.recent.map(r=>item(r.key)).filter(Boolean);
- return rail('▶ Продолжить просмотр',rec)+rail('Мои сериалы',data)+
+ const data=latest();
+ const history=Object.entries(S.progress).filter(([key,p])=>p&&Number(p.openedAt)>0&&item(key))
+   .sort((a,b)=>Number(b[1].openedAt)-Number(a[1].openedAt))
+   .slice(0,12).map(([key])=>item(key));
+ const older=S.recent.map(r=>item(r.key)).filter(x=>x&&!getProgress(x.key));
+ return rail('▶ Продолжить просмотр',history,'continue')+
+   rail('Недавно открытые',older)+rail('Мои сериалы',data)+
    rail('Фантастика и фэнтези',data.filter(x=>x.genres.some(g=>['scifi','fantasy','super'].includes(g))))+
    rail('Криминал и триллеры',data.filter(x=>x.genres.some(g=>['crime','thriller'].includes(g))))+
    rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))))+
@@ -153,6 +195,22 @@ function settings(){
  '<div class="settings-row"><div><h2>Управление</h2><p>Стрелки — выбор, OK — действие; удержание OK в видео — указатель. Назад — выйти из просмотра.</p></div></div>'+
  '<p class="settings-footer">Общий каталог синхронизируется с сайтом. Сохранённые на приставке добавления пока локальные.</p></section>';
 }
+function progressUI(x){
+ const key=x.key,p=getProgress(key),v=progressDraft(key);
+ const summary=p?.confirmed?'Отмечено вручную: '+episodeCode(p.season,p.episode):
+   p?.kind==='direct'&&Number(p.seconds)>0?'Точное место: '+clock(p.seconds)+' · '+episodeCode(p.season,p.episode):
+   p?.openedAt?'Последний раз открывали '+new Date(p.openedAt).toLocaleDateString('ru-RU'):
+   'Нет сохранённой истории';
+ return '<div class="progress-panel"><h2>Продолжить просмотр</h2>'+
+  '<p class="progress-summary">'+esc(summary)+'</p>'+
+  '<div class="progress-picker">'+
+  '<span>Сезон</span><button data-act="progress-step" data-part="season" data-step="-1">−</button><b>'+v.season+
+  '</b><button data-act="progress-step" data-part="season" data-step="1">+</button>'+
+  '<span>Серия</span><button data-act="progress-step" data-part="episode" data-step="-1">−</button><b>'+v.episode+
+  '</b><button data-act="progress-step" data-part="episode" data-step="1">+</button></div>'+
+  '<button class="action progress-save" data-act="progress-save">✓ Запомнить серию</button>'+
+  '<p class="progress-explain">Initem не сообщает приложению выбранную серию и минуту. Их можно отметить вручную. Для прямых видеофайлов время сохраняется автоматически.</p></div>';
+}
 function detail(){
  const x=item(S.show);if(!x)return catalog();
  const m=meta(x.key),img=poster(x),isOwned=isInCollection(x.key);
@@ -169,8 +227,10 @@ function detail(){
  '<div class="detail-info"><div class="eyebrow">Ultra TV · сериал</div><h1>'+esc(x.ru)+'</h1>'+
  '<p>'+esc(x.en)+' · '+esc(x.year)+(m.rating||x.rating?' · ★ '+esc(m.rating||x.rating):'')+'</p>'+
  '<div>'+genres+'</div><p>'+esc(m.summary||x.summary||'Открой просмотр в полноэкранном плеере.')+'</p>'+
- '<div class="actions"><button class="primary" data-act="play" data-focus="detail-play">▶ Смотреть</button>'+
+ '<div class="actions"><button class="primary" data-act="play" data-focus="detail-play">'+
+    (getProgress(x.key)?'▶ Продолжить просмотр':'▶ Смотреть')+'</button>'+
  '<button class="secondary" data-act="follow">'+(isOwned?(S.tracked[x.key]===false?'+ Вернуть в каталог':'✓ В моём каталоге'):'+ Добавить в мой каталог')+'</button></div>'+
+ progressUI(x)+
  '<div class="detail-player-settings"><button class="action" data-act="player-options" data-focus="player-options" aria-expanded="'+S.optionsOpen+'">⚙ Настройки плеера</button>'+
  panel+'</div></div></section>';
 }
