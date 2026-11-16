@@ -83,3 +83,35 @@ Ad filter remains a curated blocklist, *not* the full AdGuard filtering engine. 
 - Добавлена локальная и загружаемая с сайта таблица русских кратких аннотаций для сериалов из общего каталога и подборки.
 - Проверены реальные ответы HTML Initem: параметры URL `?season=1&episode=2` переводят `playlist.current` в S01E02. Параметры `?s=1&e=2` НЕ работают. Теперь когда пользователь нажимает «Запомнить серию», последующая кнопка «Продолжить просмотр» открывает Initem с этим сезоном/эпизодом. Это **поддерживаемый ответом поставщика входной параметр**, а не получение данных о том, что пользователь реально выбрал внутри iframe.
 - Автоматически прочитать изменение выбранной серии и минуты из cross-origin Initem пока нельзя: в проверенном HTML не найден внешний `postMessage` с таймкодом. Внутреннее запоминание VenomPlayer может работать отдельно, но Ultra TV не может его подтверждать. Для прямых видеофайлов работает собственный HTML5 timecode.
+
+### v0.14 — automatic Initem episode and watch-time capture
+
+Initem's own third-party `/js/listen-player.js` was inspected (2026-11-17).
+It explicitly calls `parent.postMessage` with
+`{event:'changeEpisode', season, episode, id}` on a playlist selection, and
+`{event:'viewProgress',time,duration,id}` while watching. Previously these
+existing messages were not consumed.
+
+The native TV UI now listens for exactly these messages **without injecting
+JavaScript into the third-party player**. For security, the message must originate
+from the actual current iframe (`event.source===iframe.contentWindow`) and
+from the exact expected `https://api.initem.ws` origin; other frames and
+events are ignored. The app persists the automatically selected season,
+episode, playback timestamp and total duration in its existing private
+`tv-progress-v1` localStorage, and updates the home "Continue" badge.
+On changing episodes, the previous episode's position is cleared. Ad playback
+events are ignored, impossible durations are discarded, and unconfirmed
+episodes aren't guessed as S01E01.
+
+When selecting Continue again, a remembered episode is passed back as
+`?season=N&episode=N`. The elapsed minute is **displayed and preserved**,
+but automatically seeking to that precise minute is *not yet verified*:
+the inspected player emits progress messages but no confirmed inbound seek
+command. Therefore exact-minute resume is a subsequent research task,
+not part of the shipped claim.
+
+Regression checks:
+`node android-tv/tests/initem-progress.test.cjs`.
+The checks use a fake iframe, validate exact origin/source, progress storage,
+episode resets, ad handling and unknown-episode fallback. Physical TV playback
+still requires device validation; do not claim a real-TV pass from CI alone.
