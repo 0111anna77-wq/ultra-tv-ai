@@ -333,7 +333,9 @@ async function refresh(manual=false){
    save('tv-release-cache',S.releases);
   }
   $('#network').textContent=c?.online?'● Каталог обновлён':'● Каталог сохранён';
-  render();
+  // Replacing an iframe while the user watches would restart video playback.
+  // Changes stay in state and take effect when the user leaves the player.
+  if(S.page!=='player')render();
   if(manual)notify(c?.online?'Каталог обновлён · '+S.shows.length+' сериалов':'Используем сохранённый каталог. Проверь соединение.');
  }catch(err){$('#network').textContent='● Локальный каталог';if(manual)notify('Ошибка обновления: '+err.message);}
  finally{S.loading=false;}
