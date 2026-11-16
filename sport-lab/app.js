@@ -1,7 +1,7 @@
 /* Ultra TV Sports Lab. Standalone and never loaded by the production home page. */
 (function () {
   "use strict";
-  var state = { tab: "matches", query: "", channels: [], fixtures: [], broadcasts: [], generated: null, saved: [] };
+  var state = { tab: "matches", query: "", channels: [], fixtures: [], programs: [], broadcasts: [], generated: null, saved: [], limit: 24 };
   var root = document.getElementById("results");
   var status = document.getElementById("status");
   var search = document.getElementById("search");
@@ -87,6 +87,23 @@
     }
     return box;
   }
+  function programCard(p) {
+    var box=el("article","card"),row=el("div","row"),head=el("div"),badges=el("div","badges");
+    badge(badges,"Старт · телепрограмма");
+    badge(badges,dateLabel(p.date)+" · "+p.timeMsk+" МСК");
+    if(p.live)badge(badges,"Обозначено как прямой эфир","good");
+    head.appendChild(badges);
+    head.appendChild(el("h2","",p.title));
+    head.appendChild(el("p","sub","Русский комментарий и бесплатный доступ не проверены."));
+    row.appendChild(head);
+    button(row,isSaved("p:"+p.id)?"★":"☆",function(){toggleSaved("p:"+p.id);})
+      .setAttribute("aria-label","Добавить или убрать эфир из избранного");
+    box.appendChild(row);
+    var actions=el("div","actions");
+    officialLink(actions,"Проверить на официальном сайте",p.sourceUrl);
+    box.appendChild(actions);
+    return box;
+  }
   function render() {
     root.replaceChildren();
     if(!dataReady)return;
@@ -98,10 +115,22 @@
       }).forEach(function(c){show.appendChild(channelCard(c));});
     }
     if(state.tab==="matches"||state.tab==="favs") {
-      state.fixtures.filter(function(f){
+      state.programs.filter(function(p){
+        return (!q||norm(p.title+" Старт").indexOf(q)>=0)
+          && (state.tab!=="favs"||isSaved("p:"+p.id));
+      }).slice(0,30).forEach(function(p){show.appendChild(programCard(p));});
+      var visibleFixtures=state.fixtures.filter(function(f){
         return (!q||norm(f.home+" "+f.away+" "+f.competition).indexOf(q)>=0)
           && (state.tab!=="favs"||isSaved("m:"+f.id));
-      }).slice(0,80).forEach(function(f){show.appendChild(matchCard(f));});
+      });
+      visibleFixtures.slice(0,state.limit).forEach(function(f){show.appendChild(matchCard(f));});
+      if(visibleFixtures.length>state.limit){
+        var more=el("div","actions");
+        button(more,"Показать ещё матчи ("+(visibleFixtures.length-state.limit)+")",function(){
+          state.limit+=24;render();
+        });
+        show.appendChild(more);
+      }
     }
     if(!show.children.length)root.appendChild(el("div","empty",q?"Совпадений нет. Измени запрос.":"Пока данных нет. Для избранного нажми ☆ у канала или матча."));
     else root.appendChild(show);
@@ -113,16 +142,17 @@
       render();
     });
   });
-  search.addEventListener("input",function(){state.query=search.value;render();});
+  search.addEventListener("input",function(){state.query=search.value;state.limit=24;render();});
   Promise.all(["./channels.json","./data.json","./broadcasts.json"].map(function(path){
     return fetch(path,{cache:"no-store"}).then(function(r){if(!r.ok)throw Error(path+": HTTP "+r.status);return r.json();});
   })).then(function(items){
     state.channels=Array.isArray(items[0].channels)?items[0].channels:[];
     state.fixtures=Array.isArray(items[1].fixtures)?items[1].fixtures:[];
+    state.programs=Array.isArray(items[1].programs)?items[1].programs:[];
     state.broadcasts=Array.isArray(items[2].broadcasts)?items[2].broadcasts:[];
     state.generated=items[1].generatedAt;
     dataReady=true;
-    status.textContent="Найдено матчей: "+state.fixtures.length+" · Платных каналов: "+state.channels.length+
+    status.textContent="Матчей в календаре: "+state.fixtures.length+" · Эфиров в телепрограмме: "+state.programs.length+" · Платных каналов: "+state.channels.length+
       " · Сопоставлений с вещателями: "+state.broadcasts.length+
       (state.generated?" · Данные от "+state.generated.slice(0,10):"")+".";
     render();
