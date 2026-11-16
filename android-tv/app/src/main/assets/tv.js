@@ -12,7 +12,8 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   page:'home',show:null,season:1,episode:1,source:0,search:'',loading:false,
   cursor:false,cx:.5,cy:.5,cursorFocus:null};
 const root=$('#content');
-let navBtn=null,focusKey=null,lastNav=0,refreshTimer=0;
+let focusKey=null,refreshTimer=0;
+let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
 const items=()=>S.shows.filter(x=>x&&x.key&&x.ru);
 const item=key=>items().find(x=>x.key===key);
 const meta=key=>S.meta[key]||{};
@@ -22,7 +23,7 @@ const latest=()=>items().filter(x=>S.tracked[x.key]!==false);
 function navigate(page,key){
   if(S.cursor)stopCursor();
   S.page=page; S.show=key||null;
-  focusKey=null; render();
+  focusKey=null;focusMemory.clear(); render();
   window.scrollTo(0,0);
   const selector=page==='player'?'[data-act="cursor"]':page==='detail'?'[data-act="play"]':
     page==='search'?'[data-focus="search-field"]':'#nav .nav-active';
@@ -37,7 +38,7 @@ const category=x=>(x.genres||[]).map(g=>tags[g]||g).slice(0,2).join(' · ');
 const thumb=x=>{
   const url=poster(x);
   return '<div class="art" data-poster="'+esc(x.key)+'">'+
-    (url?'<img src="'+esc(url)+'" alt="" loading="lazy">':'<span class="no-art">▶</span>')+
+    (url?'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async">':'<span class="no-art">▶</span>')+
     ((S.recent||[]).some(a=>a.key===x.key)?'<span class="pill">Продолжить</span>':'')+'</div>';
 };
 const card=x=>'<button class="card" data-act="detail" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'">'+
@@ -164,9 +165,19 @@ function render(){
  });
  const html=S.page==='home'?home():S.page==='catalog'?catalog():S.page==='new'?newShows():
    S.page==='search'?searchUI():S.page==='settings'?settings():S.page==='detail'?detail():player();
+ const activeBefore=document.activeElement;
+ const oldSlot=focusSlots.get(activeBefore);
  const prev=focusKey;
  root.innerHTML=html;
- if(prev){const found=[...document.querySelectorAll('[data-focus]')].find(x=>x.dataset.focus===prev);if(found)found.focus({preventScroll:true});}
+ buildFocusRows();
+ let target=null;
+ if(oldSlot){
+   const row=focusRows.find(r=>r.id===oldSlot.rowId);
+   target=row?.items.find(e=>e.dataset.focus&&e.dataset.focus===prev)||
+     row?.items[Math.min(oldSlot.index,row.items.length-1)]||null;
+ }
+ if(!target&&prev)target=[...document.querySelectorAll('[data-focus]')].find(x=>x.dataset.focus===prev);
+ if(target)target.focus({preventScroll:true});
 }
 function record(key){
  S.recent=[{key,date:Date.now()},...S.recent.filter(x=>x.key!==key)].slice(0,12);
@@ -218,28 +229,106 @@ function tapPlayer(){
  window.location.href='ultratv://tap?x='+x.toFixed(6)+'&y='+y.toFixed(6);
  setTimeout(()=>{if(S.cursor)S.cursorFocus?.focus({preventScroll:true})},180);
 }
-function getFocusable(){
- return [...document.querySelectorAll('#nav button,#content button:not(:disabled),#content input:not(:disabled)')]
- .filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(el).visibility!=='hidden'});
+/**
+ * Remote navigation is built ONCE per layout, not on every D-pad event.
+ * Home uses fixed visual rows; catalog/search grids use rendered rows.
+ * Individual taps are immediate, while only extremely fast repeats are capped.
+ */
+function buildFocusRows(){
+  focusRows=[];
+  focusSlots=new WeakMap();
+  const add=(id,nodes)=>{
+    const items=[...nodes].filter(x=>!x.disabled&&x.offsetWidth>0&&x.offsetHeight>0);
+    if(!items.length)return;
+    const row={id,items};
+    focusRows.push(row);
+    items.forEach((node,index)=>focusSlots.set(node,{rowId:id,index}));
+  };
+  add('nav',[...document.querySelectorAll('#nav button')]);
+  if(S.page==='home'){
+    add('home:hero',root.querySelectorAll('.hero-actions button'));
+    [...root.querySelectorAll('.rail')].forEach((rail,i)=>{
+      add('home:rail:'+i,rail.querySelectorAll('.strip .card'));
+    });
+  }else if(S.page==='catalog'||S.page==='new'||S.page==='search'){
+    if(S.page==='search')add('search:input',root.querySelectorAll('#tv-search'));
+    const all=[...root.querySelectorAll('.cards-grid .card')];
+    const rows=new Map();
+    for(const el of all){
+      const y=el.offsetTop;
+      if(!rows.has(y))rows.set(y,[]);
+      rows.get(y).push(el);
+    }
+    [...rows.values()].forEach((items,i)=>add(S.page+':grid:'+i,items));
+  }else if(S.page==='detail'){
+    add('detail:back',root.querySelectorAll('[data-act="back"]'));
+    add('detail:actions',root.querySelectorAll('.detail .actions button'));
+  }else if(S.page==='settings'){
+    [...root.querySelectorAll('.settings-box button')].forEach((el,i)=>add('settings:'+i,[el]));
+  }else if(S.page==='player'){
+    add('player:toolbar',root.querySelectorAll('.player-main .player-tools:first-child button'));
+    add('player:reload',root.querySelectorAll('.player-main [data-act="reload"]'));
+    [...root.querySelectorAll('.player-side button')].forEach((el,i)=>add('player:side:'+i,[el]));
+  }
 }
-function nextInDirection(from,key){
- const r=from.getBoundingClientRect(),horizontal=key==='ArrowLeft'||key==='ArrowRight';
- const forward=key==='ArrowDown'||key==='ArrowRight',c=h=>horizontal?(h.left+h.right)/2:(h.top+h.bottom)/2;
- const perp=h=>horizontal?(h.top+h.bottom)/2:(h.left+h.right)/2;
- const aMin=horizontal?r.top:r.left,aMax=horizontal?r.bottom:r.right;
- let best=null,score=Infinity;
- for(const el of getFocusable()){
-  if(el===from)continue;
-  const b=el.getBoundingClientRect(),primary=(c(b)-c(r))*(forward?1:-1);
-  if(primary<=3)continue;
-  const bMin=horizontal?b.top:b.left,bMax=horizontal?b.bottom:b.right;
-  const gap=Math.max(0,aMin-bMax,bMin-aMax);
-  const val=primary+gap*5+Math.abs(perp(b)-perp(r))*.23;
-  if(val<score){score=val;best=el;}
- }
- return best;
+function moveFocus(from,key){
+  const slot=focusSlots.get(from);
+  if(!slot)return false;
+  const rowIndex=focusRows.findIndex(r=>r.id===slot.rowId);
+  if(rowIndex<0)return false;
+  const horizontal=key==='ArrowLeft'||key==='ArrowRight';
+  let target=null;
+  if(horizontal){
+    const idx=slot.index+(key==='ArrowRight'?1:-1);
+    const row=focusRows[rowIndex];
+    // End-of-rail means stop, not an unexpected jump to topbar/menu.
+    if(idx>=0&&idx<row.items.length)target=row.items[idx];
+  }else{
+    const nextRow=rowIndex+(key==='ArrowDown'?1:-1);
+    const destination=focusRows[nextRow];
+    if(destination){
+      if(destination.id==='nav'){
+        target=document.querySelector('#nav .nav-active')||destination.items[0];
+      }else{
+        const remembered=focusMemory.get(destination.id);
+        let desired=remembered==null?slot.index:remembered;
+        if(slot.rowId==='nav'&&remembered==null)desired=0;
+        target=destination.items[Math.min(desired,destination.items.length-1)];
+      }
+    }
+  }
+  if(!target)return false;
+  focusMemory.set(slot.rowId,slot.index);
+  const nextSlot=focusSlots.get(target);
+  if(nextSlot)focusMemory.set(nextSlot.rowId,nextSlot.index);
+  target.focus({preventScroll:true});
+  bringFocusedIntoView(target);
+  return true;
 }
-document.addEventListener('focusin',e=>{if(e.target?.dataset?.focus)focusKey=e.target.dataset.focus;},true);
+function bringFocusedIntoView(el){
+  if(el.closest('#nav')){
+    if(window.scrollY>0)window.scrollTo(0,0);
+    return;
+  }
+  const strip=el.closest('.strip');
+  if(strip){
+    const a=el.getBoundingClientRect(),b=strip.getBoundingClientRect();
+    if(a.left<b.left+10)strip.scrollLeft+=a.left-b.left-18;
+    else if(a.right>b.right-10)strip.scrollLeft+=a.right-b.right+18;
+  }
+  const r=el.getBoundingClientRect();
+  const nav=document.querySelector('.topbar');
+  const safeTop=Math.max(16,nav?.getBoundingClientRect().bottom||0)+20;
+  const safeBottom=window.innerHeight-38;
+  if(r.top<safeTop)window.scrollBy(0,r.top-safeTop);
+  else if(r.bottom>safeBottom)window.scrollBy(0,r.bottom-safeBottom);
+}
+document.addEventListener('focusin',e=>{
+  const el=e.target;
+  if(el?.dataset?.focus)focusKey=el.dataset.focus;
+  const slot=focusSlots.get(el);
+  if(slot)focusMemory.set(slot.rowId,slot.index);
+},true);
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-nav],[data-act]');if(!b)return;
  if(b.dataset.nav){navigate(b.dataset.nav);return;}
@@ -262,7 +351,8 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
  if(e.target?.id==='tv-search'){
   S.search=e.target.value;
-  const result=$('#search-results');if(result)result.innerHTML=searchMatches();
+  const result=$('#search-results');
+  if(result){result.innerHTML=searchMatches();buildFocusRows();}
  }
 });
 document.addEventListener('focusout',e=>{
@@ -294,14 +384,16 @@ document.addEventListener('keydown',e=>{
   if(!e.target.readOnly){return;}
  }
  if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;
- const now=Date.now();if(now-lastNav<110){e.preventDefault();e.stopImmediatePropagation();return;}lastNav=now;
  const from=document.activeElement;
- if(!from||!getFocusable().includes(from))return;
- const best=nextInDirection(from,e.key);
- if(best){e.preventDefault();e.stopImmediatePropagation();
-   best.focus({preventScroll:true});
-   best.scrollIntoView({behavior:'instant',block:'nearest',inline:'center'});
+ // Consecutive distinct key taps must not be delayed by the former 110 ms gate.
+ if(e.repeat){
+   const now=performance.now();
+   if(now-lastRepeatAt<50){e.preventDefault();e.stopImmediatePropagation();return;}
+   lastRepeatAt=now;
  }
+ if(!from||!focusSlots.has(from))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ moveFocus(from,e.key);
 },true);
 
 async function readShared(file) {
@@ -360,7 +452,7 @@ async function loadPosters(force=false){
    save('tv-meta-cache',S.meta);
    document.querySelectorAll('[data-poster]').forEach(p=>{
     if(p.dataset.poster!==x.key||p.querySelector('img'))return;
-    const img=document.createElement('img');img.alt='';img.loading='lazy';img.src=S.meta[x.key].image||'';
+    const img=document.createElement('img');img.alt='';img.loading='lazy';img.decoding='async';img.src=S.meta[x.key].image||'';
     p.querySelector('.no-art')?.replaceWith(img);
    });
    if(S.page==='detail'&&S.show===x.key) {
