@@ -91,7 +91,11 @@ function settings(){
  return '<h1 class="section-title">Настройки Ultra TV</h1>'+
  '<section class="settings-box"><h2>Каталог и источники</h2><p>Список сериалов, информация о просмотре и ссылки на плееры берутся из нашего сайта.</p>'+
  '<button class="primary" data-act="refresh" data-focus="refresh">↻ Обновить каталог</button>'+
- '<p class="subtle">Проверка при запуске и каждые 30 минут. Кнопка обновляет данные без установки новой версии APK.</p>'+
+ '<p class="subtle">Сериалы обновляются при запуске и каждые 30 минут — без переустановки APK.</p>'+
+ '<div class="line"></div><h2>Обновление приложения</h2>'+
+ '<p>Новые версии Ultra TV можно проверить и скачать прямо здесь. Установку подтверждает система Android.</p>'+
+ '<button class="primary" data-act="appupdate" data-focus="appupdate">⬇ Проверить обновление приложения</button>'+
+ '<p class="subtle">Проверяем наличие новой версии раз в день. Для установки требуется разрешение Android и одинаковая подпись APK. Если приставка ограничивает установку, можно открыть файл через браузер.</p>'+
  '<div class="line"></div><h2>Блокировка рекламы</h2>'+
  '<p>Фильтр является экспериментальным. При проблемах с видео отключи его для проверки. Изменение требует перезагрузки страницы.</p>'+
  '<button class="action" data-act="adsettings">Настройки AdBlock</button>'+
@@ -372,6 +376,7 @@ document.addEventListener('click',e=>{
  }
  if(act==='reload')refreshPlayer();
  if(act==='refresh')refresh(true);
+ if(act==='appupdate')window.location.href='ultratv://app-update';
  if(act==='adsettings')window.location.href='ultratv://settings';
 });
 document.addEventListener('input',e=>{
