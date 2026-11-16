@@ -38,6 +38,7 @@ public final class UltraTvActivity extends Activity {
     private WebView webView;
     private AdBlockFilter adBlockFilter;
     private BundledSite bundledSite;
+    private AppUpdateManager appUpdateManager;
     private TvPointerOverlay pointerOverlay;
     private boolean pointerMode;
     private boolean okHeld;
@@ -71,6 +72,7 @@ public final class UltraTvActivity extends Activity {
         hideSystemBars();
         adBlockFilter = new AdBlockFilter(this);
         bundledSite = new BundledSite(this);
+        appUpdateManager = new AppUpdateManager(this);
 
         webView = new WebView(this);
         webView.setFocusable(true);
@@ -129,6 +131,9 @@ public final class UltraTvActivity extends Activity {
                     switch (uri.getHost() == null ? "" : uri.getHost()) {
                         case "settings":
                             runOnUiThread(() -> showFilterDialog());
+                            break;
+                        case "app-update":
+                            runOnUiThread(() -> appUpdateManager.check(true));
                             break;
                         case "keyboard":
                             webView.postDelayed(() -> {
@@ -194,6 +199,16 @@ public final class UltraTvActivity extends Activity {
             webView.loadUrl(HOME);
         }
         webView.requestFocus();
+        // A quiet once-per-day version check, never an automatic installation.
+        webView.postDelayed(() -> {
+            if (!isFinishing() && appUpdateManager != null) appUpdateManager.checkOccasionally();
+        }, 6000);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (appUpdateManager != null) appUpdateManager.onResume();
     }
 
     private void showFilterDialog() {
@@ -428,6 +443,7 @@ public final class UltraTvActivity extends Activity {
     protected void onDestroy() {
         remoteHandler.removeCallbacks(openSettingsOnLongBack);
         remoteHandler.removeCallbacks(activatePointerOnLongOk);
+        if (appUpdateManager != null) appUpdateManager.shutdown();
         if (webView != null) {
             container.removeView(webView);
             webView.destroy();
