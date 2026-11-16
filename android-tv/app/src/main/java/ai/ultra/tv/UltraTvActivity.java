@@ -32,6 +32,7 @@ public final class UltraTvActivity extends Activity {
     private WebView webView;
     private Button filterButton;
     private AdBlockFilter adBlockFilter;
+    private BundledSite bundledSite;
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
 
@@ -43,6 +44,7 @@ public final class UltraTvActivity extends Activity {
         setContentView(container);
         hideSystemBars();
         adBlockFilter = new AdBlockFilter(this);
+        bundledSite = new BundledSite(this);
 
         webView = new WebView(this);
         webView.setFocusable(true);
@@ -68,6 +70,9 @@ public final class UltraTvActivity extends Activity {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 // Called from a background thread; filter state and counters are thread-safe.
+                // Serve the site from APK assets, independent of Cloudflare reachability.
+                WebResourceResponse local = bundledSite.serve(request.getUrl());
+                if (local != null) return local;
                 return adBlockFilter.maybeBlock(request.getUrl(), request.isForMainFrame());
             }
 
