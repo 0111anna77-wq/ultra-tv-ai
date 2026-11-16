@@ -37,6 +37,7 @@ final class BundledSite {
             case "/tv.js": asset = "tv.js"; mime = "application/javascript"; break;
             case "/tv.css": asset = "tv.css"; mime = "text/css"; break;
             case "/tv-catalog.json": asset = "site/tv-catalog.json"; mime = "application/json"; break;
+            case "/tv-discover.json": asset = "site/tv-discover.json"; mime = "application/json"; break;
             case "/player.js": asset = "site/player.js"; mime = "application/javascript"; break;
             case "/player.css": asset = "site/player.css"; mime = "text/css"; break;
             case "/watch-options.json": asset = "site/watch-options.json"; mime = "application/json"; break;
