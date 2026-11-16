@@ -75,7 +75,7 @@
 'use strict';
 const API='https://api.tvmaze.com',STORE='ultra-tv-v2';
 // Названия и жанры — редакционная подборка, не утверждение о доступности русского перевода.
-const seeds=[
+let seeds=[
  ['invincible','Неуязвимый','Invincible',['super','animation','scifi'],2021],
  ['spider-noir','Человек-паук Нуар','Spider-Noir',['super','crime'],2026],
  ['daredevil','Сорвиголова: Рождённый заново','Daredevil: Born Again',['super','crime','action'],2025],
@@ -291,7 +291,27 @@ document.addEventListener('input',e=>{if(e.target.id==='filter-q'){const value=e
 document.addEventListener('keydown',e=>{if($('#player-root').innerHTML)return;if(e.key==='Escape'&&$('#dialog-root').innerHTML){closeDetail();return}if(e.key==='Enter'&&document.activeElement?.id==='remote-search'){lookup();return}const t=document.activeElement;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)||!t||['INPUT','TEXTAREA','SELECT'].includes(t.tagName))return;
  const context=$('#dialog-root .dialog')||document;const active=$$('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled)',context).filter(el=>el.getClientRects().length);let best=null,score=Infinity;const r=t.getBoundingClientRect();if(!r.width)return;for(const el of active){if(el===t)continue;const b=el.getBoundingClientRect(),dx=b.left+b.width/2-r.left-r.width/2,dy=b.top+b.height/2-r.top-r.height/2,dir=e.key.replace('Arrow','');if((dir==='Right'&&dx<=6)||(dir==='Left'&&dx>=-6)||(dir==='Down'&&dy<=6)||(dir==='Up'&&dy>=-6))continue;const main=dir==='Left'||dir==='Right'?Math.abs(dx):Math.abs(dy),cross=dir==='Left'||dir==='Right'?Math.abs(dy):Math.abs(dx),val=main+cross*2;if(val<score){score=val;best=el}}if(best){e.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:'nearest',behavior:'smooth'})}});
 window.UltraTV={get state(){return state},get releases(){return releaseData},persist,draw,recordOpen,getEntry,showInfo,idKey,epCode,released,openDetail,closeDetail};
- $('#date-now').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});draw();loadReleaseFeed();refresh();
+ async function syncSharedCatalog(){
+   try{
+     const response=await fetch('./tv-catalog.json?v='+Date.now(),{cache:'no-store'});
+     if(!response.ok) return;
+     const data=await response.json();
+     if(!Array.isArray(data.shows)||data.shows.length<1)return;
+     const valid=data.shows.filter(x=>x&&/^[a-z0-9-]{2,64}$/.test(x.key)&&typeof x.ru==='string'&&typeof x.en==='string'&&Array.isArray(x.genres)&&Number.isFinite(Number(x.year)));
+     if(!valid.length)return;
+     const prior=new Set(seeds.map(x=>x.key));
+     const unique=new Set();
+     seeds=valid.filter(x=>!unique.has(x.key)&&unique.add(x.key)).map(x=>({key:x.key,ru:x.ru,en:x.en,genres:x.genres,year:Number(x.year)}));
+     const additions=seeds.filter(x=>!prior.has(x.key));
+     for(const show of additions){
+       if(!Object.prototype.hasOwnProperty.call(state.tracked,show.key))state.tracked[show.key]=true;
+     }
+     if(additions.length)persist();
+     draw();
+     if(additions.length)setTimeout(()=>refresh(),9000);
+   }catch(e){console.warn('Общий каталог временно недоступен, используем встроенный список',e);}
+ }
+ $('#date-now').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});draw();loadReleaseFeed();refresh();syncSharedCatalog();
 setInterval(()=>{if(!document.hidden)loadReleaseFeed();},900000);
 setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
