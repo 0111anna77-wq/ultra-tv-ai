@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "updated": "2026-11-16",
+  "source": "Ultra TV shared catalog",
+  "shows": [
+    {
+      "key": "invincible",
+      "ru": "Неуязвимый",
+      "en": "Invincible",
+      "genres": [
+        "super",
+        "animation",
+        "scifi"
+      ],
+      "year": 2021
+    },
+    {
+      "key": "spider-noir",
+      "ru": "Человек-паук Нуар",
+      "en": "Spider-Noir",
+      "genres": [
+        "super",
+        "crime"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "daredevil",
+      "ru": "Сорвиголова: Рождённый заново",
+      "en": "Daredevil: Born Again",
+      "genres": [
+        "super",
+        "crime",
+        "action"
+      ],
+      "year": 2025
+    },
+    {
+      "key": "wonder-man",
+      "ru": "Чудо-человек",
+      "en": "Wonder Man",
+      "genres": [
+        "super",
+        "comedy"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "visionquest",
+      "ru": "Вижн",
+      "en": "VisionQuest",
+      "genres": [
+        "super",
+        "scifi"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "x-men-97",
+      "ru": "Люди Икс ’97",
+      "en": "X-Men '97",
+      "genres": [
+        "super",
+        "animation",
+        "scifi"
+      ],
+      "year": 2024
+    },
+    {
+      "key": "lanterns",
+      "ru": "Фонари",
+      "en": "Lanterns",
+      "genres": [
+        "super",
+        "scifi",
+        "thriller"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "boys",
+      "ru": "Пацаны",
+      "en": "The Boys",
+      "genres": [
+        "super",
+        "action",
+        "comedy"
+      ],
+      "year": 2019
+    },
+    {
+      "key": "silo",
+      "ru": "Укрытие",
+      "en": "Silo",
+      "genres": [
+        "scifi",
+        "thriller"
+      ],
+      "year": 2023,
+      "imdb": "tt14688458"
+    },
+    {
+      "key": "from",
+      "ru": "Извне",
+      "en": "From",
+      "genres": [
+        "scifi",
+        "horror",
+        "thriller"
+      ],
+      "year": 2022
+    },
+    {
+      "key": "dark-matter",
+      "ru": "Тёмная материя",
+      "en": "Dark Matter",
+      "genres": [
+        "scifi",
+        "thriller"
+      ],
+      "year": 2024
+    },
+    {
+      "key": "boroughs",
+      "ru": "The Boroughs",
+      "en": "The Boroughs",
+      "genres": [
+        "scifi",
+        "horror"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "star-city",
+      "ru": "Звёздный город",
+      "en": "Star City",
+      "genres": [
+        "scifi",
+        "drama"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "monarch",
+      "ru": "Монарх: Наследие монстров",
+      "en": "Monarch: Legacy of Monsters",
+      "genres": [
+        "scifi",
+        "action"
+      ],
+      "year": 2023
+    },
+    {
+      "key": "for-all-mankind",
+      "ru": "Ради всего человечества",
+      "en": "For All Mankind",
+      "genres": [
+        "scifi",
+        "drama"
+      ],
+      "year": 2019
+    },
+    {
+      "key": "fallout",
+      "ru": "Фоллаут",
+      "en": "Fallout",
+      "genres": [
+        "scifi",
+        "action",
+        "drama"
+      ],
+      "year": 2024,
+      "imdb": "tt12637874"
+    },
+    {
+      "key": "small-prophets",
+      "ru": "Small Prophets",
+      "en": "Small Prophets",
+      "genres": [
+        "fantasy",
+        "comedy",
+        "drama"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "widows-bay",
+      "ru": "Widow's Bay",
+      "en": "Widow's Bay",
+      "genres": [
+        "horror",
+        "comedy"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "hacks",
+      "ru": "Хитрости",
+      "en": "Hacks",
+      "genres": [
+        "comedy",
+        "drama"
+      ],
+      "year": 2021
+    },
+    {
+      "key": "diplomat",
+      "ru": "Дипломатка",
+      "en": "The Diplomat",
+      "genres": [
+        "drama",
+        "thriller"
+      ],
+      "year": 2023
+    },
+    {
+      "key": "bear",
+      "ru": "Медведь",
+      "en": "The Bear",
+      "genres": [
+        "drama",
+        "comedy"
+      ],
+      "year": 2022
+    },
+    {
+      "key": "slow-horses",
+      "ru": "Медленные лошади",
+      "en": "Slow Horses",
+      "genres": [
+        "crime",
+        "thriller",
+        "drama"
+      ],
+      "year": 2022
+    },
+    {
+      "key": "knight",
+      "ru": "Рыцарь Семи Королевств",
+      "en": "A Knight of the Seven Kingdoms",
+      "genres": [
+        "fantasy",
+        "drama"
+      ],
+      "year": 2026
+    },
+    {
+      "key": "mobland",
+      "ru": "Гангстерленд",
+      "en": "MobLand",
+      "genres": [
+        "crime",
+        "thriller",
+        "drama"
+      ],
+      "year": 2025,
+      "imdb": "tt31510819"
+    },
+    {
+      "key": "house-dragon",
+      "ru": "Дом Дракона",
+      "en": "House of the Dragon",
+      "genres": [
+        "fantasy",
+        "drama"
+      ],
+      "year": 2022
+    }
+  ]
+}
