@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-17T00:00:00Z",
+  "purpose": "Public M3U LISTINGS ONLY, no authorization/playback established. Preliminary repo text audit.",
+  "channels": {
+    "match-football-1": {
+      "candidateCount": 2,
+      "verifiedPlayable": 0,
+      "verifiedFreeAndAuthorized": 0,
+      "candidates": []
+    },
+    "match-football-2": {
+      "candidateCount": 1,
+      "verifiedPlayable": 0,
+      "verifiedFreeAndAuthorized": 0,
+      "candidates": []
+    },
+    "match-football-3": {
+      "candidateCount": 1,
+      "verifiedPlayable": 0,
+      "verifiedFreeAndAuthorized": 0,
+      "candidates": []
+    }
+  },
+  "sourceErrors": []
+}

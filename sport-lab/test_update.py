@@ -1,0 +1,83 @@
+"""Run: python3 sport-lab/test_update.py"""
+from datetime import datetime, timezone
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import json
+import sys
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from update_sport import fixture_id, normalize_fixture_list, rebuild, parse_start_programs, SOURCES
+
+
+NOW = datetime(2026, 11, 17, tzinfo=timezone.utc)
+SAMPLE = {
+    "matches": [
+        {"date": "2026-11-20", "team1": "Alpha", "team2": "Beta", "time": "18:00"},
+        {"date": "2026-09-01", "team1": "Old", "team2": "Game"},
+        {"date": "2026-11-21", "team1": "Invalid"},
+    ]
+}
+
+
+class SportTests(unittest.TestCase):
+    def test_normalized_dates_and_unverified_time(self):
+        games = normalize_fixture_list(SAMPLE, "en.1.json", "АПЛ", NOW)
+        self.assertEqual(len(games), 1)
+        self.assertNotIn("time", games[0])
+        self.assertEqual(games[0]["competition"], "АПЛ")
+        self.assertEqual(games[0]["id"], fixture_id("en.1.json", "2026-11-20", "Alpha", "Beta"))
+
+    def test_rebuild_and_idempotency(self):
+        with TemporaryDirectory() as d:
+            path = Path(d) / "data.json"
+            def getter(url):
+                return SAMPLE
+            changed, data = rebuild(NOW, getter, path, lambda url: "")
+            self.assertTrue(changed)
+            self.assertEqual(len(data["fixtures"]), len(SOURCES))
+            self.assertTrue(path.exists())
+            changed2, data2 = rebuild(NOW, getter, path, lambda url: "")
+            self.assertFalse(changed2)
+            self.assertEqual(data2, data)
+
+    def test_partial_failure_preserves_cached_source(self):
+        with TemporaryDirectory() as d:
+            path = Path(d) / "data.json"
+            rebuild(NOW, lambda url: SAMPLE, path, lambda url: "")
+            def getter(url):
+                if url.endswith("en.1.json"):
+                    raise TimeoutError("test")
+                return SAMPLE
+            changed, data = rebuild(NOW, getter, path, lambda url: "")
+            self.assertTrue(changed)
+            self.assertTrue(any(x.startswith("АПЛ:") for x in data["issues"]))
+            self.assertEqual(len(data["fixtures"]), len(SOURCES))
+
+    def test_official_tv_program_parser(self):
+        html = (
+            '<div id="bx_1" \n class="tv-programm__item "\n data-timestart="1795196400">'
+            '<div class="tv-programm__item-name">Футбол. Порту - Паредес, 12+</div>'
+            '<div class="tv-programm__item-live">Прямой эфир</div></div>'
+        )
+        got = parse_start_programs(html, "https://ru.tvstart.ru/schedule/start-tv/")
+        self.assertEqual(len(got), 1)
+        self.assertEqual(got[0]["channelId"], "start")
+        self.assertEqual(got[0]["date"], "2026-11-20")
+        self.assertEqual(got[0]["timeMsk"], "20:40")
+        self.assertEqual(got[0]["commentary"], "unknown")
+        self.assertEqual(got[0]["access"], "unknown")
+        self.assertTrue(got[0]["live"])
+
+    def test_total_failure_does_not_erase(self):
+        with TemporaryDirectory() as d:
+            path = Path(d) / "data.json"
+            rebuild(NOW, lambda url: SAMPLE, path, lambda url: "")
+            before = path.read_text("utf-8")
+            with self.assertRaises(RuntimeError):
+                rebuild(NOW, lambda url: (_ for _ in ()).throw(ConnectionError()), path, lambda url: "")
+            self.assertEqual(path.read_text("utf-8"), before)
+
+
+if __name__ == "__main__":
+    unittest.main()

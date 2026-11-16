@@ -1,0 +1,1121 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-17T00:00:00Z",
+  "source": "OpenFootball (CC0) — матчи, без подтверждения вещателя или времени начала",
+  "fixtures": [
+    {
+      "id": "de.1-db2530e4",
+      "competition": "Бундеслига",
+      "date": "2026-11-20",
+      "home": "FC Bayern München",
+      "away": "1. FC Köln"
+    },
+    {
+      "id": "fr.1-4ef17cbe",
+      "competition": "Лига 1",
+      "date": "2026-11-20",
+      "home": "ES Troyes AC",
+      "away": "Le Havre AC"
+    },
+    {
+      "id": "en.1-13d7cfd3",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Aston Villa FC",
+      "away": "Sunderland AFC"
+    },
+    {
+      "id": "en.1-3964c239",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Manchester City FC",
+      "away": "Fulham FC"
+    },
+    {
+      "id": "en.1-39904d01",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Tottenham Hotspur FC",
+      "away": "Ipswich Town FC"
+    },
+    {
+      "id": "en.1-3f4a793a",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Newcastle United FC",
+      "away": "Arsenal FC"
+    },
+    {
+      "id": "en.1-46a792bc",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Chelsea FC",
+      "away": "Leeds United FC"
+    },
+    {
+      "id": "en.1-62274d74",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "AFC Bournemouth",
+      "away": "Nottingham Forest FC"
+    },
+    {
+      "id": "en.1-6a4f36e6",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Liverpool FC",
+      "away": "Manchester United FC"
+    },
+    {
+      "id": "en.1-a221bfda",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Hull City AFC",
+      "away": "Brighton & Hove Albion FC"
+    },
+    {
+      "id": "en.1-b1387674",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Brentford FC",
+      "away": "Everton FC"
+    },
+    {
+      "id": "en.1-ca493892",
+      "competition": "АПЛ",
+      "date": "2026-11-21",
+      "home": "Coventry City FC",
+      "away": "Crystal Palace FC"
+    },
+    {
+      "id": "de.1-3cf647bf",
+      "competition": "Бундеслига",
+      "date": "2026-11-21",
+      "home": "FC Schalke 04",
+      "away": "VfB Stuttgart"
+    },
+    {
+      "id": "de.1-8ed10b60",
+      "competition": "Бундеслига",
+      "date": "2026-11-21",
+      "home": "1. FC Union Berlin",
+      "away": "RB Leipzig"
+    },
+    {
+      "id": "de.1-b38399ff",
+      "competition": "Бундеслига",
+      "date": "2026-11-21",
+      "home": "Borussia Mönchengladbach",
+      "away": "Borussia Dortmund"
+    },
+    {
+      "id": "de.1-d7e27f5e",
+      "competition": "Бундеслига",
+      "date": "2026-11-21",
+      "home": "Eintracht Frankfurt",
+      "away": "TSG 1899 Hoffenheim"
+    },
+    {
+      "id": "de.1-ec8db948",
+      "competition": "Бундеслига",
+      "date": "2026-11-21",
+      "home": "SV 07 Elversberg",
+      "away": "SC Freiburg"
+    },
+    {
+      "id": "de.1-f67ec34c",
+      "competition": "Бундеслига",
+      "date": "2026-11-21",
+      "home": "Bayer 04 Leverkusen",
+      "away": "SC Paderborn 07"
+    },
+    {
+      "id": "fr.1-2508b515",
+      "competition": "Лига 1",
+      "date": "2026-11-21",
+      "home": "AS Monaco FC",
+      "away": "AJ Auxerre"
+    },
+    {
+      "id": "fr.1-27f745c1",
+      "competition": "Лига 1",
+      "date": "2026-11-21",
+      "home": "RC Strasbourg Alsace",
+      "away": "Stade Brestois 29"
+    },
+    {
+      "id": "fr.1-9fc8212d",
+      "competition": "Лига 1",
+      "date": "2026-11-21",
+      "home": "Lille OSC",
+      "away": "Olympique Lyonnais"
+    },
+    {
+      "id": "fr.1-d10bd636",
+      "competition": "Лига 1",
+      "date": "2026-11-21",
+      "home": "Racing Club de Lens",
+      "away": "Toulouse FC"
+    },
+    {
+      "id": "fr.1-e942d555",
+      "competition": "Лига 1",
+      "date": "2026-11-21",
+      "home": "OGC Nice",
+      "away": "Paris Saint-Germain FC"
+    },
+    {
+      "id": "it.1-2c8ca820",
+      "competition": "Серия А",
+      "date": "2026-11-21",
+      "home": "Parma Calcio 1913",
+      "away": "AS Roma"
+    },
+    {
+      "id": "it.1-84abcb87",
+      "competition": "Серия А",
+      "date": "2026-11-21",
+      "home": "Como 1907",
+      "away": "Cagliari Calcio"
+    },
+    {
+      "id": "it.1-a23a7714",
+      "competition": "Серия А",
+      "date": "2026-11-21",
+      "home": "SS Lazio",
+      "away": "US Lecce"
+    },
+    {
+      "id": "it.1-affb40e1",
+      "competition": "Серия А",
+      "date": "2026-11-21",
+      "home": "SSC Napoli",
+      "away": "Torino FC"
+    },
+    {
+      "id": "de.1-2377500f",
+      "competition": "Бундеслига",
+      "date": "2026-11-22",
+      "home": "SV Werder Bremen",
+      "away": "Hamburger SV"
+    },
+    {
+      "id": "de.1-43bc073d",
+      "competition": "Бундеслига",
+      "date": "2026-11-22",
+      "home": "FC Augsburg",
+      "away": "1. FSV Mainz 05"
+    },
+    {
+      "id": "es.1-365490cf",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Athletic Club",
+      "away": "RCD Espanyol de Barcelona"
+    },
+    {
+      "id": "es.1-50bb670f",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Levante UD",
+      "away": "Elche CF"
+    },
+    {
+      "id": "es.1-68a3c9b3",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Rayo Vallecano de Madrid",
+      "away": "Valencia CF"
+    },
+    {
+      "id": "es.1-69867450",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "FC Barcelona",
+      "away": "Villarreal CF"
+    },
+    {
+      "id": "es.1-71e54e30",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Real Racing Club de Santander",
+      "away": "Real Sociedad de Fútbol"
+    },
+    {
+      "id": "es.1-89602af7",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Real Madrid CF",
+      "away": "RC Celta de Vigo"
+    },
+    {
+      "id": "es.1-c015bca",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Deportivo Alavés",
+      "away": "RC Deportivo La Coruña"
+    },
+    {
+      "id": "es.1-c2ad56f1",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Getafe CF",
+      "away": "Club Atlético de Madrid"
+    },
+    {
+      "id": "es.1-d3f80297",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "CA Osasuna",
+      "away": "Málaga CF"
+    },
+    {
+      "id": "es.1-eb6d0774",
+      "competition": "Ла Лига",
+      "date": "2026-11-22",
+      "home": "Sevilla FC",
+      "away": "Real Betis Balompié"
+    },
+    {
+      "id": "fr.1-37aaed5e",
+      "competition": "Лига 1",
+      "date": "2026-11-22",
+      "home": "Olympique de Marseille",
+      "away": "Le Mans FC"
+    },
+    {
+      "id": "fr.1-ac0bea5c",
+      "competition": "Лига 1",
+      "date": "2026-11-22",
+      "home": "FC Lorient",
+      "away": "Stade Rennais FC 1901"
+    },
+    {
+      "id": "fr.1-c6fed630",
+      "competition": "Лига 1",
+      "date": "2026-11-22",
+      "home": "Paris FC",
+      "away": "Angers SCO"
+    },
+    {
+      "id": "it.1-34b6403a",
+      "competition": "Серия А",
+      "date": "2026-11-22",
+      "home": "US Sassuolo Calcio",
+      "away": "Genoa CFC"
+    },
+    {
+      "id": "it.1-5bea7361",
+      "competition": "Серия А",
+      "date": "2026-11-22",
+      "home": "AC Milan",
+      "away": "Frosinone Calcio"
+    },
+    {
+      "id": "it.1-6969551c",
+      "competition": "Серия А",
+      "date": "2026-11-22",
+      "home": "Bologna FC 1909",
+      "away": "Udinese Calcio"
+    },
+    {
+      "id": "it.1-aa9d1a0b",
+      "competition": "Серия А",
+      "date": "2026-11-22",
+      "home": "Atalanta BC",
+      "away": "FC Internazionale Milano"
+    },
+    {
+      "id": "it.1-3952c475",
+      "competition": "Серия А",
+      "date": "2026-11-23",
+      "home": "AC Monza",
+      "away": "ACF Fiorentina"
+    },
+    {
+      "id": "it.1-3d01c753",
+      "competition": "Серия А",
+      "date": "2026-11-23",
+      "home": "Juventus FC",
+      "away": "Venezia FC"
+    },
+    {
+      "id": "de.1-16bf9561",
+      "competition": "Бундеслига",
+      "date": "2026-11-27",
+      "home": "SV Werder Bremen",
+      "away": "Borussia Mönchengladbach"
+    },
+    {
+      "id": "fr.1-e6ca0089",
+      "competition": "Лига 1",
+      "date": "2026-11-27",
+      "home": "Stade Brestois 29",
+      "away": "Paris FC"
+    },
+    {
+      "id": "en.1-107ee9f7",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Brighton & Hove Albion FC",
+      "away": "Newcastle United FC"
+    },
+    {
+      "id": "en.1-3117304c",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Fulham FC",
+      "away": "AFC Bournemouth"
+    },
+    {
+      "id": "en.1-34bef4c3",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Leeds United FC",
+      "away": "Coventry City FC"
+    },
+    {
+      "id": "en.1-52883ef9",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Arsenal FC",
+      "away": "Manchester City FC"
+    },
+    {
+      "id": "en.1-79f5a2f3",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Manchester United FC",
+      "away": "Brentford FC"
+    },
+    {
+      "id": "en.1-7ddda17e",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Ipswich Town FC",
+      "away": "Aston Villa FC"
+    },
+    {
+      "id": "en.1-964c00a1",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Nottingham Forest FC",
+      "away": "Chelsea FC"
+    },
+    {
+      "id": "en.1-9bd97d49",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Crystal Palace FC",
+      "away": "Hull City AFC"
+    },
+    {
+      "id": "en.1-dc9da20d",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Everton FC",
+      "away": "Liverpool FC"
+    },
+    {
+      "id": "en.1-f43292",
+      "competition": "АПЛ",
+      "date": "2026-11-28",
+      "home": "Sunderland AFC",
+      "away": "Tottenham Hotspur FC"
+    },
+    {
+      "id": "de.1-61d8c570",
+      "competition": "Бундеслига",
+      "date": "2026-11-28",
+      "home": "1. FC Köln",
+      "away": "SV 07 Elversberg"
+    },
+    {
+      "id": "de.1-72f9ee9b",
+      "competition": "Бундеслига",
+      "date": "2026-11-28",
+      "home": "1. FSV Mainz 05",
+      "away": "1. FC Union Berlin"
+    },
+    {
+      "id": "de.1-a091ad72",
+      "competition": "Бундеслига",
+      "date": "2026-11-28",
+      "home": "SC Paderborn 07",
+      "away": "FC Schalke 04"
+    },
+    {
+      "id": "de.1-e17f559f",
+      "competition": "Бундеслига",
+      "date": "2026-11-28",
+      "home": "Hamburger SV",
+      "away": "FC Bayern München"
+    },
+    {
+      "id": "de.1-ea46efb5",
+      "competition": "Бундеслига",
+      "date": "2026-11-28",
+      "home": "VfB Stuttgart",
+      "away": "Eintracht Frankfurt"
+    },
+    {
+      "id": "fr.1-1d5b9973",
+      "competition": "Лига 1",
+      "date": "2026-11-28",
+      "home": "Angers SCO",
+      "away": "Racing Club de Lens"
+    },
+    {
+      "id": "fr.1-487cd0c7",
+      "competition": "Лига 1",
+      "date": "2026-11-28",
+      "home": "Le Mans FC",
+      "away": "Lille OSC"
+    },
+    {
+      "id": "fr.1-bf71a81a",
+      "competition": "Лига 1",
+      "date": "2026-11-28",
+      "home": "Paris Saint-Germain FC",
+      "away": "FC Lorient"
+    },
+    {
+      "id": "fr.1-cb53a785",
+      "competition": "Лига 1",
+      "date": "2026-11-28",
+      "home": "OGC Nice",
+      "away": "ES Troyes AC"
+    },
+    {
+      "id": "fr.1-f62e6bd4",
+      "competition": "Лига 1",
+      "date": "2026-11-28",
+      "home": "Le Havre AC",
+      "away": "RC Strasbourg Alsace"
+    },
+    {
+      "id": "de.1-76c2f6f8",
+      "competition": "Бундеслига",
+      "date": "2026-11-29",
+      "home": "TSG 1899 Hoffenheim",
+      "away": "FC Augsburg"
+    },
+    {
+      "id": "de.1-9d52fae5",
+      "competition": "Бундеслига",
+      "date": "2026-11-29",
+      "home": "SC Freiburg",
+      "away": "RB Leipzig"
+    },
+    {
+      "id": "de.1-eaff9da9",
+      "competition": "Бундеслига",
+      "date": "2026-11-29",
+      "home": "Borussia Dortmund",
+      "away": "Bayer 04 Leverkusen"
+    },
+    {
+      "id": "es.1-1944aa5e",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "Málaga CF",
+      "away": "Athletic Club"
+    },
+    {
+      "id": "es.1-3e9a106d",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "RC Deportivo La Coruña",
+      "away": "FC Barcelona"
+    },
+    {
+      "id": "es.1-648723ff",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "Levante UD",
+      "away": "Real Racing Club de Santander"
+    },
+    {
+      "id": "es.1-93e6cbc6",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "Real Betis Balompié",
+      "away": "Rayo Vallecano de Madrid"
+    },
+    {
+      "id": "es.1-a0cea6f6",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "Valencia CF",
+      "away": "CA Osasuna"
+    },
+    {
+      "id": "es.1-a4ff8406",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "Real Madrid CF",
+      "away": "Deportivo Alavés"
+    },
+    {
+      "id": "es.1-c26aa503",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "RC Celta de Vigo",
+      "away": "Villarreal CF"
+    },
+    {
+      "id": "es.1-c3fef1d9",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "RCD Espanyol de Barcelona",
+      "away": "Getafe CF"
+    },
+    {
+      "id": "es.1-dc912281",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "Elche CF",
+      "away": "Club Atlético de Madrid"
+    },
+    {
+      "id": "es.1-f74cf775",
+      "competition": "Ла Лига",
+      "date": "2026-11-29",
+      "home": "Real Sociedad de Fútbol",
+      "away": "Sevilla FC"
+    },
+    {
+      "id": "fr.1-113f6067",
+      "competition": "Лига 1",
+      "date": "2026-11-29",
+      "home": "AJ Auxerre",
+      "away": "Olympique de Marseille"
+    },
+    {
+      "id": "fr.1-19fc04ba",
+      "competition": "Лига 1",
+      "date": "2026-11-29",
+      "home": "Olympique Lyonnais",
+      "away": "AS Monaco FC"
+    },
+    {
+      "id": "fr.1-a682ed7e",
+      "competition": "Лига 1",
+      "date": "2026-11-29",
+      "home": "Toulouse FC",
+      "away": "Stade Rennais FC 1901"
+    },
+    {
+      "id": "it.1-186ee59b",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "US Sassuolo Calcio",
+      "away": "SSC Napoli"
+    },
+    {
+      "id": "it.1-4992bc56",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "US Lecce",
+      "away": "Atalanta BC"
+    },
+    {
+      "id": "it.1-5afff0e5",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "Como 1907",
+      "away": "Juventus FC"
+    },
+    {
+      "id": "it.1-65a865b1",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "Frosinone Calcio",
+      "away": "Parma Calcio 1913"
+    },
+    {
+      "id": "it.1-85b0febc",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "Torino FC",
+      "away": "SS Lazio"
+    },
+    {
+      "id": "it.1-8b59f377",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "FC Internazionale Milano",
+      "away": "Genoa CFC"
+    },
+    {
+      "id": "it.1-9ecaa912",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "Venezia FC",
+      "away": "Bologna FC 1909"
+    },
+    {
+      "id": "it.1-af9ecfb1",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "Cagliari Calcio",
+      "away": "AC Milan"
+    },
+    {
+      "id": "it.1-b69acd1",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "AS Roma",
+      "away": "AC Monza"
+    },
+    {
+      "id": "it.1-f5dc8cb8",
+      "competition": "Серия А",
+      "date": "2026-11-29",
+      "home": "Udinese Calcio",
+      "away": "ACF Fiorentina"
+    },
+    {
+      "id": "en.1-35cb59b7",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Tottenham Hotspur FC",
+      "away": "Fulham FC"
+    },
+    {
+      "id": "en.1-490a26df",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Newcastle United FC",
+      "away": "Manchester United FC"
+    },
+    {
+      "id": "en.1-4aa1afc4",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "AFC Bournemouth",
+      "away": "Brighton & Hove Albion FC"
+    },
+    {
+      "id": "en.1-590abbd3",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Coventry City FC",
+      "away": "Ipswich Town FC"
+    },
+    {
+      "id": "en.1-84a286f0",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Chelsea FC",
+      "away": "Crystal Palace FC"
+    },
+    {
+      "id": "en.1-a6f8695a",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Hull City AFC",
+      "away": "Nottingham Forest FC"
+    },
+    {
+      "id": "en.1-de9ed586",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Manchester City FC",
+      "away": "Leeds United FC"
+    },
+    {
+      "id": "en.1-e3382fe8",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Liverpool FC",
+      "away": "Sunderland AFC"
+    },
+    {
+      "id": "en.1-e6c51aef",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Aston Villa FC",
+      "away": "Everton FC"
+    },
+    {
+      "id": "en.1-f3ebd075",
+      "competition": "АПЛ",
+      "date": "2026-12-02",
+      "home": "Brentford FC",
+      "away": "Arsenal FC"
+    },
+    {
+      "id": "en.1-4b4b3177",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Brentford FC",
+      "away": "Manchester City FC"
+    },
+    {
+      "id": "en.1-4baf31b9",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Chelsea FC",
+      "away": "Liverpool FC"
+    },
+    {
+      "id": "en.1-90007621",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Aston Villa FC",
+      "away": "Crystal Palace FC"
+    },
+    {
+      "id": "en.1-9197aa9c",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Newcastle United FC",
+      "away": "Sunderland AFC"
+    },
+    {
+      "id": "en.1-a25b37c4",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Manchester United FC",
+      "away": "Coventry City FC"
+    },
+    {
+      "id": "en.1-b30d6563",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Leeds United FC",
+      "away": "Ipswich Town FC"
+    },
+    {
+      "id": "en.1-bec776d6",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Everton FC",
+      "away": "Fulham FC"
+    },
+    {
+      "id": "en.1-c907fb19",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Tottenham Hotspur FC",
+      "away": "Arsenal FC"
+    },
+    {
+      "id": "en.1-dba2d580",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "AFC Bournemouth",
+      "away": "Hull City AFC"
+    },
+    {
+      "id": "en.1-eee7ca3e",
+      "competition": "АПЛ",
+      "date": "2026-12-05",
+      "home": "Nottingham Forest FC",
+      "away": "Brighton & Hove Albion FC"
+    },
+    {
+      "id": "de.1-358cc30a",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "FC Augsburg",
+      "away": "1. FC Köln"
+    },
+    {
+      "id": "de.1-3aca1ec6",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "Eintracht Frankfurt",
+      "away": "SV Werder Bremen"
+    },
+    {
+      "id": "de.1-3b12cd24",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "Bayer 04 Leverkusen",
+      "away": "Borussia Mönchengladbach"
+    },
+    {
+      "id": "de.1-4c7e82d7",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "1. FC Union Berlin",
+      "away": "Hamburger SV"
+    },
+    {
+      "id": "de.1-68e27032",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "SC Freiburg",
+      "away": "TSG 1899 Hoffenheim"
+    },
+    {
+      "id": "de.1-a391835d",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "SV 07 Elversberg",
+      "away": "VfB Stuttgart"
+    },
+    {
+      "id": "de.1-cc56651d",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "FC Bayern München",
+      "away": "SC Paderborn 07"
+    },
+    {
+      "id": "de.1-e610a7a5",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "FC Schalke 04",
+      "away": "Borussia Dortmund"
+    },
+    {
+      "id": "de.1-f51dc6d6",
+      "competition": "Бундеслига",
+      "date": "2026-12-05",
+      "home": "RB Leipzig",
+      "away": "1. FSV Mainz 05"
+    },
+    {
+      "id": "fr.1-36d6d638",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "AS Monaco FC",
+      "away": "Angers SCO"
+    },
+    {
+      "id": "fr.1-411a2ab3",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "ES Troyes AC",
+      "away": "Olympique Lyonnais"
+    },
+    {
+      "id": "fr.1-4252e946",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "Paris FC",
+      "away": "Le Mans FC"
+    },
+    {
+      "id": "fr.1-46a78f0d",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "Stade Rennais FC 1901",
+      "away": "Stade Brestois 29"
+    },
+    {
+      "id": "fr.1-4f79dcdb",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "Toulouse FC",
+      "away": "Paris Saint-Germain FC"
+    },
+    {
+      "id": "fr.1-5e13d697",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "Olympique de Marseille",
+      "away": "OGC Nice"
+    },
+    {
+      "id": "fr.1-6d9cfe77",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "RC Strasbourg Alsace",
+      "away": "FC Lorient"
+    },
+    {
+      "id": "fr.1-aa0bd03",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "Lille OSC",
+      "away": "AJ Auxerre"
+    },
+    {
+      "id": "fr.1-d712cd61",
+      "competition": "Лига 1",
+      "date": "2026-12-05",
+      "home": "Racing Club de Lens",
+      "away": "Le Havre AC"
+    },
+    {
+      "id": "es.1-1db601d8",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "FC Barcelona",
+      "away": "RC Celta de Vigo"
+    },
+    {
+      "id": "es.1-29b59d6a",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Real Racing Club de Santander",
+      "away": "RC Deportivo La Coruña"
+    },
+    {
+      "id": "es.1-399a1088",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Athletic Club",
+      "away": "Real Madrid CF"
+    },
+    {
+      "id": "es.1-43a1cf98",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Rayo Vallecano de Madrid",
+      "away": "Levante UD"
+    },
+    {
+      "id": "es.1-6ae291f8",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "CA Osasuna",
+      "away": "Elche CF"
+    },
+    {
+      "id": "es.1-75fa0f63",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Sevilla FC",
+      "away": "Málaga CF"
+    },
+    {
+      "id": "es.1-83b8c4e4",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Deportivo Alavés",
+      "away": "RCD Espanyol de Barcelona"
+    },
+    {
+      "id": "es.1-b5316671",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Getafe CF",
+      "away": "Valencia CF"
+    },
+    {
+      "id": "es.1-c340fbe9",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Club Atlético de Madrid",
+      "away": "Real Betis Balompié"
+    },
+    {
+      "id": "es.1-d857468b",
+      "competition": "Ла Лига",
+      "date": "2026-12-06",
+      "home": "Villarreal CF",
+      "away": "Real Sociedad de Fútbol"
+    },
+    {
+      "id": "it.1-3c8681d9",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "SSC Napoli",
+      "away": "US Lecce"
+    },
+    {
+      "id": "it.1-3ece443",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "Frosinone Calcio",
+      "away": "FC Internazionale Milano"
+    },
+    {
+      "id": "it.1-42acb16",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "Juventus FC",
+      "away": "Udinese Calcio"
+    },
+    {
+      "id": "it.1-4e2a3e4f",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "Genoa CFC",
+      "away": "Torino FC"
+    },
+    {
+      "id": "it.1-5d97d0a0",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "Bologna FC 1909",
+      "away": "AS Roma"
+    },
+    {
+      "id": "it.1-7466b15b",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "AC Monza",
+      "away": "Como 1907"
+    },
+    {
+      "id": "it.1-7e58a9f8",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "Venezia FC",
+      "away": "US Sassuolo Calcio"
+    },
+    {
+      "id": "it.1-80d6d601",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "ACF Fiorentina",
+      "away": "Cagliari Calcio"
+    },
+    {
+      "id": "it.1-f5997768",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "AC Milan",
+      "away": "Parma Calcio 1913"
+    },
+    {
+      "id": "it.1-ff4b0959",
+      "competition": "Серия А",
+      "date": "2026-12-06",
+      "home": "SS Lazio",
+      "away": "Atalanta BC"
+    }
+  ],
+  "issues": [],
+  "programs": [
+    {
+      "id": "start-1795035900",
+      "date": "2026-11-19",
+      "timeMsk": "00:05",
+      "title": "Футбол. Чемпионат Южной Кореи К-Лига 1. Сеул - Ульсан, 12+",
+      "channelId": "start",
+      "live": false,
+      "sourceUrl": "https://ru.tvstart.ru/schedule/start-tv/?day=19.11.2026",
+      "commentary": "unknown",
+      "access": "unknown"
+    },
+    {
+      "id": "start-1795123500",
+      "date": "2026-11-20",
+      "timeMsk": "00:25",
+      "title": "Футбол. Чемпионат Южной Кореи К-Лига 1. Канвон - Чонбук, 12+",
+      "channelId": "start",
+      "live": false,
+      "sourceUrl": "https://ru.tvstart.ru/schedule/start-tv/?day=20.11.2026",
+      "commentary": "unknown",
+      "access": "unknown"
+    },
+    {
+      "id": "start-1795196400",
+      "date": "2026-11-20",
+      "timeMsk": "20:40",
+      "title": "Футбол. Кубок Португалии. Порто - Паредес, 12+",
+      "channelId": "start",
+      "live": true,
+      "sourceUrl": "https://ru.tvstart.ru/schedule/start-tv/?day=20.11.2026",
+      "commentary": "unknown",
+      "access": "unknown"
+    }
+  ]
+}
