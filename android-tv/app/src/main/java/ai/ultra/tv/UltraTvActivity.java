@@ -263,8 +263,11 @@ public final class UltraTvActivity extends Activity {
         final int key = event.getKeyCode();
         if (pointerMode) {
             if (key == KeyEvent.KEYCODE_BACK) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0)
+                if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                    // Restore WebView before invoking the JavaScript return route.
+                    if (fullscreenView != null) exitFullscreen();
                     hideNativePointer(true);
+                }
                 return true;
             }
             if (key == KeyEvent.KEYCODE_DPAD_UP || key == KeyEvent.KEYCODE_DPAD_DOWN
