@@ -26,7 +26,7 @@ jobs:
       - name: Bundle static website into Android TV APK
         run: |
           mkdir -p android-tv/app/src/main/assets/site
-          for file in index.html player.js player.css releases.json watch-options.json tv-catalog.json tv-discover.json; do
+          for file in index.html player.js player.css releases.json watch-options.json tv-catalog.json tv-discover.json tv-summaries-ru.json; do
             cp "website-main/$file" "android-tv/app/src/main/assets/site/$file"
           done
           test -s android-tv/app/src/main/assets/site/index.html
@@ -34,6 +34,7 @@ jobs:
           test -s android-tv/app/src/main/assets/site/watch-options.json
           test -s android-tv/app/src/main/assets/site/tv-catalog.json
           test -s android-tv/app/src/main/assets/site/tv-discover.json
+          test -s android-tv/app/src/main/assets/site/tv-summaries-ru.json
           test -s android-tv/app/src/main/assets/tv.html
           test -s android-tv/app/src/main/assets/tv.css
           node --check android-tv/app/src/main/assets/tv.js
@@ -68,6 +69,12 @@ jobs:
           grep -q 'function bindNativeVideoProgress' android-tv/app/src/main/assets/tv.js
           grep -q 'progress-save' android-tv/app/src/main/assets/tv.js
           grep -q 'data-act="continue"' android-tv/app/src/main/assets/tv.js
+          ! grep -q 'Недавно открытые' android-tv/app/src/main/assets/tv.js
+          grep -q 'function summaryRu' android-tv/app/src/main/assets/tv.js || grep -q 'const summaryRu' android-tv/app/src/main/assets/tv.js
+          grep -q 'progress-save' android-tv/app/src/main/assets/tv.js
+          grep -q 'searchParams.set.*season' android-tv/app/src/main/assets/tv.js
+          grep -q 'detail-compact' android-tv/app/src/main/assets/tv.css
+          node -e "const r=require('./android-tv/app/src/main/assets/site/tv-summaries-ru.json'); if(Object.keys(r.shows||{}).length<30) process.exit(1);"
       - name: Install Java 17
         uses: actions/setup-java@v4
         with:
@@ -104,7 +111,7 @@ jobs:
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
-          name: ultra-tv-ai-android-tv-development-v012
+          name: ultra-tv-ai-android-tv-development-v013
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
@@ -112,8 +119,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="tv-v0.12-unsigned-development"
-          FILE="ultra-tv-v0.12-UNSIGNED-DEBUG-DO-NOT-INSTALL.apk"
+          TAG="tv-v0.13-unsigned-development"
+          FILE="ultra-tv-v0.13-UNSIGNED-DEBUG-DO-NOT-INSTALL.apk"
           cp android-tv/app/build/outputs/apk/debug/app-debug.apk "$FILE"
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --target "$GITHUB_SHA" --prerelease \
