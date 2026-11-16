@@ -14,7 +14,8 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   added:store('tv-manual-added',[]),discover:store('tv-discover-cache',[]),
   sourceChoice:store('tv-source-choice',{}),optionsOpen:false,directWatch:false,
   scheduleLoading:false,scheduleDone:0,scheduleMode:'mine',
-  progress:store('tv-progress-v1',{}),progressDraft:{}};
+  progress:store('tv-progress-v1',{}),progressDraft:{},
+  ruSummaries:store('tv-summary-ru-cache',{})};
 const root=$('#content');
 let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
@@ -33,6 +34,7 @@ const poster=x=>{
            .replace('/original/','/medium_portrait/');
 };
 const imdb=x=>meta(x.key).imdb||x.imdb||'';
+const summaryRu=x=>S.ruSummaries[x.key]||'Русское описание пока недоступно.';
 const latest=()=>items().filter(x=>S.tracked[x.key]!==false);
 const getProgress=key=>S.progress[key]||null;
 const episodeCode=(season,episode)=>'S'+String(season||1).padStart(2,'0')+'E'+String(episode||1).padStart(2,'0');
@@ -101,13 +103,11 @@ function home(){
  const history=Object.entries(S.progress).filter(([key,p])=>p&&Number(p.openedAt)>0&&item(key))
    .sort((a,b)=>Number(b[1].openedAt)-Number(a[1].openedAt))
    .slice(0,12).map(([key])=>item(key));
- const older=S.recent.map(r=>item(r.key)).filter(x=>x&&!getProgress(x.key));
  return rail('▶ Продолжить просмотр',history,'continue')+
-   rail('Недавно открытые',older)+rail('Мои сериалы',data)+
+   rail('Мои сериалы',data)+
    rail('Фантастика и фэнтези',data.filter(x=>x.genres.some(g=>['scifi','fantasy','super'].includes(g))))+
    rail('Криминал и триллеры',data.filter(x=>x.genres.some(g=>['crime','thriller'].includes(g))))+
-   rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))))+
-   '<p class="subtle">Каталог и источники обновляются автоматически. Новые сериалы появляются без переустановки APK.</p>';
+   rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))));
 }
 function dateRu(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return value||'';
@@ -195,21 +195,23 @@ function settings(){
  '<div class="settings-row"><div><h2>Управление</h2><p>Стрелки — выбор, OK — действие; удержание OK в видео — указатель. Назад — выйти из просмотра.</p></div></div>'+
  '<p class="settings-footer">Общий каталог синхронизируется с сайтом. Сохранённые на приставке добавления пока локальные.</p></section>';
 }
+
 function progressUI(x){
  const key=x.key,p=getProgress(key),v=progressDraft(key);
- const summary=p?.confirmed?'Отмечено вручную: '+episodeCode(p.season,p.episode):
-   p?.kind==='direct'&&Number(p.seconds)>0?'Точное место: '+clock(p.seconds)+' · '+episodeCode(p.season,p.episode):
-   p?.openedAt?'Последний раз открывали '+new Date(p.openedAt).toLocaleDateString('ru-RU'):
-   'Нет сохранённой истории';
- return '<div class="progress-panel"><h2>Продолжить просмотр</h2>'+
-  '<p class="progress-summary">'+esc(summary)+'</p>'+
+ const summary=p?.kind==='direct'&&Number(p.seconds)>0?
+   'Сохранено '+episodeCode(p.season,p.episode)+' · '+clock(p.seconds):
+   p?.confirmed?'Сохранено '+episodeCode(p.season,p.episode):
+   p?.openedAt?'Последний просмотр':'Отметь серию';
+ return '<div class="progress-panel" role="group" aria-label="Последняя просмотренная серия">'+
+  '<span class="progress-summary">'+esc(summary)+'</span>'+
   '<div class="progress-picker">'+
-  '<span>Сезон</span><button data-act="progress-step" data-part="season" data-step="-1">−</button><b>'+v.season+
-  '</b><button data-act="progress-step" data-part="season" data-step="1">+</button>'+
-  '<span>Серия</span><button data-act="progress-step" data-part="episode" data-step="-1">−</button><b>'+v.episode+
-  '</b><button data-act="progress-step" data-part="episode" data-step="1">+</button></div>'+
-  '<button class="action progress-save" data-act="progress-save">✓ Запомнить серию</button>'+
-  '<p class="progress-explain">Initem не сообщает приложению выбранную серию и минуту. Их можно отметить вручную. Для прямых видеофайлов время сохраняется автоматически.</p></div>';
+  '<span>Сезон</span><button data-act="progress-step" data-part="season" data-step="-1" aria-label="Предыдущий сезон">−</button><b>'+v.season+
+  '</b><button data-act="progress-step" data-part="season" data-step="1" aria-label="Следующий сезон">+</button>'+
+  '<span>Серия</span><button data-act="progress-step" data-part="episode" data-step="-1" aria-label="Предыдущая серия">−</button><b>'+v.episode+
+  '</b><button data-act="progress-step" data-part="episode" data-step="1" aria-label="Следующая серия">+</button></div>'+
+  '<button class="action progress-save" data-act="progress-save" aria-label="Запомнить выбранную серию">✓ Запомнить</button>'+
+  '<small class="progress-explain">Initem откроет отмеченную серию; точная минута пока не определяется.</small>'+
+  '</div>';
 }
 function detail(){
  const x=item(S.show);if(!x)return catalog();
@@ -217,22 +219,24 @@ function detail(){
  const genres=(x.genres||[]).map(v=>'<span class="badge">'+esc(tags[v]||v)+'</span>').join('');
  const sources=availableSources(x),choice=Number(S.sourceChoice[x.key])||0;
  const panel=S.optionsOpen?
-   '<div class="source-panel"><h3>Выбор источника</h3>'+
+   '<div class="source-panel"><h3>Источники просмотра</h3>'+
    (sources.length?sources.map((src,i)=>'<button data-act="preselect-source" data-index="'+i+'" data-focus="source:'+i+
    '" class="'+(i===choice?'selected':'')+'">'+esc(src.name||src.platform||'Источник '+(i+1))+'</button>').join(''):
-   '<p>Пока нет отдельного источника. Если известен IMDb, Initem подключается автоматически.</p>')+
-   '<p class="subtle">Сезон, серия и озвучка Initem выбираются в полноэкранном плеере.</p></div>':'';
- return '<button class="action" data-act="back">← Назад</button><section class="detail">'+
- '<div>'+(img?'<img class="detail-art" src="'+esc(img)+'" alt="">':'<div class="detail-art"></div>')+'</div>'+
+   '<p>Дополнительных источников пока нет.</p>')+
+   '<p class="subtle">Озвучку можно выбрать в самом плеере.</p></div>':'';
+ const favLabel=isOwned?(S.tracked[x.key]===false?'Вернуть в каталог':'В моём каталоге'):'Добавить в мой каталог';
+ return '<section class="detail detail-compact">'+
+ '<div class="detail-poster">'+(img?'<img class="detail-art" src="'+esc(img)+'" alt="'+esc(x.ru)+'">':'<div class="detail-art"></div>')+'</div>'+
  '<div class="detail-info"><div class="eyebrow">Ultra TV · сериал</div><h1>'+esc(x.ru)+'</h1>'+
- '<p>'+esc(x.en)+' · '+esc(x.year)+(m.rating||x.rating?' · ★ '+esc(m.rating||x.rating):'')+'</p>'+
- '<div>'+genres+'</div><p>'+esc(m.summary||x.summary||'Открой просмотр в полноэкранном плеере.')+'</p>'+
- '<div class="actions"><button class="primary" data-act="play" data-focus="detail-play">'+
-    (getProgress(x.key)?'▶ Продолжить просмотр':'▶ Смотреть')+'</button>'+
- '<button class="secondary" data-act="follow">'+(isOwned?(S.tracked[x.key]===false?'+ Вернуть в каталог':'✓ В моём каталоге'):'+ Добавить в мой каталог')+'</button></div>'+
+ '<p class="detail-metadata">'+esc(x.year)+(m.rating||x.rating?' · ★ '+esc(m.rating||x.rating):'')+' · '+esc(x.en)+'</p>'+
+ '<div class="detail-genres">'+genres+'</div><p class="detail-description">'+esc(summaryRu(x))+'</p>'+
+ '<div class="actions detail-commands"><button class="primary" data-act="play" data-focus="detail-play">'+
+ (getProgress(x.key)?'▶ Продолжить просмотр':'▶ Смотреть')+'</button>'+
+ '<button class="secondary icon-button" data-act="follow" aria-label="'+esc(favLabel)+'" title="'+esc(favLabel)+'">'+
+ (isOwned&&S.tracked[x.key]!==false?'✓':'＋')+'▤</button>'+
+ '<button class="action icon-button" data-act="player-options" data-focus="player-options" aria-label="Настройки плеера" title="Настройки плеера" aria-expanded="'+S.optionsOpen+'">⚙</button></div>'+
  progressUI(x)+
- '<div class="detail-player-settings"><button class="action" data-act="player-options" data-focus="player-options" aria-expanded="'+S.optionsOpen+'">⚙ Настройки плеера</button>'+
- panel+'</div></div></section>';
+ panel+'</div></section>';
 }
 function availableSources(x){
  const sources=[],set=new Set();
@@ -250,7 +254,16 @@ function availableSources(x){
  return sources;
 }
 function sourceMedia(src){
- const url=src?.url;if(!url)return '<div class="empty">Плеер пока не подключён для этого сериала.</div>';
+ let url=src?.url;if(!url)return '<div class="empty">Плеер пока не подключён для этого сериала.</div>';
+ // Tested with Initem: ?season=1&episode=2 controls playlist.current.
+ // Apply only when the user manually chose an episode; otherwise preserve
+ // any internal Initem resume behavior.
+ if(src.platform==='initem'&&getProgress(S.show)?.confirmed){
+   const u=new URL(url);
+   u.searchParams.set('season',String(S.season));
+   u.searchParams.set('episode',String(S.episode));
+   url=u.toString();
+ }
  if(src.kind==='video'||/\.(mp4|webm)(?:\?|$)/i.test(url))return '<video id="tv-video" tabindex="0" src="'+esc(url)+'" controls playsinline></video>';
  return '<iframe id="tv-player-iframe" title="Видеоплеер" loading="eager" src="'+esc(url)+
  '" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen '+
@@ -461,11 +474,8 @@ function buildFocusRows(){
     }
     [...rows.values()].forEach((items,i)=>add(S.page+':grid:'+i,items));
   }else if(S.page==='detail'){
-    add('detail:back',root.querySelectorAll('[data-act="back"]'));
-    add('detail:actions',root.querySelectorAll('.detail .actions button'));
-    add('detail:progress',root.querySelectorAll('.detail .progress-picker button'));
-    add('detail:progress-save',root.querySelectorAll('.detail [data-act="progress-save"]'));
-    add('detail:settings',root.querySelectorAll('.detail [data-act="player-options"]'));
+    add('detail:actions',root.querySelectorAll('.detail .detail-commands button'));
+    add('detail:progress',root.querySelectorAll('.detail .progress-picker button, .detail [data-act="progress-save"]'));
     [...root.querySelectorAll('.detail [data-act="preselect-source"]')].forEach((b,i)=>add('detail:source:'+i,[b]));
   }else if(S.page==='settings'){
     [...root.querySelectorAll('.settings-box button')].forEach((el,i)=>add('settings:'+i,[el]));
@@ -647,8 +657,8 @@ async function refresh(manual=false){
  S.loading=true;$('#network').textContent='● Обновление…';
  if(manual)notify('Обновляем список сериалов и плееров…');
  try{
-  const responses=await Promise.all([readShared('tv-catalog.json'),readShared('watch-options.json'),readShared('releases.json'),readShared('tv-discover.json')]);
-  const [c,o,r,d]=responses;
+  const responses=await Promise.all([readShared('tv-catalog.json'),readShared('watch-options.json'),readShared('releases.json'),readShared('tv-discover.json'),readShared('tv-summaries-ru.json')]);
+  const [c,o,r,d,ru]=responses;
   if(c?.data?.shows?.length){
    S.shows=c.data.shows.filter(x=>x&&x.key&&x.ru).slice(0,500);
    save('tv-catalog-cache',S.shows);
@@ -661,6 +671,10 @@ async function refresh(manual=false){
   if(d?.data?.shows?.length){
    S.discover=d.data.shows.filter(x=>x&&x.key&&x.ru&&Number(x.rating)>0).slice(0,100);
    save('tv-discover-cache',S.discover);
+  }
+  if(ru?.data?.shows){
+   S.ruSummaries={...S.ruSummaries,...ru.data.shows};
+   save('tv-summary-ru-cache',S.ruSummaries);
   }
   $('#network').textContent=c?.online?'● Каталог обновлён':'● Каталог сохранён';
   // Replacing an iframe while the user watches would restart video playback.
