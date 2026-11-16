@@ -110,13 +110,13 @@ function detail(){
 function availableSources(x){
  const sources=[],set=new Set();
  const add=(a)=>{
-  if(!a||typeof a.url!=='string'||!/^https:\\/\\//i.test(a.url)||set.has(a.url))return;
+  if(!a||typeof a.url!=='string'||!/^https:\/\//i.test(a.url)||set.has(a.url))return;
   set.add(a.url);sources.push(a);
  };
  const configured=S.opts.embeds?.[x.key]||[];
  configured.filter(a=>a.platform==='initem').forEach(add);
  const id=imdb(x);
- if(/^tt\\d{5,12}$/.test(id))add({name:'Initem · сезоны и озвучки',url:'https://api.initem.ws/embed/imdb/'+id,kind:'embed',platform:'initem'});
+ if(/^tt\d{5,12}$/.test(id))add({name:'Initem · сезоны и озвучки',url:'https://api.initem.ws/embed/imdb/'+id,kind:'embed',platform:'initem'});
  configured.filter(a=>a.platform!=='initem').forEach(add);
  const key=x.key+':S'+String(S.season).padStart(2,'0')+'E'+String(S.episode).padStart(2,'0');
  (S.opts.episodes?.[key]||[]).forEach(add);
@@ -124,7 +124,7 @@ function availableSources(x){
 }
 function sourceMedia(src){
  const url=src?.url;if(!url)return '<div class="empty">Плеер пока не подключён для этого сериала.</div>';
- if(src.kind==='video'||/\\.(mp4|webm)(?:\\?|$)/i.test(url))return '<video id="tv-video" tabindex="0" src="'+esc(url)+'" controls playsinline></video>';
+ if(src.kind==='video'||/\.(mp4|webm)(?:\?|$)/i.test(url))return '<video id="tv-video" tabindex="0" src="'+esc(url)+'" controls playsinline></video>';
  return '<iframe id="tv-player-iframe" title="Видеоплеер" loading="eager" src="'+esc(url)+
  '" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen '+
  ' referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"></iframe>';
@@ -133,11 +133,11 @@ function player(){
  const x=item(S.show);if(!x)return catalog();
  const sources=availableSources(x),src=sources[S.source]||sources[0]||null;
  const episodeKeys=Object.keys(S.opts.episodes||{}).filter(k=>k.startsWith(x.key+':S'));
- let seasons=new Set(episodeKeys.map(k=>Number((k.match(/:S(\\d+)E/)||[])[1])).filter(Boolean));
+ let seasons=new Set(episodeKeys.map(k=>Number((k.match(/:S(\d+)E/)||[])[1])).filter(Boolean));
  if(meta(x.key).episodes){for(const ep of meta(x.key).episodes)if(ep.season)seasons.add(ep.season);}
  if(!seasons.size)seasons.add(1);
  const eps=(meta(x.key).episodes||[]).filter(ep=>ep.season===S.season&&ep.number).map(ep=>ep.number);
- episodeKeys.forEach(k=>{const m=k.match(/:S(\\d+)E(\\d+)$/);if(m&&Number(m[1])===S.season)eps.push(Number(m[2]))});
+ episodeKeys.forEach(k=>{const m=k.match(/:S(\d+)E(\d+)$/);if(m&&Number(m[1])===S.season)eps.push(Number(m[2]))});
  const epNums=[...new Set(eps)].sort((a,b)=>a-b).slice(0,50);
  return '<div class="player-screen"><section class="player-main">'+
  '<div class="player-tools"><button class="secondary" data-act="back">← Назад</button>'+
