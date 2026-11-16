@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-11-16",
+  "source": "TVmaze ratings (average), verified 2026-11-16",
+  "threshold": 7.7,
+  "shows": [
+    {
+      "key": "chernobyl",
+      "ru": "Чернобыль",
+      "en": "Chernobyl",
+      "year": 2019,
+      "rating": 8.9,
+      "tvmaze": 30770,
+      "imdb": "tt7366338",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/193/482599.jpg",
+      "genres": [
+        "drama"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "expanse",
+      "ru": "Пространство",
+      "en": "The Expanse",
+      "year": 2015,
+      "rating": 8.7,
+      "tvmaze": 1825,
+      "imdb": "tt3230854",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/445/1114081.jpg",
+      "genres": [
+        "scifi"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "fargo",
+      "ru": "Фарго",
+      "en": "Fargo",
+      "year": 2014,
+      "rating": 8.6,
+      "tvmaze": 32,
+      "imdb": "tt2802850",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/487/1219631.jpg",
+      "genres": [
+        "crime"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "better-call-saul",
+      "ru": "Лучше звоните Солу",
+      "en": "Better Call Saul",
+      "year": 2015,
+      "rating": 8.6,
+      "tvmaze": 618,
+      "imdb": "tt3032476",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253515.jpg",
+      "genres": [
+        "crime"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "shogun",
+      "ru": "Сёгун",
+      "en": "Shōgun",
+      "year": 2024,
+      "rating": 8.5,
+      "tvmaze": 37336,
+      "imdb": "tt2788316",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/506/1265637.jpg",
+      "genres": [
+        "drama"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "arcane",
+      "ru": "Аркейн",
+      "en": "Arcane: League of Legends",
+      "year": 2021,
+      "rating": 8.5,
+      "tvmaze": 55138,
+      "imdb": "tt11126994",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/536/1340287.jpg",
+      "genres": [
+        "animation"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "mandalorian",
+      "ru": "Мандалорец",
+      "en": "The Mandalorian",
+      "year": 2019,
+      "rating": 8.5,
+      "tvmaze": 38963,
+      "imdb": "tt8111088",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253498.jpg",
+      "genres": [
+        "scifi"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "pitt",
+      "ru": "Больница Питт",
+      "en": "The Pitt",
+      "year": 2025,
+      "rating": 8.4,
+      "tvmaze": 75632,
+      "imdb": "tt31938062",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/606/1516776.jpg",
+      "genres": [
+        "drama"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "mindhunter",
+      "ru": "Охотник за разумом",
+      "en": "MINDHUNTER",
+      "year": 2017,
+      "rating": 8.4,
+      "tvmaze": 10822,
+      "imdb": "tt5290382",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/501/1253490.jpg",
+      "genres": [
+        "crime"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "black-mirror",
+      "ru": "Чёрное зеркало",
+      "en": "Black Mirror",
+      "year": 2011,
+      "rating": 8.4,
+      "tvmaze": 305,
+      "imdb": "tt2085059",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/564/1411764.jpg",
+      "genres": [
+        "scifi"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "mr-robot",
+      "ru": "Мистер Робот",
+      "en": "Mr. Robot",
+      "year": 2015,
+      "rating": 8.3,
+      "tvmaze": 1871,
+      "imdb": "tt4158110",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/211/528026.jpg",
+      "genres": [
+        "thriller"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "dark",
+      "ru": "Тьма",
+      "en": "Dark",
+      "year": 2017,
+      "rating": 8.2,
+      "tvmaze": 17861,
+      "imdb": "tt5753856",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/504/1262352.jpg",
+      "genres": [
+        "scifi"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "penguin",
+      "ru": "Пингвин",
+      "en": "The Penguin",
+      "year": 2024,
+      "rating": 8.1,
+      "tvmaze": 60920,
+      "imdb": "tt15435876",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/536/1340329.jpg",
+      "genres": [
+        "crime"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "true-detective",
+      "ru": "Настоящий детектив",
+      "en": "True Detective",
+      "year": 2014,
+      "rating": 8.1,
+      "tvmaze": 5,
+      "imdb": "tt2356777",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/490/1226764.jpg",
+      "genres": [
+        "crime"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "andor",
+      "ru": "Андор",
+      "en": "Andor",
+      "year": 2022,
+      "rating": 7.9,
+      "tvmaze": 52341,
+      "imdb": "tt9253284",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/564/1411766.jpg",
+      "genres": [
+        "scifi"
+      ],
+      "source": "TVmaze"
+    },
+    {
+      "key": "severance",
+      "ru": "Разделение",
+      "en": "Severance",
+      "year": 2022,
+      "rating": 7.7,
+      "tvmaze": 44933,
+      "imdb": "tt11280740",
+      "image": "https://static.tvmaze.com/uploads/images/medium_portrait/548/1371406.jpg",
+      "genres": [
+        "scifi"
+      ],
+      "source": "TVmaze"
+    }
+  ]
+}
