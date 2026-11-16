@@ -1,0 +1,7 @@
+{
+  "versionCode": 9,
+  "versionName": "0.9-tv-app-updater",
+  "apkUrl": "https://ultra-tv-ai.pages.dev/a.apk",
+  "sha256": "0a6c29bcdb39c53b6345b2755bcaec1348b74c7665d77b3515bc9d4f40eef3e3",
+  "notes": "Добавлена проверка новой версии и системная установка APK прямо из приложения. Для обновления поверх старой версии нужна одинаковая подпись."
+}
