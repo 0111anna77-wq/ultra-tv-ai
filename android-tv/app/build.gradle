@@ -8,8 +8,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 1
-        versionName '0.1-tv-preview'
+        versionCode 2
+        versionName '0.2-tv-adfilter'
     }
     buildTypes {
         release { minifyEnabled false }
