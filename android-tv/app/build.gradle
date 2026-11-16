@@ -8,8 +8,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 13
-        versionName '0.13-tv-compact-and-resume'
+        versionCode 14
+        versionName '0.14-initem-auto-progress'
     }
     buildTypes {
         release { minifyEnabled false }
