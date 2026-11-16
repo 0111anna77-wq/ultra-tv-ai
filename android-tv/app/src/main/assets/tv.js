@@ -309,6 +309,13 @@ function stopCursor(fromNative=false){
   S.cursor=false;
   $('#tv-video-frame')?.classList.remove('tv-maximized');
   if(!fromNative)signalNativePointer(false);
+  if(document.fullscreenElement){
+    try{document.exitFullscreen().catch(()=>{});}catch(e){}
+  }
+  if(fromNative&&S.directWatch){
+    S.directWatch=false;
+    setTimeout(()=>{if(S.page==='player')navigate('detail',S.show)},90);
+  }
   const help=$('#player-help');
   if(help)help.textContent='Для просмотра нажми «Полный экран» или OK на видеоплеере.';
   const button=$('[data-act=cursor]');
@@ -540,6 +547,7 @@ async function refresh(manual=false){
  }catch(err){$('#network').textContent='● Локальный каталог';if(manual)notify('Ошибка обновления: '+err.message);}
  finally{S.loading=false;}
  if(S.shows.length)loadPosters(manual);
+ if(S.page==='catalog'&&!S.scheduleLoading)loadSchedule();
 }
 async function loadPosters(force=false){
  const list=items().filter(x=>force||!S.meta[x.key]||Date.now()-(S.meta[x.key].updated||0)>1000*60*60*24*7);
@@ -605,7 +613,7 @@ async function loadSchedule(){
   const x=shows[i],m=meta(x.key);
   if(!m.episodes||Date.now()-(m.episodesUpdated||0)>24*3600*1000){
     try{await loadEpisodes(x.key);}catch(e){console.warn('TVMaze calendar',x.key,e);}
-    await new Promise(resolve=>setTimeout(resolve,360));
+    await new Promise(resolve=>setTimeout(resolve,1250));
   }
   S.scheduleDone++;
   if(S.page==='catalog'&&(i%4===3||i===shows.length-1))render();
