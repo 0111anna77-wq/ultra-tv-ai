@@ -26,12 +26,17 @@ jobs:
       - name: Bundle static website into Android TV APK
         run: |
           mkdir -p android-tv/app/src/main/assets/site
-          for file in index.html player.js player.css releases.json watch-options.json; do
+          for file in index.html player.js player.css releases.json watch-options.json tv-catalog.json; do
             cp "website-main/$file" "android-tv/app/src/main/assets/site/$file"
           done
           test -s android-tv/app/src/main/assets/site/index.html
           test -s android-tv/app/src/main/assets/site/player.js
           test -s android-tv/app/src/main/assets/site/watch-options.json
+          test -s android-tv/app/src/main/assets/site/tv-catalog.json
+          test -s android-tv/app/src/main/assets/tv.html
+          test -s android-tv/app/src/main/assets/tv.css
+          node --check android-tv/app/src/main/assets/tv.js
+          node --check android-tv/app/src/main/assets/site/player.js
       - name: Install Java 17
         uses: actions/setup-java@v4
         with:
@@ -65,31 +70,31 @@ jobs:
           FILE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/a.apk?ref=main" --jq '.sha' 2>/dev/null || true)"
           if [ -n "$FILE_SHA" ]; then
             gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
-              -f message="Publish direct Ultra TV AI Android TV v0.4 APK" \
+              -f message="Publish direct Ultra TV AI Android TV v0.5 APK" \
               -f branch=main -f sha="$FILE_SHA" -f content="$ENCODED" >/dev/null
           else
             gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
-              -f message="Publish direct Ultra TV AI Android TV v0.4 APK" \
+              -f message="Publish direct Ultra TV AI Android TV v0.5 APK" \
               -f branch=main -f content="$ENCODED" >/dev/null
           fi
           echo "Direct origin-hosted APK: https://ultra-tv-ai.pages.dev/a.apk"
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
-          name: ultra-tv-ai-android-tv-remote-v04
+          name: ultra-tv-ai-android-tv-tvui-v05
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      - name: Publish direct APK download (v0.4)
+      - name: Publish direct APK download (v0.5)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="tv-v0.4-remote"
+          TAG="tv-v0.5-tvui"
           APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
-          cp "$APK" ultra-tv-ai-android-tv-v0.4.apk
+          cp "$APK" ultra-tv-ai-android-tv-v0.5.apk
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --target "$GITHUB_SHA" \
-              --title "Ultra TV AI Android TV v0.4 (Remote-accessible settings)" \
-              --notes "Android TV APK v0.4: hold Back for 1.5s for native AdBlock settings, filter OFF by default on fresh install. Website shell is bundled; remote streaming depends on network. Debug signatures may change so previous builds may need uninstall."
-          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.4.apk --clobber
-          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.4.apk"
+              --title "Ultra TV AI Android TV v0.5 (KION-style TV user interface)" \
+              --notes "Android TV v0.5 features a dedicated 10-foot UI, shared catalog/players with live refresh, large poster rails, virtual in-player remote cursor and keyboard only on explicit OK. Still requires network for streaming; refresh does not yet sync private browser data. Debug APK signatures may change; reinstall can lose local settings."
+          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.5.apk --clobber
+          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.5.apk"
