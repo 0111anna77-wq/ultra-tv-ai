@@ -57,3 +57,18 @@ main{padding:25px 58px 120px;outline:none}h1,h2,p{margin-top:0}.eyebrow{color:#d
   width:100%!important;height:100%!important;border:0!important;outline:0!important;
   object-fit:contain;
 }
+
+/* In the browsing screen, the video itself is a visible D-pad stop. */
+/* The focus cue must NOT appear in either HTML5 or CSS fullscreen. */
+.player-frame[tabindex]:focus:not(:fullscreen):not(.tv-maximized),
+.player-frame[tabindex]:focus-visible:not(:fullscreen):not(.tv-maximized) {
+  outline:4px solid var(--gold2)!important;
+  outline-offset:5px!important;
+  box-shadow:0 0 0 4px #edd19d24!important;
+}
+.player-frame[tabindex]:focus:not(:fullscreen):not(.tv-maximized)::after{
+  content:"OK — открыть управление видео";
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  background:#101925e8;color:#ffe0b0;padding:12px 17px;
+  border-radius:10px;font-size:18px;white-space:nowrap;pointer-events:none;
+}
