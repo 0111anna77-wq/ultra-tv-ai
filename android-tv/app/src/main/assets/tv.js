@@ -250,8 +250,11 @@ function record(key){
 function openShow(key){if(!item(key))return;navigate('detail',key);loadEpisodes(key);}
 function watch(key){
  const x=item(key||S.show);if(!x)return;
- S.show=x.key;S.source=0;S.season=1;S.episode=1;record(x.key);
+ S.show=x.key;S.source=Number(S.sourceChoice[x.key])||0;S.season=1;S.episode=1;
+ record(x.key);S.directWatch=true;
  navigate('player',x.key);loadEpisodes(x.key);
+ // Keep the user's OK gesture: open the real fullscreen video right away.
+ startCursor();
 }
 function refreshPlayer(){
  if(S.cursor)stopCursor();
@@ -260,7 +263,7 @@ function refreshPlayer(){
 }
 function goBack(){
  if(S.cursor){stopCursor();return true;}
- if(S.page==='player'){navigate('detail',S.show);return true;}
+ if(S.page==='player'){S.directWatch=false;navigate('detail',S.show);return true;}
  if(S.page==='detail'){navigate('catalog');return true;}
  if(S.page!=='home'){navigate('home');return true;}
  return false;
@@ -334,7 +337,10 @@ function buildFocusRows(){
     [...root.querySelectorAll('.rail')].forEach((rail,i)=>{
       add('home:rail:'+i,rail.querySelectorAll('.strip .card'));
     });
-  }else if(S.page==='catalog'||S.page==='new'||S.page==='search'){
+  }else if(S.page==='catalog'){
+    add('schedule:filters',root.querySelectorAll('.schedule-filters button'));
+    [...root.querySelectorAll('.schedule-entry')].forEach((entry,i)=>add('schedule:episode:'+i,[entry]));
+  }else if(S.page==='new'||S.page==='search'){
     if(S.page==='search')add('search:input',root.querySelectorAll('#tv-search'));
     const all=[...root.querySelectorAll('.cards-grid .card')];
     const rows=new Map();
@@ -347,6 +353,8 @@ function buildFocusRows(){
   }else if(S.page==='detail'){
     add('detail:back',root.querySelectorAll('[data-act="back"]'));
     add('detail:actions',root.querySelectorAll('.detail .actions button'));
+    add('detail:settings',root.querySelectorAll('.detail [data-act="player-options"]'));
+    [...root.querySelectorAll('.detail [data-act="preselect-source"]')].forEach((b,i)=>add('detail:source:'+i,[b]));
   }else if(S.page==='settings'){
     [...root.querySelectorAll('.settings-box button')].forEach((el,i)=>add('settings:'+i,[el]));
   }else if(S.page==='player'){
@@ -421,8 +429,29 @@ document.addEventListener('click',e=>{
  if(act==='detail')openShow(key);
  if(act==='play')watch(key);
  if(act==='back')goBack();
- if(act==='follow'&&item(S.show)){S.tracked[S.show]=S.tracked[S.show]===false?true:false;save('tv-tracked',S.tracked);render();}
- if(act==='source'){S.source=Number(b.dataset.index)||0;refreshPlayer();}
+ if(act==='follow'&&item(S.show)){
+   const x=item(S.show);
+   if(!isInCollection(x.key)){
+     S.added.push(x);save('tv-manual-added',S.added);
+     S.tracked[x.key]=true;notify('Добавлено в коллекцию на приставке');
+   }else S.tracked[x.key]=S.tracked[x.key]===false?true:false;
+   save('tv-tracked',S.tracked);render();
+ }
+ if(act==='source'){S.source=Number(b.dataset.index)||0;S.sourceChoice[S.show]=S.source;save('tv-source-choice',S.sourceChoice);refreshPlayer();}
+ if(act==='player-options'){
+   S.optionsOpen=!S.optionsOpen;focusKey='player-options';render();
+   document.querySelector('[data-focus="player-options"]')?.focus({preventScroll:true});
+ }
+ if(act==='preselect-source'){
+   S.source=Number(b.dataset.index)||0;S.sourceChoice[S.show]=S.source;
+   save('tv-source-choice',S.sourceChoice);focusKey='source:'+S.source;render();
+   notify('Источник выбран — нажми «Смотреть»');
+ }
+ if(act==='schedule-filter'){
+   S.scheduleMode=b.dataset.mode==='all'?'all':'mine';
+   focusKey=null;render();
+   document.querySelector('[data-mode="'+S.scheduleMode+'"]')?.focus({preventScroll:true});
+ }
  if(act==='season'){S.season=Number(b.dataset.season)||1;S.episode=1;S.source=0;refreshPlayer();}
  if(act==='episode'){S.episode=Number(b.dataset.episode)||1;S.source=0;refreshPlayer();}
  if(act==='cursor'||act==='frame'){S.cursor?stopCursor():startCursor();}
@@ -488,16 +517,20 @@ async function refresh(manual=false){
  S.loading=true;$('#network').textContent='● Обновление…';
  if(manual)notify('Обновляем список сериалов и плееров…');
  try{
-  const responses=await Promise.all([readShared('tv-catalog.json'),readShared('watch-options.json'),readShared('releases.json')]);
-  const [c,o,r]=responses;
+  const responses=await Promise.all([readShared('tv-catalog.json'),readShared('watch-options.json'),readShared('releases.json'),readShared('tv-discover.json')]);
+  const [c,o,r,d]=responses;
   if(c?.data?.shows?.length){
    S.shows=c.data.shows.filter(x=>x&&x.key&&x.ru).slice(0,500);
    save('tv-catalog-cache',S.shows);
   }
   if(o?.data?.embeds){S.opts=o.data;save('tv-options-cache',S.opts);}
   if(r?.data){
-   const data=r.data;S.releases=Array.isArray(data)?data:(data.releases||data.items||[]);
+   const data=r.data;S.releases=Array.isArray(data)?data:(data.entries||data.releases||data.items||[]);
    save('tv-release-cache',S.releases);
+  }
+  if(d?.data?.shows?.length){
+   S.discover=d.data.shows.filter(x=>x&&x.key&&x.ru&&Number(x.rating)>0).slice(0,100);
+   save('tv-discover-cache',S.discover);
   }
   $('#network').textContent=c?.online?'● Каталог обновлён':'● Каталог сохранён';
   // Replacing an iframe while the user watches would restart video playback.
@@ -562,6 +595,23 @@ async function loadEpisodes(key){
    render();if(old)document.querySelector('[data-focus="'+old+'"]')?.focus({preventScroll:true});
   }
  }catch{}
+}
+async function loadSchedule(){
+ if(S.scheduleLoading)return;
+ S.scheduleLoading=true;S.scheduleDone=0;
+ const shows=latest().slice(0,70);
+ for(let i=0;i<shows.length;i++){
+  if(S.page!=='catalog')break;
+  const x=shows[i],m=meta(x.key);
+  if(!m.episodes||Date.now()-(m.episodesUpdated||0)>24*3600*1000){
+    try{await loadEpisodes(x.key);}catch(e){console.warn('TVMaze calendar',x.key,e);}
+    await new Promise(resolve=>setTimeout(resolve,360));
+  }
+  S.scheduleDone++;
+  if(S.page==='catalog'&&(i%4===3||i===shows.length-1))render();
+ }
+ S.scheduleLoading=false;
+ if(S.page==='catalog')render();
 }
 window.UltraTVRemote={back:goBack,releaseCursor:stopCursor};
 render();refresh(false);
