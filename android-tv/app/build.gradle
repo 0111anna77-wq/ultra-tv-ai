@@ -8,8 +8,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 11
-        versionName '0.11-tv-redesign'
+        versionCode 12
+        versionName '0.12-tv-watch-history'
     }
     buildTypes {
         release { minifyEnabled false }

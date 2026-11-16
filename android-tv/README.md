@@ -65,3 +65,11 @@ Ad filter remains a curated blocklist, *not* the full AdGuard filtering engine. 
 * The **Новинки** tab now displays high-rated, externally verified TVMaze recommendations from shared `tv-discover.json` instead of reordering the 25 existing series. Existing collection titles are excluded. A recommended title can be added locally to the TV collection; personal additions are not yet synced between devices.
 * **Настройки** now uses compact rows suitable for TV navigation. The unnecessary TVmaze/provider attribution line at the bottom of each series description is removed.
 * Shared main site catalog remains authoritative and refreshable; new discovery data has an APK fallback. Package updates continue to be signed with the stable local key (NOT the debug key).
+
+### v0.12 — Continue Watching & TV history
+
+* Keeps a local, per-series watch history (`tv-progress-v1` in WebView localStorage) with most recently opened show, selected source and manually remembered season/episode.
+* Home's **▶ Продолжить просмотр** now uses this history rather than treating every detail-card open as playback; selecting a poster opens the fullscreen player directly.
+* On series details, a compact control marks the most recently watched season/episode. Initem is an **external cross-origin iframe**: Ultra TV cannot safely read Initem's actual selected episode or timecode, and cannot guarantee that an Initem-selected episode will automatically resume. The manual marker is explicitly labeled.
+* When the source is a direct HTML5 video (`mp4`/`webm`), Ultra TV saves time/duration at most every five seconds and on pause, and restores the saved position on the same media URL provided it is not nearly finished. Exact time tracking is intentionally **not claimed for Initem**.
+* Existing history is retained locally across normal in-place signed APK updates. Clearing Android app data, uninstalling the app or removing WebView storage may delete it.

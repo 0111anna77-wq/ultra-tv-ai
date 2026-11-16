@@ -64,6 +64,10 @@ jobs:
           grep -q 'function startCursor(){' android-tv/app/src/main/assets/tv.js
           grep -q 'startCursor();' android-tv/app/src/main/assets/tv.js
           grep -q 'settings-row' android-tv/app/src/main/assets/tv.css
+          grep -q 'tv-progress-v1' android-tv/app/src/main/assets/tv.js
+          grep -q 'function bindNativeVideoProgress' android-tv/app/src/main/assets/tv.js
+          grep -q 'progress-save' android-tv/app/src/main/assets/tv.js
+          grep -q 'data-act="continue"' android-tv/app/src/main/assets/tv.js
       - name: Install Java 17
         uses: actions/setup-java@v4
         with:
@@ -100,7 +104,7 @@ jobs:
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
-          name: ultra-tv-ai-android-tv-development-v011
+          name: ultra-tv-ai-android-tv-development-v012
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
@@ -108,8 +112,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="tv-v0.11-unsigned-development"
-          FILE="ultra-tv-v0.11-UNSIGNED-DEBUG-DO-NOT-INSTALL.apk"
+          TAG="tv-v0.12-unsigned-development"
+          FILE="ultra-tv-v0.12-UNSIGNED-DEBUG-DO-NOT-INSTALL.apk"
           cp android-tv/app/build/outputs/apk/debug/app-debug.apk "$FILE"
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --target "$GITHUB_SHA" --prerelease \
