@@ -33,6 +33,8 @@ public final class UltraTvActivity extends Activity {
     private WebView webView;
     private AdBlockFilter adBlockFilter;
     private BundledSite bundledSite;
+    private View fullscreenView;
+    private WebChromeClient.CustomViewCallback fullscreenCallback;
     // Intercept long BACK before the WebView consumes directional/key events.
     private final Handler remoteHandler = new Handler(Looper.getMainLooper());
     private boolean backHeld = false;
@@ -44,9 +46,7 @@ public final class UltraTvActivity extends Activity {
             showFilterDialog();
         }
     };
-    private View fullscreenView;
-    private WebChromeClient.CustomViewCallback fullscreenCallback;
-
+ 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
