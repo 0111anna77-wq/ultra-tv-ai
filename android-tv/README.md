@@ -36,3 +36,7 @@ The KION/Jiuzhou DTP2162 (Android TV 11) is the initial intended device. MTS DV8
 ### v0.4 remote workaround for inaccessible AdBlock button
 
 On KION remote, **hold Back for about 2 seconds**. The native settings dialog opens even while WebView/iframe has focus. A short Back still closes player/navigates as before; Menu/Settings keys also open the dialog when exposed by the remote. The obstructive top-right overlay button was removed. On a fresh install, experimental ad filtering defaults OFF for networking diagnostics. Users can enable it again through the same dialog. Cloudflare-served APK at `/a.apk` should be published with the existing file SHA to overwrite the previous asset.
+
+### v0.6 fast TV remote navigation
+
+The TV D-pad now uses a cached grid/rail focus map rebuilt only when content changes. Repeated single key taps are immediate (removed 110-ms gate); held auto-repeat is capped at 50 ms to prevent runaway focus. Up/down follows adjacent horizontal rails and remembers the previously selected item in each rail. The view only scrolls enough to make the chosen item visible and avoids large focus animations. Android TV remains independently packaged; web catalog updates stay live through `tv-catalog.json`. Verify responsiveness and directional transitions on the actual KION remote; CI only validates build and JS syntax.

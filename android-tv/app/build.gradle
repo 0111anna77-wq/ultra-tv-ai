@@ -8,8 +8,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 5
-        versionName '0.5-tv-ui'
+        versionCode 6
+        versionName '0.6-tv-fastnav'
     }
     buildTypes {
         release { minifyEnabled false }
