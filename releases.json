@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-15T22:32:08Z",
+  "updatedAt": "2026-11-16T02:23:51Z",
   "entries": [
+    {
+      "id": "d77446cffd88eb9047e9",
+      "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Дар смертным. (S03E02)",
+      "seriesRu": "Властелин колец: Кольца власти",
+      "seriesEn": "The Lord of the Rings: The Rings of Power",
+      "season": 3,
+      "episode": 2,
+      "published": "2026-11-15T20:59:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lord_of_the_Rings__The_Rings_of_Power/season_3/episode_2/"
+    },
     {
       "id": "f37b92d625cf360a0d47",
       "title": "Декстер: Воскрешение (Dexter: Resurrection). Живи свободно и умри. (S02E03)",
