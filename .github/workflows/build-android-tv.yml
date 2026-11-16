@@ -32,12 +32,18 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+      - name: Test safe ad-domain matching without emulator
+        working-directory: android-tv
+        run: |
+          mkdir -p /tmp/ultratv-ad-tests
+          javac -d /tmp/ultratv-ad-tests app/src/main/java/ai/ultra/tv/AdHostMatcher.java tests/AdHostMatcherTest.java
+          java -cp /tmp/ultratv-ad-tests ai.ultra.tv.AdHostMatcherTest
       - name: Build debug APK
         working-directory: android-tv
         run: gradle :app:assembleDebug --no-daemon --stacktrace
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
-          name: ultra-tv-ai-android-tv-preview
+          name: ultra-tv-ai-android-tv-adfilter-v02
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
