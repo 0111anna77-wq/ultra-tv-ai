@@ -8,8 +8,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 3
-        versionName '0.3-tv-bundled'
+        versionCode 4
+        versionName '0.4-tv-remote-settings'
     }
     buildTypes {
         release { minifyEnabled false }

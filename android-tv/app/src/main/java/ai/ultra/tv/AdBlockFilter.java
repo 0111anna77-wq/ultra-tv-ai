@@ -32,7 +32,7 @@ final class AdBlockFilter {
 
     AdBlockFilter(Context context) {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        enabled = prefs.getBoolean(PREF_ENABLED, true);
+        enabled = prefs.getBoolean(PREF_ENABLED, false);
         Set<String> hosts = new HashSet<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 context.getAssets().open("ad_hosts.txt"), StandardCharsets.UTF_8))) {

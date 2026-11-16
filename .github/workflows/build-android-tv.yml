@@ -62,28 +62,34 @@ jobs:
           APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
           ENCODED="$(base64 -w0 "$APK")"
-          gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
-            -f message="Publish direct Ultra TV AI Android TV v0.3 APK" \
-            -f branch=main \
-            -f content="$ENCODED" >/dev/null
+          FILE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/a.apk?ref=main" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$FILE_SHA" ]; then
+            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
+              -f message="Publish direct Ultra TV AI Android TV v0.4 APK" \
+              -f branch=main -f sha="$FILE_SHA" -f content="$ENCODED" >/dev/null
+          else
+            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
+              -f message="Publish direct Ultra TV AI Android TV v0.4 APK" \
+              -f branch=main -f content="$ENCODED" >/dev/null
+          fi
           echo "Direct origin-hosted APK: https://ultra-tv-ai.pages.dev/a.apk"
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
-          name: ultra-tv-ai-android-tv-bundled-v03
+          name: ultra-tv-ai-android-tv-remote-v04
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      - name: Publish direct APK download (v0.3)
+      - name: Publish direct APK download (v0.4)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="tv-v0.3-bundled"
+          TAG="tv-v0.4-remote"
           APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
-          cp "$APK" ultra-tv-ai-android-tv-v0.3.apk
+          cp "$APK" ultra-tv-ai-android-tv-v0.4.apk
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --target "$GITHUB_SHA" \
-              --title "Ultra TV AI Android TV v0.3 (bundled offline shell)" \
-              --notes "Android TV debug APK containing a bundled offline-ready UI, plus optional experimental ad-host filtering. Initem playback still needs internet. Previous v0.2 debug installation requires uninstall if signature differs; local state may be lost."
-          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.3.apk --clobber
-          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.3.apk"
+              --title "Ultra TV AI Android TV v0.4 (Remote-accessible settings)" \
+              --notes "Android TV APK v0.4: hold Back for 1.5s for native AdBlock settings, filter OFF by default on fresh install. Website shell is bundled; remote streaming depends on network. Debug signatures may change so previous builds may need uninstall."
+          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.4.apk --clobber
+          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.4.apk"

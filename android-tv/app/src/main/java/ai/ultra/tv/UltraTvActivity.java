@@ -7,7 +7,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
+import android.widget.Toast;
 import android.widget.FrameLayout;
 
 /**
@@ -30,9 +31,19 @@ public final class UltraTvActivity extends Activity {
     private static final String HOME = "https://ultra-tv-ai.pages.dev/";
     private FrameLayout container;
     private WebView webView;
-    private Button filterButton;
     private AdBlockFilter adBlockFilter;
     private BundledSite bundledSite;
+    // Intercept long BACK before the WebView consumes directional/key events.
+    private final Handler remoteHandler = new Handler(Looper.getMainLooper());
+    private boolean backHeld = false;
+    private boolean longBackOpenedSettings = false;
+    private final Runnable openSettingsOnLongBack = () -> {
+        if (backHeld && !isFinishing()) {
+            longBackOpenedSettings = true;
+            if (fullscreenView != null) exitFullscreen();
+            showFilterDialog();
+        }
+    };
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
 
@@ -103,7 +114,6 @@ public final class UltraTvActivity extends Activity {
                 container.addView(view, new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 webView.setVisibility(View.GONE);
-                if (filterButton != null) filterButton.setVisibility(View.GONE);
                 hideSystemBars();
             }
             @Override
@@ -113,44 +123,20 @@ public final class UltraTvActivity extends Activity {
         });
         container.addView(webView, new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        // Native app control, usable even when the webpage itself has keyboard focus.
-        // Menu/Settings remote buttons offer a second route if DPAD navigation is trapped.
-        filterButton = new Button(this);
-        filterButton.setAllCaps(false);
-        filterButton.setFocusable(true);
-        filterButton.setContentDescription("Настройки фильтра рекламы");
-        filterButton.setTextSize(12f);
-        filterButton.setPadding(0, 0, 0, 0);
-        filterButton.setTextColor(0xfff4dfb6);
-        filterButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff28303a));
-        refreshFilterButton();
-        FrameLayout.LayoutParams filterParams = new FrameLayout.LayoutParams(
-                dp(86), dp(44), Gravity.TOP | Gravity.RIGHT);
-        filterParams.topMargin = dp(8);
-        filterParams.rightMargin = dp(8);
-        container.addView(filterButton, filterParams);
-        filterButton.setOnClickListener(view -> showFilterDialog());
+        Toast.makeText(this,
+                "Настройки Ultra TV: удерживайте «Назад» 2 секунды",
+                Toast.LENGTH_LONG).show();
         if (savedInstanceState == null || webView.restoreState(savedInstanceState) == null) {
             webView.loadUrl(HOME);
         }
         webView.requestFocus();
     }
 
-    private int dp(float dp) {
-        return (int) (dp * getResources().getDisplayMetrics().density + 0.5f);
-    }
-
-    private void refreshFilterButton() {
-        if (filterButton != null && adBlockFilter != null) {
-            filterButton.setText(adBlockFilter.isEnabled() ? "AD: ВКЛ" : "AD: ВЫКЛ");
-        }
-    }
-
     private void showFilterDialog() {
         boolean on = adBlockFilter.isEnabled();
         String status = on ? "включён" : "выключен";
         String last = adBlockFilter.getLastBlockedHost();
-        String message = "Фильтр " + status
+        String message = "Удерживайте кнопку «Назад» 2 секунды, чтобы снова открыть настройки.\n\nФильтр " + status
                 + ". За этот запуск заблокировано запросов: " + adBlockFilter.getBlockedCount()
                 + ". Список: " + adBlockFilter.getDomainCount() + " рекламных доменов.\n\n"
                 + (last.isEmpty() ? "" : "Последний заблокированный домен: " + last + "\n\n")
@@ -162,7 +148,6 @@ public final class UltraTvActivity extends Activity {
                 .setMessage(message)
                 .setPositiveButton(on ? "Выключить фильтр" : "Включить фильтр", (dialog, which) -> {
                     adBlockFilter.setEnabled(!on);
-                    refreshFilterButton();
                     if (webView != null) webView.reload();
                 })
                 .setNeutralButton("Обновить страницу", (dialog, which) -> {
@@ -172,13 +157,39 @@ public final class UltraTvActivity extends Activity {
                 .show();
     }
 
+    /**
+     * Hardware remote shortcut: hold Back for 1.5 seconds to open native settings.
+     * This runs BEFORE dispatching to WebView and works even if D-pad focus is trapped
+     * inside the site, iframe or fullscreen player.
+     * Short Back preserves the normal player-close/navigation behavior.
+     */
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_SETTINGS) {
-            showFilterDialog();
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int key = event.getKeyCode();
+        if (key == KeyEvent.KEYCODE_MENU || key == KeyEvent.KEYCODE_SETTINGS) {
+            if (event.getAction() == KeyEvent.ACTION_UP) showFilterDialog();
             return true;
         }
-        return super.onKeyDown(keyCode, event);
+        if (key == KeyEvent.KEYCODE_BACK) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (event.getRepeatCount() == 0) {
+                    backHeld = true;
+                    longBackOpenedSettings = false;
+                    remoteHandler.removeCallbacks(openSettingsOnLongBack);
+                    remoteHandler.postDelayed(openSettingsOnLongBack, 1500L);
+                }
+                return true;
+            }
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                remoteHandler.removeCallbacks(openSettingsOnLongBack);
+                boolean normalBack = backHeld && !longBackOpenedSettings && !event.isCanceled();
+                backHeld = false;
+                longBackOpenedSettings = false;
+                if (normalBack) onBackPressed();
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     private void hideSystemBars() {
@@ -196,7 +207,6 @@ public final class UltraTvActivity extends Activity {
         container.removeView(fullscreenView);
         fullscreenView = null;
         webView.setVisibility(View.VISIBLE);
-        if (filterButton != null) filterButton.setVisibility(View.VISIBLE);
         if (fullscreenCallback != null) {
             fullscreenCallback.onCustomViewHidden();
             fullscreenCallback = null;
@@ -236,6 +246,7 @@ public final class UltraTvActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        remoteHandler.removeCallbacks(openSettingsOnLongBack);
         if (webView != null) {
             container.removeView(webView);
             webView.destroy();
