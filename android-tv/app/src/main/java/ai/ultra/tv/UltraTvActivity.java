@@ -250,7 +250,13 @@ public final class UltraTvActivity extends Activity {
                 return true;
             }
             if (key == KeyEvent.KEYCODE_DPAD_CENTER || key == KeyEvent.KEYCODE_ENTER) {
-                if (event.getAction() == KeyEvent.ACTION_UP) tapNativePointer();
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    // Do not click on the release of the long OK which
+                    // entered pointer mode in the first place.
+                    if (!longOkTriggered) tapNativePointer();
+                    okHeld = false;
+                    longOkTriggered = false;
+                }
                 return true;
             }
         }
