@@ -2,18 +2,23 @@ package ai.ultra.tv;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 /**
@@ -25,6 +30,8 @@ public final class UltraTvActivity extends Activity {
     private static final String HOME = "https://ultra-tv-ai.pages.dev/";
     private FrameLayout container;
     private WebView webView;
+    private Button filterButton;
+    private AdBlockFilter adBlockFilter;
     private View fullscreenView;
     private WebChromeClient.CustomViewCallback fullscreenCallback;
 
@@ -35,6 +42,7 @@ public final class UltraTvActivity extends Activity {
         container = new FrameLayout(this);
         setContentView(container);
         hideSystemBars();
+        adBlockFilter = new AdBlockFilter(this);
 
         webView = new WebView(this);
         webView.setFocusable(true);
@@ -57,6 +65,12 @@ public final class UltraTvActivity extends Activity {
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
 
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                // Called from a background thread; filter state and counters are thread-safe.
+                return adBlockFilter.maybeBlock(request.getUrl(), request.isForMainFrame());
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 if (!request.isForMainFrame()) return false;
@@ -84,6 +98,7 @@ public final class UltraTvActivity extends Activity {
                 container.addView(view, new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 webView.setVisibility(View.GONE);
+                if (filterButton != null) filterButton.setVisibility(View.GONE);
                 hideSystemBars();
             }
             @Override
@@ -93,10 +108,72 @@ public final class UltraTvActivity extends Activity {
         });
         container.addView(webView, new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // Native app control, usable even when the webpage itself has keyboard focus.
+        // Menu/Settings remote buttons offer a second route if DPAD navigation is trapped.
+        filterButton = new Button(this);
+        filterButton.setAllCaps(false);
+        filterButton.setFocusable(true);
+        filterButton.setContentDescription("Настройки фильтра рекламы");
+        filterButton.setTextSize(12f);
+        filterButton.setPadding(0, 0, 0, 0);
+        filterButton.setTextColor(0xfff4dfb6);
+        filterButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff28303a));
+        refreshFilterButton();
+        FrameLayout.LayoutParams filterParams = new FrameLayout.LayoutParams(
+                dp(86), dp(44), Gravity.TOP | Gravity.RIGHT);
+        filterParams.topMargin = dp(8);
+        filterParams.rightMargin = dp(8);
+        container.addView(filterButton, filterParams);
+        filterButton.setOnClickListener(view -> showFilterDialog());
         if (savedInstanceState == null || webView.restoreState(savedInstanceState) == null) {
             webView.loadUrl(HOME);
         }
         webView.requestFocus();
+    }
+
+    private int dp(float dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private void refreshFilterButton() {
+        if (filterButton != null && adBlockFilter != null) {
+            filterButton.setText(adBlockFilter.isEnabled() ? "AD: ВКЛ" : "AD: ВЫКЛ");
+        }
+    }
+
+    private void showFilterDialog() {
+        boolean on = adBlockFilter.isEnabled();
+        String status = on ? "включён" : "выключен";
+        String last = adBlockFilter.getLastBlockedHost();
+        String message = "Фильтр " + status
+                + ". За этот запуск заблокировано запросов: " + adBlockFilter.getBlockedCount()
+                + ". Список: " + adBlockFilter.getDomainCount() + " рекламных доменов.\n\n"
+                + (last.isEmpty() ? "" : "Последний заблокированный домен: " + last + "\n\n")
+                + "Это экспериментальная фильтрация. Она может не убрать рекламу в Initem "
+                + "и иногда нарушать загрузку плеера. Выключение фильтра восстанавливает доступ к запросам. "
+                + "Изменение режима перезагрузит страницу и прервёт текущее видео.";
+        new AlertDialog.Builder(this)
+                .setTitle("Ultra TV · Фильтр рекламы")
+                .setMessage(message)
+                .setPositiveButton(on ? "Выключить фильтр" : "Включить фильтр", (dialog, which) -> {
+                    adBlockFilter.setEnabled(!on);
+                    refreshFilterButton();
+                    if (webView != null) webView.reload();
+                })
+                .setNeutralButton("Обновить страницу", (dialog, which) -> {
+                    if (webView != null) webView.reload();
+                })
+                .setNegativeButton("Закрыть", null)
+                .show();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_SETTINGS) {
+            showFilterDialog();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void hideSystemBars() {
@@ -114,6 +191,7 @@ public final class UltraTvActivity extends Activity {
         container.removeView(fullscreenView);
         fullscreenView = null;
         webView.setVisibility(View.VISIBLE);
+        if (filterButton != null) filterButton.setVisibility(View.VISIBLE);
         if (fullscreenCallback != null) {
             fullscreenCallback.onCustomViewHidden();
             fullscreenCallback = null;
