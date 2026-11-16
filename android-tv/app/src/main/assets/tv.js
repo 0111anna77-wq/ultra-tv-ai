@@ -15,7 +15,7 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   sourceChoice:store('tv-source-choice',{}),optionsOpen:false,directWatch:false,
   scheduleLoading:false,scheduleDone:0,scheduleMode:'mine',
   progress:store('tv-progress-v1',{}),progressDraft:{},
-  ruSummaries:store('tv-summary-ru-cache',{})};
+  ruSummaries:store('tv-summary-ru-cache',{}),initemLastWrite:0};
 const root=$('#content');
 let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
@@ -52,7 +52,7 @@ function progressLabel(key){
  const p=getProgress(key);
  if(!p)return '';
  if(p.completed)return 'Просмотрена · '+episodeCode(p.season,p.episode);
- if(p.kind==='direct'&&Number(p.seconds)>0)return episodeCode(p.season,p.episode)+' · '+clock(p.seconds);
+ if((p.kind==='direct'||p.kind==='initem')&&Number(p.seconds)>0)return episodeCode(p.season,p.episode)+' · '+clock(p.seconds);
  if(p.confirmed)return 'Отмечено · '+episodeCode(p.season,p.episode);
  return 'Последний просмотр';
 }
@@ -198,7 +198,7 @@ function settings(){
 
 function progressUI(x){
  const key=x.key,p=getProgress(key),v=progressDraft(key);
- const summary=p?.kind==='direct'&&Number(p.seconds)>0?
+ const summary=(p?.kind==='direct'||p?.kind==='initem')&&Number(p.seconds)>0?
    'Сохранено '+episodeCode(p.season,p.episode)+' · '+clock(p.seconds):
    p?.confirmed?'Сохранено '+episodeCode(p.season,p.episode):
    p?.openedAt?'Последний просмотр':'Отметь серию';
@@ -210,7 +210,10 @@ function progressUI(x){
   '<span>Серия</span><button data-act="progress-step" data-part="episode" data-step="-1" aria-label="Предыдущая серия">−</button><b>'+v.episode+
   '</b><button data-act="progress-step" data-part="episode" data-step="1" aria-label="Следующая серия">+</button></div>'+
   '<button class="action progress-save" data-act="progress-save" aria-label="Запомнить выбранную серию">✓ Запомнить</button>'+
-  '<small class="progress-explain">Initem откроет отмеченную серию; точная минута пока не определяется.</small>'+
+  '<small class="progress-explain">'+
+   (p?.auto&&p?.kind==='initem'?'Серия и минута определены плеером автоматически. Перемотка на сохранённую минуту пока не подтверждена.':
+    'Initem сообщает выбранный эпизод и минуту, когда воспроизведение запущено.')+
+   '</small>'+
   '</div>';
 }
 function detail(){
@@ -350,6 +353,62 @@ function bindNativeVideoProgress(){
  video.addEventListener('ended',()=>{storeTime(true);setProgress(key,{completed:true});});
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&!video.paused)storeTime(true)},{once:true});
 }
+// Initem's /js/listen-player.js posts changeEpisode and viewProgress to the
+// parent iframe. Read only messages from the active trusted video frame; no
+// cross-origin DOM access, interception or invasive code injection is needed.
+function handleInitemMessage(event){
+ if(S.page!=='player'||!S.show||!event||!event.data)return false;
+ const frame=$('#tv-player-iframe');
+ if(!frame||event.source!==frame.contentWindow)return false;
+ let origin;
+ try{origin=new URL(frame.getAttribute('src')).origin;}catch{return false;}
+ if(event.origin!==origin||origin!=='https://api.initem.ws')return false;
+ const data=event.data;
+ if(!data||typeof data!=='object'||Array.isArray(data))return false;
+ const type=data.event;
+ if(!['changeEpisode','viewProgress','startWatching','ended','playerReady'].includes(type))return false;
+ const x=item(S.show),sources=x?availableSources(x):[];
+ const src=sources[S.source]||sources[0];
+ if(!src||src.platform!=='initem')return false;
+ const prev=getProgress(S.show)||{};
+ if(type==='changeEpisode'){
+   const season=Number(data.season),episode=Number(data.episode);
+   if(!Number.isInteger(season)||!Number.isInteger(episode)||
+      season<1||season>30||episode<1||episode>200)return false;
+   const changed=Number(prev.season)!==season||Number(prev.episode)!==episode;
+   S.season=season;S.episode=episode;
+   S.progressDraft[S.show]={season,episode};
+   setProgress(S.show,{kind:'initem',season,episode,source:S.source,
+     confirmed:true,auto:true,completed:false,
+     seconds:changed?0:Number(prev.seconds)||0,
+     duration:changed?0:Number(prev.duration)||0,openedAt:Date.now()});
+   return true;
+ }
+ if(type==='viewProgress'){
+   const seconds=Number(data.time),duration=Number(data.duration);
+   if(!Number.isFinite(seconds)||seconds<0||seconds>86400 ||
+      !Number.isFinite(duration)||duration<=0||duration>86400||
+      seconds>duration+5)return false;
+   const now=Date.now();
+   if(now-S.initemLastWrite<2500&&seconds<duration-5)return true;
+   S.initemLastWrite=now;
+   setProgress(S.show,{kind:'initem',source:S.source,confirmed:true,auto:true,
+     season:S.season,episode:S.episode,seconds:Math.floor(Math.min(seconds,duration)),
+     duration:Math.floor(duration),openedAt:now,completed:duration-seconds<5});
+   return true;
+ }
+ if(type==='ended'){
+   setProgress(S.show,{completed:true,openedAt:Date.now()});
+   return true;
+ }
+ if(type==='startWatching'){
+   setProgress(S.show,{kind:'initem',openedAt:Date.now(),auto:true});
+   return true;
+ }
+ return true;
+}
+window.addEventListener('message',handleInitemMessage,false);
+
 function record(key){
  S.recent=[{key,date:Date.now()},...S.recent.filter(x=>x.key!==key)].slice(0,12);
  save('tv-recent',S.recent);
@@ -366,7 +425,8 @@ function watch(key){
  const src=availableSources(x)[S.source]||availableSources(x)[0];
  setProgress(x.key,{season:S.season,episode:S.episode,
    source:S.source,openedAt:Date.now(),
-   kind:src?.kind==='video'||/\.(mp4|webm)(?:\?|$)/i.test(src?.url||'')?'direct':'embed'});
+   kind:src?.kind==='video'||/\.(mp4|webm)(?:\?|$)/i.test(src?.url||'')?
+     'direct':src?.platform==='initem'?'initem':'embed'});
  S.directWatch=true;
  navigate('player',x.key);loadEpisodes(x.key);
  // The click/OK user gesture goes straight to fullscreen with no extra view.
@@ -562,7 +622,7 @@ document.addEventListener('click',e=>{
  if(act==='progress-save'&&item(S.show)){
    const draft=progressDraft(S.show),existing=getProgress(S.show)||{};
    setProgress(S.show,{season:draft.season,episode:draft.episode,
-      confirmed:true,completed:false,seconds:0,duration:0,mediaUrl:null,
+      confirmed:true,auto:false,completed:false,seconds:0,duration:0,mediaUrl:null,
       openedAt:Number(existing.openedAt)||Date.now()});
    focusKey=null;render();
    document.querySelector('[data-act="progress-save"]')?.focus({preventScroll:true});
@@ -592,8 +652,17 @@ document.addEventListener('click',e=>{
    focusKey=null;render();
    document.querySelector('[data-mode="'+S.scheduleMode+'"]')?.focus({preventScroll:true});
  }
- if(act==='season'){S.season=Number(b.dataset.season)||1;S.episode=1;S.source=0;refreshPlayer();}
- if(act==='episode'){S.episode=Number(b.dataset.episode)||1;S.source=0;refreshPlayer();}
+ if(act==='season'||act==='episode'){
+   if(act==='season'){S.season=Number(b.dataset.season)||1;S.episode=1;}
+   else S.episode=Number(b.dataset.episode)||1;
+   const prev=getProgress(S.show)||{};
+   const changed=Number(prev.season)!==S.season||Number(prev.episode)!==S.episode;
+   setProgress(S.show,{season:S.season,episode:S.episode,confirmed:true,auto:false,
+     completed:false,seconds:changed?0:Number(prev.seconds)||0,
+     duration:changed?0:Number(prev.duration)||0,openedAt:Date.now()});
+   S.progressDraft[S.show]={season:S.season,episode:S.episode};
+   refreshPlayer();
+ }
  if(act==='cursor'||act==='frame'){S.cursor?stopCursor():startCursor();}
  if(act==='reload')refreshPlayer();
  if(act==='refresh')refresh(true);
