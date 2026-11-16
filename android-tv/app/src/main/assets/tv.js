@@ -17,7 +17,12 @@ let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
 const items=()=>S.shows.filter(x=>x&&x.key&&x.ru);
 const item=key=>items().find(x=>x.key===key);
 const meta=key=>S.meta[key]||{};
-const poster=x=>meta(x.key).image||x.image||'';
+const poster=x=>{
+ const m=meta(x.key);
+ const url=m.posterMedium||m.image||x.image||'';
+ return url.replace('/original_untouched/','/medium_portrait/')
+           .replace('/original/','/medium_portrait/');
+};
 const imdb=x=>meta(x.key).imdb||x.imdb||'';
 const latest=()=>items().filter(x=>S.tracked[x.key]!==false);
 function navigate(page,key){
@@ -142,12 +147,11 @@ function player(){
  const epNums=[...new Set(eps)].sort((a,b)=>a-b).slice(0,50);
  return '<div class="player-screen"><section class="player-main">'+
  '<div class="player-tools"><button class="secondary" data-act="back">← Назад</button>'+
- '<button class="primary" data-act="cursor" data-focus="player-cursor">🎮 Управлять плеером</button>'+
+ '<button class="primary" data-act="cursor" data-focus="player-cursor">◎ Указатель для плеера</button>'+
  '<button class="action" data-act="fullscreen">⛶ Полный экран</button></div>'+
  '<h1>'+esc(x.ru)+' · просмотр</h1>'+
- '<div id="tv-video-frame" class="player-frame">'+sourceMedia(src)+
- '<div id="tv-cursor" style="display:none;position:absolute;width:22px;height:22px;z-index:9;pointer-events:none;border:3px solid #ffe4aa;border-radius:50%;background:#d7b57555;transform:translate(-50%,-50%);box-shadow:0 0 0 5px #0009"></div></div>'+
- '<p class="player-help" id="player-help">Нажми «Управлять плеером», чтобы нажимать на кнопки внутри Initem пультом. «Назад» — выйти из управления.</p>'+
+ '<div id="tv-video-frame" class="player-frame">'+sourceMedia(src)+'</div>'+
+ '<p class="player-help" id="player-help">Нажми «Указатель для плеера»: появится яркий курсор поверх видео. Стрелки — движение, OK — нажатие, «Назад» — выход. Также можно удерживать OK около секунды даже в полноэкранном режиме.</p>'+
  '<div class="player-tools"><button class="action" data-act="reload">↻ Перезагрузить плеер</button></div>'+
  (src?'<p class="subtle">Источник: '+esc(src.name||'Видео')+'</p>':'<p class="banner">Для этого сериала пока нет источника. Данные обновляются через общий каталог.</p>')+
  '</section><aside class="player-side"><h2>Источники</h2>'+
@@ -201,33 +205,34 @@ function goBack(){
  if(S.page!=='home'){navigate('home');return true;}
  return false;
 }
+function signalNativePointer(enabled,x=.5,y=.5){
+  const request=new Image();
+  request.src='/_native/pointer?mode='+(enabled?'on':'off')+
+    '&x='+x.toFixed(5)+'&y='+y.toFixed(5)+'&id='+Date.now();
+}
 function startCursor(){
- const frame=$('#tv-video-frame'),button=$('[data-act=cursor]');if(!frame||!$('#tv-player-iframe')){notify('Видеоплеер пока не загружен');return;}
- S.cursor=true;S.cx=.5;S.cy=.5;S.cursorFocus=button;
- button.textContent='● Режим курсора активен';
- const help=$('#player-help');if(help)help.textContent='Стрелки перемещают курсор внутри видео. OK нажимает, «Назад» возвращает к кнопкам.';
- updateCursor();button.focus({preventScroll:true});
+  const frame=$('#tv-video-frame'),button=$('[data-act=cursor]');
+  if(!frame||(!$('#tv-player-iframe')&&!$('#tv-video'))){notify('Видео ещё загружается');return;}
+  S.cursor=true;S.cursorFocus=button;
+  const r=frame.getBoundingClientRect();
+  const x=Math.min(.96,Math.max(.04,(r.left+r.width/2)/innerWidth));
+  const y=Math.min(.96,Math.max(.04,(r.top+r.height/2)/innerHeight));
+  signalNativePointer(true,x,y);
+  button.textContent='● Указатель включён · Назад — выход';
+  const help=$('#player-help');
+  if(help)help.textContent='Жёлтый курсор рисует сама приставка: стрелки — перемещение, OK — нажать, Назад — выйти. Если курсор не появился, удерживай OK одну секунду.';
 }
-function stopCursor(){
- S.cursor=false;
- const p=$('#tv-cursor');if(p)p.style.display='none';
- const help=$('#player-help');if(help)help.textContent='Нажми «Управлять плеером», чтобы управлять кнопками внутри Initem пультом.';
- const btn=$('[data-act=cursor]');
- if(btn){btn.textContent='🎮 Управлять плеером';btn.focus({preventScroll:true});}
-}
-function updateCursor(){
- const p=$('#tv-cursor');if(!p)return;
- p.style.display='block';p.style.left=(S.cx*100)+'%';p.style.top=(S.cy*100)+'%';
-}
-function tapPlayer(){
- const frame=$('#tv-video-frame');if(!frame)return;
- const r=frame.getBoundingClientRect();
- const x=(r.left+S.cx*r.width)/window.innerWidth;
- const y=(r.top+S.cy*r.height)/window.innerHeight;
- if(x<=0||x>=1||y<=0||y>=1)return;
- // Native WebView injects an actual touch at the coordinates, across iframe origin.
- window.location.href='ultratv://tap?x='+x.toFixed(6)+'&y='+y.toFixed(6);
- setTimeout(()=>{if(S.cursor)S.cursorFocus?.focus({preventScroll:true})},180);
+function stopCursor(fromNative=false){
+  if(!S.cursor&&!fromNative)return;
+  S.cursor=false;
+  if(!fromNative)signalNativePointer(false);
+  const help=$('#player-help');
+  if(help)help.textContent='Курсор выключен. Нажми «Указатель для плеера» или удерживай OK.';
+  const button=$('[data-act=cursor]');
+  if(button){
+    button.textContent='◎ Указатель для плеера';
+    if(fromNative)button.focus({preventScroll:true});
+  }
 }
 /**
  * Remote navigation is built ONCE per layout, not on every D-pad event.
@@ -363,17 +368,6 @@ document.addEventListener('focusout',e=>{
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();goBack();return;}
  const isOk=e.key==='Enter'||e.key==='NumpadEnter'||e.key===' ';
- if(S.cursor){
-   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
-     e.preventDefault();e.stopImmediatePropagation();
-     if(e.key==='ArrowLeft')S.cx=Math.max(.025,S.cx-.075);
-     if(e.key==='ArrowRight')S.cx=Math.min(.975,S.cx+.075);
-     if(e.key==='ArrowUp')S.cy=Math.max(.025,S.cy-.09);
-     if(e.key==='ArrowDown')S.cy=Math.min(.975,S.cy+.09);
-     updateCursor();return;
-   }
-   if(isOk){e.preventDefault();e.stopImmediatePropagation();tapPlayer();return;}
- }
  if(e.target?.id==='tv-search'){
   if(isOk&&e.target.readOnly){
     e.preventDefault();e.stopImmediatePropagation();
@@ -446,13 +440,14 @@ async function loadPosters(force=false){
    })[0];
    if(!target)continue;
    S.meta[x.key]={...(S.meta[x.key]||{}),id:target.id,imdb:target.externals?.imdb||x.imdb||null,
-     image:target.image?.original||target.image?.medium||x.image||null,rating:target.rating?.average,
+     image:target.image?.medium||target.image?.original||x.image||null,
+     posterMedium:target.image?.medium||null,rating:target.rating?.average,
      summary:(target.summary||'').replace(/<[^>]*>/g,' ').slice(0,650),
      updated:Date.now()};
    save('tv-meta-cache',S.meta);
-   document.querySelectorAll('[data-poster]').forEach(p=>{
-    if(p.dataset.poster!==x.key||p.querySelector('img'))return;
-    const img=document.createElement('img');img.alt='';img.loading='lazy';img.decoding='async';img.src=S.meta[x.key].image||'';
+   document.querySelectorAll('[data-poster="'+x.key+'"]').forEach(p=>{
+    if(p.querySelector('img'))return;
+    const img=document.createElement('img');img.alt='';img.loading='lazy';img.decoding='async';img.src=poster(x);
     p.querySelector('.no-art')?.replaceWith(img);
    });
    if(S.page==='detail'&&S.show===x.key) {
@@ -470,7 +465,7 @@ async function loadEpisodes(key){
   try{
    const q=await fetch('https://api.tvmaze.com/search/shows?q='+encodeURIComponent(x.en));
    const arr=await q.json(),sh=arr[0]?.show;
-   if(sh){m={...m,id:sh.id,imdb:sh.externals?.imdb||x.imdb,image:sh.image?.original||sh.image?.medium};}
+   if(sh){m={...m,id:sh.id,imdb:sh.externals?.imdb||x.imdb,image:sh.image?.medium||sh.image?.original};}
   }catch{}
  }
  if(!m.id)return;
@@ -481,7 +476,7 @@ async function loadEpisodes(key){
   const episodes=await res.json();
   m.episodes=episodes.map(e=>({season:e.season,number:e.number,name:e.name,airdate:e.airdate})).filter(e=>e.number);
   m.episodesUpdated=Date.now();S.meta[key]=m;save('tv-meta-cache',S.meta);
-  if(S.show===key && (S.page==='player'||S.page==='detail')) {
+  if(S.show===key && S.page==='detail') {
    const old=document.activeElement?.dataset.focus;
    render();if(old)document.querySelector('[data-focus="'+old+'"]')?.focus({preventScroll:true});
   }
