@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
 import json
@@ -65,8 +66,50 @@ def fetch_json(url: str) -> dict:
         return json.loads(response.read(4_000_000).decode("utf-8"))
 
 
+def fetch_html(url: str) -> str:
+    req = Request(url, headers={"User-Agent": "UltraTV-SportsLab/0.1 (metadata-only)"})
+    with urlopen(req, timeout=18) as response:
+        if response.status != 200:
+            raise RuntimeError("Bad HTTP status " + str(response.status))
+        return response.read(900_000).decode("utf-8", errors="replace")
+
+
+def parse_start_programs(page: str, url: str) -> list[dict]:
+    """Extract public TV-program metadata, never video streams, from START channel."""
+    matches = list(re.finditer(
+        r'<div\s+id="[^"]+"\s+class="tv-programm__item[^"]*"\s+data-timestart="(\d+)"',
+        page
+    ))
+    result = []
+    moscow = timezone(timedelta(hours=3))
+    for i, match in enumerate(matches):
+        segment = page[match.start():matches[i + 1].start() if i + 1 < len(matches)
+                       else match.start() + 4000]
+        name_match = re.search(r'<div class="tv-programm__item-name">([\s\S]*?)</div>',
+                               segment)
+        if not name_match:
+            continue
+        title = unescape(re.sub(r"<[^>]*>", "", name_match.group(1))).strip()
+        if not re.match(r"^Футбол\.", title, flags=re.I) or " - " not in title:
+            continue
+        stamp = int(match.group(1))
+        when = datetime.fromtimestamp(stamp, tz=moscow)
+        result.append({
+            "id": "start-" + str(stamp),
+            "date": when.date().isoformat(),
+            "timeMsk": when.strftime("%H:%M"),
+            "title": title,
+            "channelId": "start",
+            "live": "tv-programm__item-live" in segment and "Прямой эфир" in segment,
+            "sourceUrl": url,
+            "commentary": "unknown",
+            "access": "unknown"
+        })
+    return result
+
+
 def rebuild(now: datetime | None = None, getter=fetch_json,
-            destination: Path = OUT) -> tuple[bool, dict]:
+            destination: Path = OUT, page_getter=fetch_html) -> tuple[bool, dict]:
     now = now or datetime.now(timezone.utc)
     existing = {}
     if destination.exists():
@@ -96,6 +139,22 @@ def rebuild(now: datetime | None = None, getter=fetch_json,
                             and f.get("competition") == league and low <= f.get("date", "") <= high)
     if success == 0:
         raise RuntimeError("All sources failed; existing catalog left intact")
+    # Official START program is independent of the CC0 season calendar.
+    # A public TV listing is NOT a playable feed or proof of free access.
+    programs = []
+    for day_offset in range(4):
+        day = (now + timedelta(days=day_offset)).date()
+        url = ("https://ru.tvstart.ru/schedule/start-tv/?day="
+               + day.strftime("%d.%m.%Y"))
+        try:
+            programs.extend(parse_start_programs(page_getter(url), url))
+        except Exception as exc:
+            issues.append("Старт: " + type(exc).__name__)
+    if not programs and any(x.startswith("Старт:") for x in issues):
+        programs = [p for p in existing.get("programs", []) if
+                    isinstance(p, dict) and p.get("date", "") >= now.date().isoformat()]
+    programs = sorted({p["id"]: p for p in programs}.values(),
+                      key=lambda p: (p["date"], p["timeMsk"], p["id"]))
     unique = {f["id"]: f for f in fixtures}
     ordered = sorted(unique.values(), key=lambda f: (f["date"], f["competition"], f["id"]))
     result = {
@@ -103,9 +162,11 @@ def rebuild(now: datetime | None = None, getter=fetch_json,
         "generatedAt": now.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "source": "OpenFootball (CC0) — матчи, без подтверждения вещателя или времени начала",
         "fixtures": ordered,
+        "programs": programs,
         "issues": issues,
     }
-    if existing.get("fixtures") == ordered and existing.get("issues") == issues:
+    if (existing.get("fixtures") == ordered and existing.get("programs", []) == programs
+            and existing.get("issues") == issues):
         return False, existing
     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return True, result
