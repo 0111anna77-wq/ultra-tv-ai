@@ -339,6 +339,12 @@ public final class UltraTvActivity extends Activity {
 
     private void tapNativePointer() {
         if (pointerOverlay == null) return;
+        // After 3 seconds of inactivity the crosshair fades out.
+        // The first OK only reveals it: no invisible, accidental player clicks.
+        if (!pointerOverlay.isCursorVisible()) {
+            pointerOverlay.reveal();
+            return;
+        }
         pointerOverlay.clicked();
         touchWebView(pointerOverlay.getRelativeX(), pointerOverlay.getRelativeY());
     }
