@@ -55,6 +55,18 @@ jobs:
       - name: Build debug APK
         working-directory: android-tv
         run: gradle :app:assembleDebug --no-daemon --stacktrace
+      - name: Publish APK directly on Cloudflare Pages site (no GitHub download redirects)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          ENCODED="$(base64 -w0 "$APK")"
+          gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
+            -f message="Publish direct Ultra TV AI Android TV v0.3 APK" \
+            -f branch=main \
+            -f content="$ENCODED" >/dev/null
+          echo "Direct origin-hosted APK: https://ultra-tv-ai.pages.dev/a.apk"
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
