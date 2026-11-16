@@ -49,20 +49,9 @@ const thumb=x=>{
 const card=x=>'<button class="card" data-act="detail" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'">'+
   thumb(x)+'<span class="card-title">'+esc(x.ru)+'</span><small class="card-sub">'+esc(x.year)+' · '+esc(category(x))+'</small></button>';
 const rail=(title,xs)=>xs.length?'<section class="rail"><h2>'+esc(title)+'</h2><div class="strip">'+xs.map(card).join('')+'</div></section>':'';
-function hero(){
- const key=S.recent[0]?.key;
- const x=item(key)||item('mobland')||items()[0];
- if(!x)return '<section class="hero"><div class="hero-inner"><h1>Ultra TV AI</h1><p>Загружаем общий каталог сериалов…</p></div></section>';
- const image=poster(x);
- return '<section class="hero">'+(image?'<img class="hero-art" src="'+esc(image)+'" alt="">':'')+
-   '<div class="hero-inner"><div class="eyebrow">Твоя коллекция сериалов</div><h1>'+esc(x.ru)+'</h1>'+
-   '<p>'+esc(category(x))+' · '+esc(x.year)+' · Выбор серии и озвучки</p>'+
-   '<div class="hero-actions"><button class="primary" data-act="play" data-key="'+esc(x.key)+'">▶ Смотреть</button>'+
-   '<button class="secondary" data-act="detail" data-key="'+esc(x.key)+'">Подробнее</button></div></div></section>';
-}
 function home(){
  const data=latest(),rec=S.recent.map(r=>item(r.key)).filter(Boolean);
- return hero()+rail('▶ Продолжить просмотр',rec)+rail('Мои сериалы',data)+
+ return rail('▶ Продолжить просмотр',rec)+rail('Мои сериалы',data)+
    rail('Фантастика и фэнтези',data.filter(x=>x.genres.some(g=>['scifi','fantasy','super'].includes(g))))+
    rail('Криминал и триллеры',data.filter(x=>x.genres.some(g=>['crime','thriller'].includes(g))))+
    rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))))+
@@ -151,11 +140,10 @@ function player(){
  const epNums=[...new Set(eps)].sort((a,b)=>a-b).slice(0,50);
  return '<div class="player-screen"><section class="player-main">'+
  '<div class="player-tools"><button class="secondary" data-act="back">← Назад</button>'+
- '<button class="primary" data-act="cursor" data-focus="player-cursor">◎ Указатель для плеера</button>'+
- '<button class="action" data-act="fullscreen">⛶ Полный экран</button></div>'+
+ '<button class="primary" data-act="cursor" data-focus="player-cursor">⛶ Полный экран</button></div>'+
  '<h1>'+esc(x.ru)+' · просмотр</h1>'+
  '<div id="tv-video-frame" class="player-frame" role="button" tabindex="0" data-act="frame" aria-label="Плеер. OK — просмотр на весь экран">'+sourceMedia(src)+'</div>'+
- '<p class="player-help" id="player-help">«Указатель для плеера» сразу открывает полноэкранное видео. Стрелки — движение, OK — выбор. Курсор сам скрывается через 3 секунды и появляется при следующем движении.</p>'+
+ '<p class="player-help" id="player-help">«Полный экран» включает просмотр с управлением указателем. Стрелки — движение, OK — выбор. Курсор сам скрывается через 3 секунды и появляется при следующем движении.</p>'+
  '<div class="player-tools"><button class="action" data-act="reload">↻ Перезагрузить плеер</button></div>'+
  (src?'<p class="subtle">Источник: '+esc(src.name||'Видео')+'</p>':'<p class="banner">Для этого сериала пока нет источника. Данные обновляются через общий каталог.</p>')+
  '</section><aside class="player-side"><h2>Источники</h2>'+
@@ -219,7 +207,7 @@ function startCursor(){
   if(!frame||(!$('#tv-player-iframe')&&!$('#tv-video'))){notify('Видео ещё загружается');return;}
   if(S.cursor)return;
   S.cursor=true;S.cursorFocus=button;
-  button.textContent='● Указатель включён · Назад — выход';
+  button.textContent='⛶ Полный экран';
   const help=$('#player-help');
   if(help)help.textContent='Стрелки двигают указатель, OK нажимает. Через 3 секунды он исчезает и снова появляется при движении.';
   // Do not trap D-pad scrolling in half of a page. Native fullscreen uses
@@ -251,10 +239,10 @@ function stopCursor(fromNative=false){
   $('#tv-video-frame')?.classList.remove('tv-maximized');
   if(!fromNative)signalNativePointer(false);
   const help=$('#player-help');
-  if(help)help.textContent='Курсор выключен. Нажми «Указатель для плеера» или удерживай OK.';
+  if(help)help.textContent='Для просмотра нажми «Полный экран» или OK на видеоплеере.';
   const button=$('[data-act=cursor]');
   if(button){
-    button.textContent='◎ Указатель для плеера';
+    button.textContent='⛶ Полный экран';
     if(fromNative)button.focus({preventScroll:true});
   }
 }
@@ -275,7 +263,6 @@ function buildFocusRows(){
   };
   add('nav',[...document.querySelectorAll('#nav button')]);
   if(S.page==='home'){
-    add('home:hero',root.querySelectorAll('.hero-actions button'));
     [...root.querySelectorAll('.rail')].forEach((rail,i)=>{
       add('home:rail:'+i,rail.querySelectorAll('.strip .card'));
     });
@@ -371,9 +358,6 @@ document.addEventListener('click',e=>{
  if(act==='season'){S.season=Number(b.dataset.season)||1;S.episode=1;S.source=0;refreshPlayer();}
  if(act==='episode'){S.episode=Number(b.dataset.episode)||1;S.source=0;refreshPlayer();}
  if(act==='cursor'||act==='frame'){S.cursor?stopCursor():startCursor();}
- if(act==='fullscreen'){
-  const frame=$('#tv-video-frame');try{frame?.requestFullscreen?.()}catch{}
- }
  if(act==='reload')refreshPlayer();
  if(act==='refresh')refresh(true);
  if(act==='appupdate')window.location.href='ultratv://app-update';
