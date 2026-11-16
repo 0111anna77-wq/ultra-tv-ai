@@ -25,3 +25,35 @@ main{padding:25px 58px 120px;outline:none}h1,h2,p{margin-top:0}.eyebrow{color:#d
 .card:focus,.card:focus .art{transition:none!important;animation:none!important}
 .card .art img{object-fit:cover;image-rendering:auto}
 .strip,.cards-grid{scroll-behavior:auto!important}
+
+/* v0.8 video is genuinely full-bleed: no focus rectangle or blue border. */
+.player-frame,.player-frame:focus,.player-frame:focus-visible,
+.player-frame:fullscreen,.player-frame:-webkit-full-screen,
+.player-frame.tv-maximized,
+.player-frame:fullscreen iframe,.player-frame.tv-maximized iframe,
+#tv-player-iframe,#tv-player-iframe:focus,
+#tv-player-iframe:fullscreen {
+  border:0!important;
+  border-radius:0!important;
+  outline:none!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+}
+.player-frame:fullscreen,.player-frame:-webkit-full-screen,
+.player-frame.tv-maximized{
+  width:100vw!important;
+  height:100vh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  background:#000!important;
+  aspect-ratio:auto!important;
+  overflow:hidden!important;
+}
+.player-frame.tv-maximized{position:fixed!important;inset:0!important;z-index:1500!important;}
+.player-frame:fullscreen iframe,.player-frame:-webkit-full-screen iframe,.player-frame.tv-maximized iframe,
+.player-frame:fullscreen video,.player-frame.tv-maximized video{
+  width:100%!important;height:100%!important;border:0!important;outline:0!important;
+  object-fit:contain;
+}
