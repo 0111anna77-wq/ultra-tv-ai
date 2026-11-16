@@ -1082,5 +1082,40 @@
       "away": "Atalanta BC"
     }
   ],
-  "issues": []
+  "issues": [],
+  "programs": [
+    {
+      "id": "start-1795035900",
+      "date": "2026-11-19",
+      "timeMsk": "00:05",
+      "title": "Футбол. Чемпионат Южной Кореи К-Лига 1. Сеул - Ульсан, 12+",
+      "channelId": "start",
+      "live": false,
+      "sourceUrl": "https://ru.tvstart.ru/schedule/start-tv/?day=19.11.2026",
+      "commentary": "unknown",
+      "access": "unknown"
+    },
+    {
+      "id": "start-1795123500",
+      "date": "2026-11-20",
+      "timeMsk": "00:25",
+      "title": "Футбол. Чемпионат Южной Кореи К-Лига 1. Канвон - Чонбук, 12+",
+      "channelId": "start",
+      "live": false,
+      "sourceUrl": "https://ru.tvstart.ru/schedule/start-tv/?day=20.11.2026",
+      "commentary": "unknown",
+      "access": "unknown"
+    },
+    {
+      "id": "start-1795196400",
+      "date": "2026-11-20",
+      "timeMsk": "20:40",
+      "title": "Футбол. Кубок Португалии. Порто - Паредес, 12+",
+      "channelId": "start",
+      "live": true,
+      "sourceUrl": "https://ru.tvstart.ru/schedule/start-tv/?day=20.11.2026",
+      "commentary": "unknown",
+      "access": "unknown"
+    }
+  ]
 }
