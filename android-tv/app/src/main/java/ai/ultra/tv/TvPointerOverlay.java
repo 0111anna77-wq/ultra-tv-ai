@@ -48,6 +48,8 @@ public final class TvPointerOverlay extends View {
 
     public float getRelativeX() { return x; }
     public float getRelativeY() { return y; }
+    public boolean isCursorVisible() { return getAlpha() > .06f; }
+    public void reveal() { displayBriefly(); invalidate(); }
 
     public void clicked() {
         pressedAt = android.os.SystemClock.uptimeMillis();
