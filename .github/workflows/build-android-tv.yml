@@ -75,48 +75,16 @@ jobs:
       - name: Build debug APK
         working-directory: android-tv
         run: gradle :app:assembleDebug --no-daemon --stacktrace
-      - name: Publish APK directly on Cloudflare Pages site (no GitHub download redirects)
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # Important: GitHub's default debug.keystore changes between runners.
+      # NEVER publish this unsigned-development/debug-signed APK as an in-place
+      # update: Android will reject it because the certificate has changed.
+      # Releases are signed using the persistent, non-public keystore stored
+      # on the user's Windows PC (D:\\UltraTVTools\\signing) and then the
+      # signed APK and checksum manifest are published together to main.
+      - name: Reminder — stable signing is required for release
         run: |
-          APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
-          test -s "$APK"
-          ENCODED="$(base64 -w0 "$APK")"
-          FILE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/a.apk?ref=main" --jq '.sha' 2>/dev/null || true)"
-          if [ -n "$FILE_SHA" ]; then
-            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
-              -f message="Publish direct Ultra TV AI Android TV v0.9 APK" \
-              -f branch=main -f sha="$FILE_SHA" -f content="$ENCODED" >/dev/null
-          else
-            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
-              -f message="Publish direct Ultra TV AI Android TV v0.9 APK" \
-              -f branch=main -f content="$ENCODED" >/dev/null
-          fi
-          echo "Direct origin-hosted APK: https://ultra-tv-ai.pages.dev/a.apk"
-      - name: Publish Android TV app version manifest
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
-          HASH="$(sha256sum "$APK" | cut -d' ' -f1)"
-          jq -n \
-            --arg sha256 "$HASH" \
-            --arg apkUrl "https://ultra-tv-ai.pages.dev/a.apk" \
-            --arg versionName "0.9-tv-app-updater" \
-            --arg notes "Добавлена проверка новой версии и системная установка APK прямо из приложения. Для обновления поверх старой версии нужна одинаковая подпись." \
-            '{versionCode:9,versionName:$versionName,apkUrl:$apkUrl,sha256:$sha256,notes:$notes}' > tv-update.json
-          ENCODED="$(base64 -w0 tv-update.json)"
-          FILE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/tv-update.json?ref=main" --jq '.sha' 2>/dev/null || true)"
-          if [ -n "$FILE_SHA" ]; then
-            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/tv-update.json" \
-              -f message="Publish Android TV update metadata (v0.9)" \
-              -f branch=main -f sha="$FILE_SHA" -f content="$ENCODED" >/dev/null
-          else
-            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/tv-update.json" \
-              -f message="Publish Android TV update metadata (v0.9)" \
-              -f branch=main -f content="$ENCODED" >/dev/null
-          fi
-          echo "App update manifest: https://ultra-tv-ai.pages.dev/tv-update.json"
+          echo "CI builds development APKs only. Do not publish debug APK."
+          echo "Sign with private persistent key, verify v2/v3, then publish a.apk + tv-update.json."
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
@@ -124,16 +92,3 @@ jobs:
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      - name: Publish direct APK download (v0.9)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TAG="tv-v0.9-updater"
-          APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
-          cp "$APK" ultra-tv-ai-android-tv-v0.9.apk
-          gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --target "$GITHUB_SHA" \
-              --title "Ultra TV AI Android TV v0.9 (in-app update checker and installer)" \
-              --notes "Android TV v0.9 adds Settings > Check app update, HTTPS version manifest, SHA256 verified APK download, signature validation and Android system installation confirmation. A stable private signing key is required for actual in-place upgrades. Existing v0.8 debug signatures differ between CI runners; the first install may require uninstall and future releases must use one persistent signing key."
-          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.9.apk --clobber
-          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.9.apk"
