@@ -19,3 +19,9 @@ main{padding:25px 58px 120px;outline:none}h1,h2,p{margin-top:0}.eyebrow{color:#d
 .strip,.cards-grid{scroll-behavior:auto}
 .card:focus{transform:none}
 .art img{image-rendering:auto}
+
+/* v0.7: cheap, responsive poster grids on low-power KION hardware. */
+.hero-art{filter:none!important;transform:none!important;opacity:.17}
+.card:focus,.card:focus .art{transition:none!important;animation:none!important}
+.card .art img{object-fit:cover;image-rendering:auto}
+.strip,.cards-grid{scroll-behavior:auto!important}
