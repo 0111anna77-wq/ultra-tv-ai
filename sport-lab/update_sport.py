@@ -25,10 +25,7 @@ def fixture_id(filename: str, date: str, home: str, away: str) -> str:
     """Stable JavaScript-compatible 32-bit hash for existing saved fixtures."""
     key = "|".join((filename, date, home, away))
     num = 0
-    for char in key:
-        # JavaScript charCodeAt iterates UTF-16 code units
-        for unit in char.encode("utf-16-le")[::2]:  # corrected below for non-BMP
-            pass
+    # JavaScript charCodeAt iterates UTF-16 code units, including surrogate pairs.
     raw = key.encode("utf-16-le")
     for i in range(0, len(raw), 2):
         unit = raw[i] | (raw[i + 1] << 8)
@@ -85,8 +82,9 @@ def rebuild(now: datetime | None = None, getter=fetch_json,
     success = 0
     for filename, league in SOURCES.items():
         try:
-            source = getter(BASE + now.strftime("%Y-%m").replace("-", "-")[:4] +
-                            "-" + str(now.year + 1)[-2:] + "/" + filename)
+            season_start = now.year if now.month >= 7 else now.year - 1
+            season = str(season_start) + "-" + str(season_start + 1)[-2:]
+            source = getter(BASE + season + "/" + filename)
             fixtures.extend(normalize_fixture_list(source, filename, league, now))
             success += 1
         except Exception as exc:
