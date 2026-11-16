@@ -40,3 +40,9 @@ On KION remote, **hold Back for about 2 seconds**. The native settings dialog op
 ### v0.6 fast TV remote navigation
 
 The TV D-pad now uses a cached grid/rail focus map rebuilt only when content changes. Repeated single key taps are immediate (removed 110-ms gate); held auto-repeat is capped at 50 ms to prevent runaway focus. Up/down follows adjacent horizontal rails and remembers the previously selected item in each rail. The view only scrolls enough to make the chosen item visible and avoids large focus animations. Android TV remains independently packaged; web catalog updates stay live through `tv-catalog.json`. Verify responsiveness and directional transitions on the actual KION remote; CI only validates build and JS syntax.
+
+### v0.7 — native pointer and performance
+
+The TV client uses TVmaze's medium poster variants instead of huge `original_untouched` images (including converting cached original URLs on read). Expensive backdrop hero blur is disabled. Metadata retrieval no longer re-renders active playback.
+
+Unlike v0.5's DOM cursor which disappeared in native video fullscreen, v0.7 uses an Android View overlay drawn above WebView and HTML5 fullscreen. The TV player button sends a first-party image request to `/_native/pointer?mode=on`, intercepted by the native client. The normal remote's D-pad moves the visible cursor, OK dispatches a real touch into the WebView/fullscreen view, and Back exits. Holding OK for 900 ms is a fallback activation method from anywhere, including a trapped cross-origin iframe. This is best-effort control for a third-party player, not its own internal UI or timecode. Fullscreen behavior and actual touch dispatch still require KION hardware testing.
