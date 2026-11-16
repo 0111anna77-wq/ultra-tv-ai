@@ -73,3 +73,13 @@ Ad filter remains a curated blocklist, *not* the full AdGuard filtering engine. 
 * On series details, a compact control marks the most recently watched season/episode. Initem is an **external cross-origin iframe**: Ultra TV cannot safely read Initem's actual selected episode or timecode, and cannot guarantee that an Initem-selected episode will automatically resume. The manual marker is explicitly labeled.
 * When the source is a direct HTML5 video (`mp4`/`webm`), Ultra TV saves time/duration at most every five seconds and on pause, and restores the saved position on the same media URL provided it is not nearly finished. Exact time tracking is intentionally **not claimed for Initem**.
 * Existing history is retained locally across normal in-place signed APK updates. Clearing Android app data, uninstalling the app or removing WebView storage may delete it.
+
+### v0.13 — компактный экран и работающий выбор серии Initem
+
+- Удалена лишняя кнопка «Назад» из карточки сериала: аппаратный Back продолжает работать.
+- Уменьшены обложки на 20%, удалена отдельная секция «Недавно открытые».
+- Детали сериала и отметка серии собраны в компактный экран без необходимости прокручивать его ради основных кнопок.
+- Действия в одну строку: «▶ Смотреть / Продолжить», иконка «＋▤» добавления в каталог и «⚙» настроек источника. Все иконки имеют доступные `aria-label`.
+- Добавлена локальная и загружаемая с сайта таблица русских кратких аннотаций для сериалов из общего каталога и подборки.
+- Проверены реальные ответы HTML Initem: параметры URL `?season=1&episode=2` переводят `playlist.current` в S01E02. Параметры `?s=1&e=2` НЕ работают. Теперь когда пользователь нажимает «Запомнить серию», последующая кнопка «Продолжить просмотр» открывает Initem с этим сезоном/эпизодом. Это **поддерживаемый ответом поставщика входной параметр**, а не получение данных о том, что пользователь реально выбрал внутри iframe.
+- Автоматически прочитать изменение выбранной серии и минуты из cross-origin Initem пока нельзя: в проверенном HTML не найден внешний `postMessage` с таймкодом. Внутреннее запоминание VenomPlayer может работать отдельно, но Ultra TV не может его подтверждать. Для прямых видеофайлов работает собственный HTML5 timecode.
