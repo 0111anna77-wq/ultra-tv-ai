@@ -135,3 +135,82 @@ main{padding-top:22px}
 }
 .progress-save{display:inline-block;margin:13px 0 0;padding:9px 15px;min-height:45px;font-size:16px}
 .detail .progress-panel .progress-explain{font-size:13px;line-height:1.42;color:#9facbc;margin:10px 0 0}
+
+/* v0.13 — fast and compact Android TV UI (1080p and KION 720p).
+   Poster cards intentionally render at 80% of the v0.12 width. */
+.rail{margin-bottom:26px}
+.rail h2{font-size:24px;margin-bottom:13px}
+.rail .strip{gap:16px;padding:6px 8px 13px}
+.card{flex-basis:clamp(120px,11.28vw,196px);width:clamp(120px,11.28vw,196px);border-radius:10px;padding-bottom:5px}
+.art{border-radius:11px}
+.card-title{font-size:16px;line-height:1.2;margin:9px 3px 4px}
+.card-sub{font-size:12px;line-height:1.3;margin:0 3px}
+.card .pill{font-size:11px;padding:4px 6px;left:6px;bottom:7px}
+.cards-grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:20px}
+.cards-grid .card{width:100%}
+main{padding:15px 42px 45px}
+.detail.detail-compact{
+ display:grid;grid-template-columns:minmax(150px,205px) minmax(0,1fr);
+ align-items:start;gap:25px;padding:5px 0;margin:0;max-width:1550px;
+}
+.detail-compact .detail-poster{width:100%;min-width:0}
+.detail-compact .detail-art{width:100%;max-width:205px;border-radius:13px;border:1px solid #495566}
+.detail-compact .detail-info{
+ display:flex;flex-direction:column;align-items:stretch;gap:7px;
+ min-height:0;width:100%;
+}
+.detail-compact .eyebrow{font-size:11px;letter-spacing:.12em;margin:0}
+.detail-compact h1{font-size:clamp(28px,2.6vw,40px);line-height:1.15;margin:0;letter-spacing:-.025em}
+.detail-compact .detail-metadata{font-size:15px;line-height:1.3;margin:0;color:#b9c5d0}
+.detail-compact .detail-genres{display:flex;flex-wrap:wrap;gap:6px}
+.detail-compact .detail-genres .badge{
+ font-size:12px;line-height:1.1;padding:5px 9px;margin:0;border-radius:7px;
+}
+.detail-compact .detail-description{
+ font-size:16px;line-height:1.35;color:#d4dae1;margin:0;
+ display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+ max-width:1100px;
+}
+.detail-compact .detail-commands{display:flex;align-items:center;flex-wrap:nowrap;gap:11px;margin:5px 0}
+.detail-compact .detail-commands .primary{
+ font-size:18px;min-height:48px;padding:10px 20px;white-space:nowrap;border-radius:11px;
+}
+.detail-compact .icon-button{
+ display:inline-grid;place-items:center;min-height:48px;width:57px;padding:0;
+ font-size:25px;line-height:1;border-radius:10px;white-space:nowrap;
+}
+.detail-compact .progress-panel{
+ display:flex;flex-wrap:wrap;align-items:center;gap:9px 15px;
+ width:100%;max-width:1150px;min-height:72px;margin:6px 0 0;
+ padding:11px 15px;border-radius:11px;background:#192635;border:1px solid #425367;
+}
+.detail-compact .progress-summary{
+ font-size:15px;font-weight:600;white-space:nowrap;color:#e9ce9b;
+}
+.detail-compact .progress-picker{display:flex;align-items:center;gap:7px;padding:0;flex-wrap:nowrap}
+.detail-compact .progress-picker span{font-size:15px;margin:0;color:#ccd7e1}
+.detail-compact .progress-picker span:not(:first-child){margin-left:9px}
+.detail-compact .progress-picker b{font-size:17px;min-width:17px}
+.detail-compact .progress-picker button{
+ min-height:38px;min-width:38px;padding:3px 8px;font-size:19px;border-radius:8px;
+}
+.detail-compact .progress-save{
+ min-height:39px;font-size:14px;padding:6px 12px;margin:0;border-radius:9px;white-space:nowrap;
+}
+.detail-compact .progress-explain{
+ width:100%;margin:0;color:#95a7bb;font-size:12px;line-height:1.2;
+}
+.detail-compact .source-panel{
+ max-width:700px;align-self:stretch;margin-top:5px;
+ padding:12px 15px;border-radius:11px
+}
+.detail-compact .source-panel h3{font-size:18px}
+.detail-compact .source-panel button{min-height:37px;font-size:15px;padding:8px 10px}
+@media(max-width:930px){
+ main{padding:12px 25px 40px}
+ .detail.detail-compact{grid-template-columns:145px minmax(0,1fr);gap:17px}
+ .detail-compact .detail-description{-webkit-line-clamp:2}
+ .detail-compact .detail-commands .primary{font-size:16px;min-height:44px}
+ .detail-compact .icon-button{width:46px;min-height:44px}
+ .detail-compact .progress-panel{gap:6px 10px;padding:8px 10px}
+}
