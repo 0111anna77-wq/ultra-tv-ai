@@ -10,12 +10,20 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   releases:store('tv-release-cache',[]),meta:store('tv-meta-cache',{}),
   tracked:store('tv-tracked',{}),recent:store('tv-recent',[]),
   page:'home',show:null,season:1,episode:1,source:0,search:'',loading:false,
-  cursor:false,cx:.5,cy:.5,cursorFocus:null};
+  cursor:false,cx:.5,cy:.5,cursorFocus:null,
+  added:store('tv-manual-added',[]),discover:store('tv-discover-cache',[]),
+  sourceChoice:store('tv-source-choice',{}),optionsOpen:false,directWatch:false,
+  scheduleLoading:false,scheduleDone:0,scheduleMode:'mine'};
 const root=$('#content');
 let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
-const items=()=>S.shows.filter(x=>x&&x.key&&x.ru);
-const item=key=>items().find(x=>x.key===key);
+const items=()=>{
+ const byKey=new Map();
+ for(const x of [...S.shows,...S.added])if(x&&x.key&&x.ru)byKey.set(x.key,x);
+ return [...byKey.values()];
+};
+const item=key=>items().find(x=>x.key===key)||S.discover.find(x=>x.key===key);
+const isInCollection=key=>items().some(x=>x.key===key);
 const meta=key=>S.meta[key]||{};
 const poster=x=>{
  const m=meta(x.key);
@@ -27,13 +35,14 @@ const imdb=x=>meta(x.key).imdb||x.imdb||'';
 const latest=()=>items().filter(x=>S.tracked[x.key]!==false);
 function navigate(page,key){
   if(S.cursor)stopCursor();
-  S.page=page; S.show=key||null;
+  S.page=page; S.show=key||null;S.optionsOpen=false;
   focusKey=null;focusMemory.clear(); render();
   window.scrollTo(0,0);
   const selector=page==='player'?'[data-act="cursor"]':page==='detail'?'[data-act="play"]':
     page==='search'?'[data-focus="search-field"]':'#nav .nav-active';
   const first=$(selector)||$('#content button');
   if(first)first.focus({preventScroll:true});
+  if(page==='catalog')setTimeout(loadSchedule,80);
 }
 function notify(text){
   const el=$('#toast');el.textContent=text;el.classList.add('show');
@@ -47,7 +56,8 @@ const thumb=x=>{
     ((S.recent||[]).some(a=>a.key===x.key)?'<span class="pill">Продолжить</span>':'')+'</div>';
 };
 const card=x=>'<button class="card" data-act="detail" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'">'+
-  thumb(x)+'<span class="card-title">'+esc(x.ru)+'</span><small class="card-sub">'+esc(x.year)+' · '+esc(category(x))+'</small></button>';
+  thumb(x)+'<span class="card-title">'+esc(x.ru)+'</span><small class="card-sub">'+esc(x.year)+' · '+esc(category(x))+
+  (Number(x.rating||meta(x.key).rating)?' · ★ '+esc(x.rating||meta(x.key).rating):'')+'</small></button>';
 const rail=(title,xs)=>xs.length?'<section class="rail"><h2>'+esc(title)+'</h2><div class="strip">'+xs.map(card).join('')+'</div></section>':'';
 function home(){
  const data=latest(),rec=S.recent.map(r=>item(r.key)).filter(Boolean);
@@ -57,13 +67,69 @@ function home(){
    rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))))+
    '<p class="subtle">Каталог и источники обновляются автоматически. Новые сериалы появляются без переустановки APK.</p>';
 }
+function dateRu(value){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return value||'';
+ return new Date(value+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
+}
+function todayLocal(){
+ const d=new Date();
+ return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+}
+const norm=t=>String(t||'').toLowerCase().replace(/[^a-zа-яё0-9]/g,'');
+function matchRelease(entry){
+ const en=norm(entry.seriesEn),ru=norm(entry.seriesRu);
+ return items().find(x=>(en&&norm(x.en)===en)||(ru&&norm(x.ru)===ru));
+}
+function scheduleEntry(x,episode,kind){
+ const key=x?.key||'';
+ const code='S'+String(episode.season||0).padStart(2,'0')+'E'+String(episode.number||0).padStart(2,'0');
+ return '<button class="schedule-entry" data-act="detail" data-key="'+esc(key)+'" data-focus="episode:'+esc(key)+':'+esc(code)+
+  '" aria-label="'+esc(x.ru+' '+code)+'"><span class="episode-day">'+esc(dateRu(episode.airdate||episode.date))+
+  '</span><span class="episode-name"><strong>'+esc(x.ru)+'</strong><small>'+esc(episode.name||episode.title||'Новая серия')+
+  '</small></span><span class="episode-code">'+esc(code)+'</span><span class="episode-source">'+esc(kind)+'</span></button>';
+}
 function catalog(){
- const data=items();return '<div class="section-title">Все сериалы · '+data.length+'</div>'+
- (data.length?'<div class="cards-grid">'+data.map(card).join('')+'</div>':'<div class="empty">Каталог недоступен. Откройте «Настройки → Обновить каталог».</div>');
+ const all=S.scheduleMode==='all'?items():latest();
+ const today=todayLocal(),cutoff=new Date();cutoff.setDate(cutoff.getDate()+60);
+ const until=[cutoff.getFullYear(),String(cutoff.getMonth()+1).padStart(2,'0'),String(cutoff.getDate()).padStart(2,'0')].join('-');
+ const upcoming=[];
+ for(const x of all){
+   const eps=(meta(x.key).episodes||[]).filter(ep=>ep.airdate&&ep.airdate>=today&&ep.airdate<=until);
+   eps.sort((a,b)=>a.airdate.localeCompare(b.airdate));
+   for(const ep of eps.slice(0,5))upcoming.push({x,episode:ep});
+ }
+ upcoming.sort((a,b)=>a.episode.airdate.localeCompare(b.episode.airdate)||a.x.ru.localeCompare(b.x.ru,'ru'));
+ const recent=[];
+ for(const entry of S.releases){
+  const x=matchRelease(entry);
+  if(!x||!all.some(y=>y.key===x.key))continue;
+  const date=String(entry.published||'').slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;
+  recent.push({x,episode:{date,season:entry.season,number:entry.episode,name:entry.title}});
+ }
+ recent.sort((a,b)=>b.episode.date.localeCompare(a.episode.date));
+ const filters='<div class="schedule-filters">'+
+  '<button data-act="schedule-filter" data-mode="mine" class="'+(S.scheduleMode==='mine'?'selected':'')+'">Мои сериалы</button>'+
+  '<button data-act="schedule-filter" data-mode="all" class="'+(S.scheduleMode==='all'?'selected':'')+'">Все сериалы</button></div>';
+ const progress=S.scheduleLoading?'<p class="schedule-progress">Проверяем расписание TVMaze: '+S.scheduleDone+' из '+latest().length+'…</p>':'';
+ return '<h1 class="section-title">Расписание выхода серий</h1>'+
+  '<p class="section-note">Плановые даты премьер по TVMaze и уже опубликованные серии в озвучке LostFilm — это разные события.</p>'+
+  filters+progress+
+  '<h2 class="schedule-subtitle">Скоро в эфире · ближайшие 60 дней</h2>'+
+  (upcoming.length?'<div class="schedule-list">'+upcoming.slice(0,70).map(row=>scheduleEntry(row.x,row.episode,'TVMaze')).join('')+'</div>':
+    '<div class="empty">Подтверждённых дат пока нет. Если расписание ещё загружается, записи появятся ниже после проверки.</div>')+
+  '<h2 class="schedule-subtitle">Недавно вышли с озвучкой LostFilm</h2>'+
+  (recent.length?'<div class="schedule-list">'+recent.slice(0,24).map(row=>scheduleEntry(row.x,row.episode,'LostFilm')).join('')+'</div>':
+   '<div class="empty">В последних сообщениях LostFilm нет совпадений с выбранными сериалами.</div>');
 }
 function newShows(){
- return '<div class="section-title">Новинки и свежие сериалы</div>'+
- '<div class="cards-grid">'+items().slice().sort((a,b)=>b.year-a.year||a.ru.localeCompare(b.ru)).map(card).join('')+'</div>';
+ const owned=new Set(items().map(x=>x.key));
+ const discovered=S.discover.filter(x=>x&&x.key&&x.image&&Number(x.rating)>=7.7&&!owned.has(x.key))
+   .sort((a,b)=>Number(b.rating)-Number(a.rating)||Number(b.year)-Number(a.year));
+ return '<h1 class="section-title">Сериалы с высоким рейтингом</h1>'+
+ '<p class="section-note">Подборка TVMaze вне твоего каталога. Оценки указаны по TVMaze, это не IMDb. Здесь ничего не добавляется автоматически.</p>'+
+ (discovered.length?'<div class="cards-grid">'+discovered.map(card).join('')+'</div>':
+ '<div class="empty">Подборка пока загружается или все предложенные сериалы уже добавлены.</div>');
 }
 function searchUI(){
  return '<h1 class="section-title">Поиск по каталогу</h1><p class="hint">Выдели строку стрелками, нажми OK — только тогда откроется клавиатура.</p>'+
@@ -77,34 +143,36 @@ function searchMatches(){
  return found.length?found.map(card).join(''):'<div class="empty">Совпадений нет. Новые сериалы добавляются в общий каталог на сайте.</div>';
 }
 function settings(){
- return '<h1 class="section-title">Настройки Ultra TV</h1>'+
- '<section class="settings-box"><h2>Каталог и источники</h2><p>Список сериалов, информация о просмотре и ссылки на плееры берутся из нашего сайта.</p>'+
- '<button class="primary" data-act="refresh" data-focus="refresh">↻ Обновить каталог</button>'+
- '<p class="subtle">Сериалы обновляются при запуске и каждые 30 минут — без переустановки APK.</p>'+
- '<div class="line"></div><h2>Обновление приложения</h2>'+
- '<p>Новые версии Ultra TV можно проверить и скачать прямо здесь. Установку подтверждает система Android.</p>'+
- '<button class="primary" data-act="appupdate" data-focus="appupdate">⬇ Проверить обновление приложения</button>'+
- '<p class="subtle">Проверяем наличие новой версии раз в день. Для установки требуется разрешение Android и одинаковая подпись APK. Если приставка ограничивает установку, можно открыть файл через браузер.</p>'+
- '<div class="line"></div><h2>Блокировка рекламы</h2>'+
- '<p>Фильтр является экспериментальным. При проблемах с видео отключи его для проверки. Изменение требует перезагрузки страницы.</p>'+
- '<button class="action" data-act="adsettings">Настройки AdBlock</button>'+
- '<p class="subtle">Также можно удерживать кнопку «Назад» около 2 секунд.</p>'+
- '<div class="line"></div><h2>Управление пультом</h2>'+
- '<p>Стрелки — перемещение; OK — действие. Поле поиска открывает клавиатуру только после OK. В плеере выбери «Управлять видео»: стрелки перемещают курсор, OK нажимает на экран, «Назад» завершает управление.</p>'+
- '<p class="subtle">Версия интерфейса TV 0.5. Персональная история хранится на этой приставке; общий каталог не требует аккаунта.</p></section>';
+ return '<h1 class="section-title">Настройки</h1><section class="settings-box">'+
+ '<div class="settings-row"><div><h2>Каталог и расписание</h2><p>Сериалы и источники проверяются при запуске и раз в 30 минут.</p></div>'+
+ '<button class="action" data-act="refresh" data-focus="refresh">↻ Обновить каталог</button></div>'+
+ '<div class="settings-row"><div><h2>Версия приложения</h2><p>Новые версии APK устанавливаются через системное подтверждение Android.</p></div>'+
+ '<button class="action" data-act="appupdate" data-focus="appupdate">⬇ Проверить обновление</button></div>'+
+ '<div class="settings-row"><div><h2>Блокировщик рекламы</h2><p>Включить или выключить фильтр, посмотреть статистику блокировок.</p></div>'+
+ '<button class="action" data-act="adsettings">⚙ AdBlock</button></div>'+
+ '<div class="settings-row"><div><h2>Управление</h2><p>Стрелки — выбор, OK — действие; удержание OK в видео — указатель. Назад — выйти из просмотра.</p></div></div>'+
+ '<p class="settings-footer">Общий каталог синхронизируется с сайтом. Сохранённые на приставке добавления пока локальные.</p></section>';
 }
 function detail(){
  const x=item(S.show);if(!x)return catalog();
- const m=meta(x.key),img=poster(x);
+ const m=meta(x.key),img=poster(x),isOwned=isInCollection(x.key);
  const genres=(x.genres||[]).map(v=>'<span class="badge">'+esc(tags[v]||v)+'</span>').join('');
+ const sources=availableSources(x),choice=Number(S.sourceChoice[x.key])||0;
+ const panel=S.optionsOpen?
+   '<div class="source-panel"><h3>Выбор источника</h3>'+
+   (sources.length?sources.map((src,i)=>'<button data-act="preselect-source" data-index="'+i+'" data-focus="source:'+i+
+   '" class="'+(i===choice?'selected':'')+'">'+esc(src.name||src.platform||'Источник '+(i+1))+'</button>').join(''):
+   '<p>Пока нет отдельного источника. Если известен IMDb, Initem подключается автоматически.</p>')+
+   '<p class="subtle">Сезон, серия и озвучка Initem выбираются в полноэкранном плеере.</p></div>':'';
  return '<button class="action" data-act="back">← Назад</button><section class="detail">'+
  '<div>'+(img?'<img class="detail-art" src="'+esc(img)+'" alt="">':'<div class="detail-art"></div>')+'</div>'+
- '<div><div class="eyebrow">Ultra TV · сериал</div><h1>'+esc(x.ru)+'</h1>'+
- '<p>'+esc(x.en)+' · '+esc(x.year)+(m.rating?' · ★ '+esc(m.rating):'')+'</p>'+
- '<div>'+genres+'</div><p>'+esc(m.summary||'Выбирай серию, озвучку и запускай просмотр в телевизионном плеере.')+'</p>'+
- '<div class="actions"><button class="primary" data-act="play">▶ Смотреть</button>'+
- '<button class="secondary" data-act="follow">'+(S.tracked[x.key]===false?'+ В мой каталог':'✓ В моём каталоге')+'</button></div>'+
- '<p class="subtle">Сведения и обложки: TVmaze. Плееры: общий список Ultra TV AI.</p></div></section>';
+ '<div class="detail-info"><div class="eyebrow">Ultra TV · сериал</div><h1>'+esc(x.ru)+'</h1>'+
+ '<p>'+esc(x.en)+' · '+esc(x.year)+(m.rating||x.rating?' · ★ '+esc(m.rating||x.rating):'')+'</p>'+
+ '<div>'+genres+'</div><p>'+esc(m.summary||x.summary||'Открой просмотр в полноэкранном плеере.')+'</p>'+
+ '<div class="actions"><button class="primary" data-act="play" data-focus="detail-play">▶ Смотреть</button>'+
+ '<button class="secondary" data-act="follow">'+(isOwned?(S.tracked[x.key]===false?'+ Вернуть в каталог':'✓ В моём каталоге'):'+ Добавить в мой каталог')+'</button></div>'+
+ '<div class="detail-player-settings"><button class="action" data-act="player-options" data-focus="player-options" aria-expanded="'+S.optionsOpen+'">⚙ Настройки плеера</button>'+
+ panel+'</div></div></section>';
 }
 function availableSources(x){
  const sources=[],set=new Set();
