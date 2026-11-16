@@ -62,7 +62,7 @@ jobs:
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      - name: Publish direct APK download (v0.2)
+      - name: Publish direct APK download (v0.3)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -73,5 +73,5 @@ jobs:
             gh release create "$TAG" --target "$GITHUB_SHA" \
               --title "Ultra TV AI Android TV v0.3 (bundled offline shell)" \
               --notes "Android TV debug APK containing a bundled offline-ready UI, plus optional experimental ad-host filtering. Initem playback still needs internet. Previous v0.2 debug installation requires uninstall if signature differs; local state may be lost."
-          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.2.apk --clobber
-          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.2.apk"
+          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.3.apk --clobber
+          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.3.apk"
