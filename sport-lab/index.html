@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1019">
+  <title>Ultra TV · Спорт — лаборатория</title>
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <main class="layout">
+    <header>
+      <a class="back" href="../">← Ultra TV</a>
+      <span class="eyebrow">ОТДЕЛЬНЫЙ ПРОТОТИП · НЕ ПОДКЛЮЧЁН К ГЛАВНОМУ МЕНЮ</span>
+      <h1>⚽ Спорт <span>LIVE</span></h1>
+      <p>Российские платные спортивные каналы и футбольное расписание. Открытые трансляции показываются только после подтверждения.</p>
+    </header>
+    <section class="panel controls" aria-label="Фильтры">
+      <label for="search">Найти канал, команду или матч</label>
+      <input id="search" type="search" placeholder="Например, Матч Премьер, Реал или Зенит" autocomplete="off">
+      <div class="tabs">
+        <button type="button" data-tab="matches" aria-pressed="true">⚽ Матчи</button>
+        <button type="button" data-tab="channels" aria-pressed="false">📺 Каналы</button>
+        <button type="button" data-tab="favs" aria-pressed="false">★ Избранное</button>
+      </div>
+      <p id="status" role="status" aria-live="polite">Загрузка каталога…</p>
+    </section>
+    <section id="results" aria-live="polite" aria-label="Результаты"></section>
+    <footer>Источники расписания могут ошибаться. Наличие матча не подтверждает канал, русскую озвучку или бесплатный видеопоток. Подписки Иви, Okko и KION учитываются как стандартные, но их точный состав ещё не проверен.</footer>
+  </main>
+</body>
+</html>

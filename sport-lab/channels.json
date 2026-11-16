@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "note": "Каналы для поиска; присутствие в стандартных подписках не проверено.",
+  "channels": [
+    {
+      "id": "match-premier",
+      "name": "Матч Премьер",
+      "focus": "football",
+      "guideUrl": "https://matchtv.ru/"
+    },
+    {
+      "id": "match-football-1",
+      "name": "Матч! Футбол 1",
+      "focus": "football",
+      "guideUrl": "https://matchtv.ru/"
+    },
+    {
+      "id": "match-football-2",
+      "name": "Матч! Футбол 2",
+      "focus": "football",
+      "guideUrl": "https://matchtv.ru/"
+    },
+    {
+      "id": "match-football-3",
+      "name": "Матч! Футбол 3",
+      "focus": "football",
+      "guideUrl": "https://matchtv.ru/"
+    },
+    {
+      "id": "match-arena",
+      "name": "Матч! Арена",
+      "focus": "other",
+      "guideUrl": "https://matchtv.ru/"
+    },
+    {
+      "id": "match-game",
+      "name": "Матч! Игра",
+      "focus": "other",
+      "guideUrl": "https://matchtv.ru/"
+    },
+    {
+      "id": "match-fighter",
+      "name": "Матч! Боец",
+      "focus": "other",
+      "guideUrl": "https://matchtv.ru/"
+    },
+    {
+      "id": "start",
+      "name": "Старт",
+      "focus": "football",
+      "guideUrl": "https://ru.tvstart.ru/schedule/start-tv/"
+    },
+    {
+      "id": "start-triumph",
+      "name": "Старт Триумф",
+      "focus": "other",
+      "guideUrl": "https://tvstart.ru/"
+    },
+    {
+      "id": "football",
+      "name": "Футбол",
+      "focus": "football",
+      "guideUrl": ""
+    }
+  ]
+}
