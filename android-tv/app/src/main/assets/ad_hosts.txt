@@ -82,3 +82,11 @@ yieldmo.com
 yieldone.com
 zedo.com
 zeotap.com
+
+# Additional common Russian ad-serving hosts (not video CDNs)
+adfox.ru
+an.yandex.ru
+yandexadexchange.net
+adriver.ru
+ad.mail.ru
+mytarget.ru
