@@ -12,6 +12,11 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Comparator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,6 +32,10 @@ final class AdBlockFilter {
     private final SharedPreferences prefs;
     private final Set<String> blockedDomains;
     private final AtomicInteger blockedCount = new AtomicInteger();
+    private final AtomicInteger observedRequests = new AtomicInteger();
+    // Diagnostics never retain full URLs, query strings, cookies or IP addresses.
+    // Bounded domain statistics help identify ads missed by the host-only filter.
+    private final ConcurrentHashMap<String, AtomicInteger> allowedHosts = new ConcurrentHashMap<>();
     private volatile boolean enabled;
     private volatile String lastBlockedHost = "";
 
@@ -55,9 +64,26 @@ final class AdBlockFilter {
     int getBlockedCount() { return blockedCount.get(); }
     int getDomainCount() { return blockedDomains.size(); }
     String getLastBlockedHost() { return lastBlockedHost; }
+    int getObservedRequests() { return observedRequests.get(); }
+
+    String getUnblockedHostSummary() {
+        List<Map.Entry<String,AtomicInteger>> candidates = new ArrayList<>(allowedHosts.entrySet());
+        candidates.sort((a,b) -> Integer.compare(b.getValue().get(), a.getValue().get()));
+        StringBuilder out = new StringBuilder();
+        for (int i=0;i<Math.min(7,candidates.size());i++) {
+            Map.Entry<String,AtomicInteger> entry = candidates.get(i);
+            out.append("\n").append(entry.getKey()).append(" (")
+                    .append(entry.getValue().get()).append(")");
+        }
+        return out.length()==0?"Нет данных — открой сериал с включённым фильтром":out.toString();
+    }
 
     void setEnabled(boolean value) {
         enabled = value;
+        blockedCount.set(0);
+        observedRequests.set(0);
+        allowedHosts.clear();
+        lastBlockedHost = "";
         prefs.edit().putBoolean(PREF_ENABLED, value).apply();
     }
 
@@ -66,7 +92,16 @@ final class AdBlockFilter {
         final String scheme = uri.getScheme();
         if (!"https".equalsIgnoreCase(scheme) && !"http".equalsIgnoreCase(scheme)) return null;
         final String host = uri.getHost();
-        if (!AdHostMatcher.isBlockedHost(host, blockedDomains)) return null;
+        if (host == null || host.isEmpty()) return null;
+        observedRequests.incrementAndGet();
+        if (!AdHostMatcher.isBlockedHost(host, blockedDomains)) {
+            // This list is only a troubleshooting hint, NOT a list of ads:
+            // requests include legitimate media, subtitle and image CDNs.
+            if (allowedHosts.size() < 60 || allowedHosts.containsKey(host)) {
+                allowedHosts.computeIfAbsent(host, h -> new AtomicInteger()).incrementAndGet();
+            }
+            return null;
+        }
         blockedCount.incrementAndGet();
         lastBlockedHost = host;
         // Give Chromium an empty response for known ad hosts; leave unknown traffic alone.
