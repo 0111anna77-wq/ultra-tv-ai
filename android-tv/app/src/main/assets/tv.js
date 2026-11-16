@@ -302,6 +302,38 @@ function render(){
  }
  if(!target&&prev)target=[...document.querySelectorAll('[data-focus]')].find(x=>x.dataset.focus===prev);
  if(target)target.focus({preventScroll:true});
+ if(S.page==='player')bindNativeVideoProgress();
+}
+function bindNativeVideoProgress(){
+ const video=$('#tv-video'),key=S.show;
+ if(!video||!key)return;
+ const source=video.getAttribute('src')||'';
+ const state=getProgress(key)||{};
+ video.addEventListener('loadedmetadata',()=>{
+   const p=getProgress(key);
+   const time=Number(p?.seconds)||0;
+   if(p?.kind==='direct'&&!p.completed&&p.mediaUrl===source
+      &&p.season===S.season&&p.episode===S.episode
+      &&Number.isFinite(video.duration)&&time>5&&time<video.duration-20){
+     try{video.currentTime=time;}catch{}
+   }
+ });
+ let lastSaved=0;
+ const storeTime=(force=false)=>{
+   const now=Date.now();
+   if(!force&&now-lastSaved<5000)return;
+   if(!Number.isFinite(video.currentTime)||video.currentTime<0)return;
+   const duration=Number.isFinite(video.duration)?video.duration:0;
+   setProgress(key,{season:S.season,episode:S.episode,
+     source:S.source,openedAt:now,
+     kind:'direct',mediaUrl:source,seconds:Math.floor(video.currentTime),
+     duration:Math.floor(duration),completed:duration>0&&duration-video.currentTime<8});
+   lastSaved=now;
+ };
+ video.addEventListener('timeupdate',()=>storeTime(false));
+ video.addEventListener('pause',()=>storeTime(true));
+ video.addEventListener('ended',()=>{storeTime(true);setProgress(key,{completed:true});});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&!video.paused)storeTime(true)},{once:true});
 }
 function record(key){
  S.recent=[{key,date:Date.now()},...S.recent.filter(x=>x.key!==key)].slice(0,12);
@@ -310,10 +342,19 @@ function record(key){
 function openShow(key){if(!item(key))return;navigate('detail',key);loadEpisodes(key);}
 function watch(key){
  const x=item(key||S.show);if(!x)return;
- S.show=x.key;S.source=Number(S.sourceChoice[x.key])||0;S.season=1;S.episode=1;
- record(x.key);S.directWatch=true;
+ const previous=getProgress(x.key)||{};
+ S.show=x.key;
+ S.source=Number(S.sourceChoice[x.key]??previous.source??0)||0;
+ S.season=Math.max(1,Number(previous.season)||1);
+ S.episode=Math.max(1,Number(previous.episode)||1);
+ record(x.key);
+ const src=availableSources(x)[S.source]||availableSources(x)[0];
+ setProgress(x.key,{season:S.season,episode:S.episode,
+   source:S.source,openedAt:Date.now(),
+   kind:src?.kind==='video'||/\.(mp4|webm)(?:\?|$)/i.test(src?.url||'')?'direct':'embed'});
+ S.directWatch=true;
  navigate('player',x.key);loadEpisodes(x.key);
- // Keep the user's OK gesture: open the real fullscreen video right away.
+ // The click/OK user gesture goes straight to fullscreen with no extra view.
  startCursor();
 }
 function refreshPlayer(){
@@ -420,6 +461,8 @@ function buildFocusRows(){
   }else if(S.page==='detail'){
     add('detail:back',root.querySelectorAll('[data-act="back"]'));
     add('detail:actions',root.querySelectorAll('.detail .actions button'));
+    add('detail:progress',root.querySelectorAll('.detail .progress-picker button'));
+    add('detail:progress-save',root.querySelectorAll('.detail [data-act="progress-save"]'));
     add('detail:settings',root.querySelectorAll('.detail [data-act="player-options"]'));
     [...root.querySelectorAll('.detail [data-act="preselect-source"]')].forEach((b,i)=>add('detail:source:'+i,[b]));
   }else if(S.page==='settings'){
@@ -494,7 +537,25 @@ document.addEventListener('click',e=>{
  if(b.dataset.nav){navigate(b.dataset.nav);return;}
  const act=b.dataset.act,key=b.dataset.key||S.show;
  if(act==='detail')openShow(key);
+ if(act==='continue')watch(key);
  if(act==='play')watch(key);
+ if(act==='progress-step'&&item(S.show)){
+   const part=b.dataset.part==='season'?'season':'episode';
+   const step=Number(b.dataset.step)===-1?-1:1;
+   changeProgressDraft(S.show,part,step);
+   focusKey=null;render();
+   document.querySelector('[data-act="progress-step"][data-part="'+part+'"][data-step="'+step+'"]')
+     ?.focus({preventScroll:true});
+ }
+ if(act==='progress-save'&&item(S.show)){
+   const draft=progressDraft(S.show),existing=getProgress(S.show)||{};
+   setProgress(S.show,{season:draft.season,episode:draft.episode,
+      confirmed:true,completed:false,seconds:0,duration:0,mediaUrl:null,
+      openedAt:Number(existing.openedAt)||Date.now()});
+   focusKey=null;render();
+   document.querySelector('[data-act="progress-save"]')?.focus({preventScroll:true});
+   notify('Сохранено: '+episodeCode(draft.season,draft.episode));
+ }
  if(act==='back')goBack();
  if(act==='follow'&&item(S.show)){
    const x=item(S.show);
