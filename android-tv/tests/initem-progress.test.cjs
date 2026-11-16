@@ -1,0 +1,55 @@
+'use strict';
+// Automated, offline regression tests for real Initem postMessage protocol.
+// Uses a mock iframe; never downloads or plays third-party video.
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const src=fs.readFileSync(path.join(__dirname,'../app/src/main/assets/tv.js'),'utf8');
+const start=src.indexOf('function handleInitemMessage(event){');
+const end=src.indexOf("window.addEventListener('message',handleInitemMessage,false);",start);
+assert(start>0&&end>start,'Initem handler must exist');
+const callbackCode=src.slice(start,end);
+const frameWindow={};
+const frame={contentWindow:frameWindow,getAttribute:()=> 'https://api.initem.ws/embed/imdb/tt1234567'};
+const S={page:'player',show:'test',source:0,season:1,episode:1,
+ initemAdPlaying:false,initemLastWrite:0,progress:{},progressDraft:{}};
+const item=(key)=>key==='test'?{key} :null;
+const $=(query)=>query==='#tv-player-iframe'?frame:null;
+const availableSources=()=>[{platform:'initem',url:frame.getAttribute('src'),kind:'embed'}];
+const getProgress=(key)=>S.progress[key]||null;
+const setProgress=(key,change)=>{S.progress[key]={...S.progress[key],...change}};
+const handle=new Function('$','S','item','availableSources','getProgress','setProgress',
+ callbackCode+';return handleInitemMessage;')($,S,item,availableSources,getProgress,setProgress);
+const event=(data,origin='https://api.initem.ws',source=frameWindow)=>({data,origin,source});
+assert.equal(handle(event({event:'changeEpisode',season:2,episode:4},'https://evil.example')),false);
+assert.equal(getProgress('test'),null,'Origin spoof must not alter progress');
+assert.equal(handle(event({event:'changeEpisode',season:2,episode:4},'https://api.initem.ws',{})),false);
+assert.equal(handle(event({event:'changeEpisode',season:2,episode:4})),true);
+assert.deepEqual([S.season,S.episode],[2,4]);
+assert.equal(getProgress('test').confirmed,true);
+assert.equal(getProgress('test').auto,true);
+assert.equal(handle(event({event:'viewProgress',time:1652.5,duration:2650})),true);
+assert.equal(getProgress('test').seconds,1652);
+assert.equal(getProgress('test').duration,2650);
+assert.equal(handle(event({event:'adStart'})),true);
+S.initemLastWrite=0;
+handle(event({event:'viewProgress',time:5,duration:30}));
+assert.equal(getProgress('test').seconds,1652,'Ad clock must not overwrite episode time');
+handle(event({event:'adStop'}));
+assert.equal(handle(event({event:'viewProgress',time:Infinity,duration:2650})),false);
+assert.equal(handle(event({event:'viewProgress',time:360,duration:-1})),false);
+handle(event({event:'changeEpisode',season:2,episode:5}));
+assert.equal(getProgress('test').seconds,0,'New episode must clear old minute');
+assert.equal(getProgress('test').episode,5);
+assert.equal(handle(event({event:'ended'})),true);
+assert.equal(getProgress('test').completed,true);
+assert.equal(handle(event({event:'changeEpisode',season:99,episode:5})),false);
+S.progress={};S.season=1;S.episode=1;S.initemLastWrite=0;
+handle(event({event:'viewProgress',time:180,duration:2200}));
+assert.equal(getProgress('test').seconds,180);
+assert.equal(getProgress('test').confirmed,false,'Time only must not guess episode selection');
+S.page='detail';
+assert.equal(handle(event({event:'changeEpisode',season:2,episode:7})),false);
+S.page='player';S.show=null;
+assert.equal(handle(event({event:'changeEpisode',season:2,episode:7})),false);
+console.log('PASS 16 Initem event checks: frame+origin, episode, progress, ad, unknown episode, ended, inactive view');
