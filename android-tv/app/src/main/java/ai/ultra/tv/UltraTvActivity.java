@@ -215,25 +215,41 @@ public final class UltraTvActivity extends Activity {
         boolean on = adBlockFilter.isEnabled();
         String status = on ? "включён" : "выключен";
         String last = adBlockFilter.getLastBlockedHost();
-        String message = "Удерживайте кнопку «Назад» 2 секунды, чтобы снова открыть настройки.\n\nФильтр " + status
-                + ". За этот запуск заблокировано запросов: " + adBlockFilter.getBlockedCount()
-                + ". Список: " + adBlockFilter.getDomainCount() + " рекламных доменов.\n\n"
-                + (last.isEmpty() ? "" : "Последний заблокированный домен: " + last + "\n\n")
-                + "Это экспериментальная фильтрация. Она может не убрать рекламу в Initem "
-                + "и иногда нарушать загрузку плеера. Выключение фильтра восстанавливает доступ к запросам. "
-                + "Изменение режима перезагрузит страницу и прервёт текущее видео.";
+        String message = "Фильтр " + status
+                + ".\nЗаблокировано запросов: " + adBlockFilter.getBlockedCount()
+                + " из " + adBlockFilter.getObservedRequests()
+                + ". Правил доменов: " + adBlockFilter.getDomainCount() + ".\n"
+                + (last.isEmpty() ? "" : "Последний заблокированный: " + last + "\n")
+                + "\nСторонние адреса, которые не заблокированы (не обязательно реклама):"
+                + "\n" + adBlockFilter.getUnblockedHostSummary()
+                + "\n\nЕсли реклама всё равно идёт, возможна загрузка с другого домена "
+                + "или внутри видеопотока — текущий фильтр блокирует лишь известные домены. "
+                + "Эту диагностику можно сфотографировать для уточнения правил. "
+                + "\n\nПереключение перезапустит страницу и прервёт видео.";
         new AlertDialog.Builder(this)
                 .setTitle("Ultra TV · Фильтр рекламы")
                 .setMessage(message)
                 .setPositiveButton(on ? "Выключить фильтр" : "Включить фильтр", (dialog, which) -> {
                     adBlockFilter.setEnabled(!on);
-                    if (webView != null) webView.reload();
+                    restartAfterAdFilterChange();
                 })
                 .setNeutralButton("Обновить страницу", (dialog, which) -> {
                     if (webView != null) webView.reload();
                 })
                 .setNegativeButton("Закрыть", null)
                 .show();
+    }
+
+    private void restartAfterAdFilterChange() {
+        if (fullscreenView != null) exitFullscreen();
+        hideNativePointer(true);
+        if (webView != null) {
+            webView.stopLoading();
+            // Initem often persists old iframe responses. On filter toggle,
+            // recheck networking with a clean page and clear network cache.
+            webView.clearCache(true);
+            webView.loadUrl(HOME);
+        }
     }
 
     /**
