@@ -49,6 +49,9 @@ jobs:
           grep -q 'IDLE_DELAY_MS = 2700L' android-tv/app/src/main/java/ai/ultra/tv/TvPointerOverlay.java
           ! grep -q 'final String legend' android-tv/app/src/main/java/ai/ultra/tv/TvPointerOverlay.java
           grep -q 'player-frame:fullscreen' android-tv/app/src/main/assets/tv.css
+          grep -q 'data-act="appupdate"' android-tv/app/src/main/assets/tv.js
+          grep -q 'AppUpdateManager' android-tv/app/src/main/java/ai/ultra/tv/UltraTvActivity.java
+          grep -q 'REQUEST_INSTALL_PACKAGES' android-tv/app/src/main/AndroidManifest.xml
       - name: Install Java 17
         uses: actions/setup-java@v4
         with:
@@ -82,31 +85,55 @@ jobs:
           FILE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/a.apk?ref=main" --jq '.sha' 2>/dev/null || true)"
           if [ -n "$FILE_SHA" ]; then
             gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
-              -f message="Publish direct Ultra TV AI Android TV v0.8 APK" \
+              -f message="Publish direct Ultra TV AI Android TV v0.9 APK" \
               -f branch=main -f sha="$FILE_SHA" -f content="$ENCODED" >/dev/null
           else
             gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/a.apk" \
-              -f message="Publish direct Ultra TV AI Android TV v0.8 APK" \
+              -f message="Publish direct Ultra TV AI Android TV v0.9 APK" \
               -f branch=main -f content="$ENCODED" >/dev/null
           fi
           echo "Direct origin-hosted APK: https://ultra-tv-ai.pages.dev/a.apk"
-      - name: Upload APK for install on Android TV 11
-        uses: actions/upload-artifact@v4
-        with:
-          name: ultra-tv-ai-android-tv-clean-player-v08
-          path: android-tv/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-
-      - name: Publish direct APK download (v0.8)
+      - name: Publish Android TV app version manifest
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="tv-v0.8-clean-player"
           APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
-          cp "$APK" ultra-tv-ai-android-tv-v0.8.apk
+          HASH="$(sha256sum "$APK" | cut -d' ' -f1)"
+          jq -n \
+            --arg sha256 "$HASH" \
+            --arg apkUrl "https://ultra-tv-ai.pages.dev/a.apk" \
+            --arg versionName "0.9-tv-app-updater" \
+            --arg notes "Добавлена проверка новой версии и системная установка APK прямо из приложения. Для обновления поверх старой версии нужна одинаковая подпись." \
+            '{versionCode:9,versionName:$versionName,apkUrl:$apkUrl,sha256:$sha256,notes:$notes}' > tv-update.json
+          ENCODED="$(base64 -w0 tv-update.json)"
+          FILE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/tv-update.json?ref=main" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$FILE_SHA" ]; then
+            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/tv-update.json" \
+              -f message="Publish Android TV update metadata (v0.9)" \
+              -f branch=main -f sha="$FILE_SHA" -f content="$ENCODED" >/dev/null
+          else
+            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/tv-update.json" \
+              -f message="Publish Android TV update metadata (v0.9)" \
+              -f branch=main -f content="$ENCODED" >/dev/null
+          fi
+          echo "App update manifest: https://ultra-tv-ai.pages.dev/tv-update.json"
+      - name: Upload APK for install on Android TV 11
+        uses: actions/upload-artifact@v4
+        with:
+          name: ultra-tv-ai-android-tv-updater-v09
+          path: android-tv/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publish direct APK download (v0.9)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="tv-v0.9-updater"
+          APK="android-tv/app/build/outputs/apk/debug/app-debug.apk"
+          cp "$APK" ultra-tv-ai-android-tv-v0.9.apk
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --target "$GITHUB_SHA" \
-              --title "Ultra TV AI Android TV v0.8 (immersive fullscreen and auto-hiding crosshair)" \
-              --notes "Android TV v0.8 opens fullscreen automatically when entering pointer mode (CSS fullscreen fallback), removes persistent fullscreen instruction banner and blue video border, auto-fades native crosshair after three seconds of inactivity, and provides a real D-pad selectable video region. Initem remains a third-party iframe and actual click behavior requires KION validation."
-          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.8.apk --clobber
-          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.8.apk"
+              --title "Ultra TV AI Android TV v0.9 (in-app update checker and installer)" \
+              --notes "Android TV v0.9 adds Settings > Check app update, HTTPS version manifest, SHA256 verified APK download, signature validation and Android system installation confirmation. A stable private signing key is required for actual in-place upgrades. Existing v0.8 debug signatures differ between CI runners; the first install may require uninstall and future releases must use one persistent signing key."
+          gh release upload "$TAG" ultra-tv-ai-android-tv-v0.9.apk --clobber
+          echo "Direct download: https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/ultra-tv-ai-android-tv-v0.9.apk"
