@@ -36,9 +36,9 @@ class AuditTests(unittest.TestCase):
             for entry in channel["candidates"]:
                 self.assertNotIn("url", entry)
                 self.assertNotIn("http", repr(entry))
-        self.assertEqual(obj["channels"]["match-football-1"]["candidateCount"], 1)
-        self.assertEqual(obj["channels"]["match-football-2"]["candidateCount"], 1)
-        self.assertEqual(obj["channels"]["match-football-3"]["candidateCount"], 1)
+        self.assertEqual(obj["channels"]["match-football-1"]["candidateCount"], 2)
+        self.assertEqual(obj["channels"]["match-football-2"]["candidateCount"], 2)
+        self.assertEqual(obj["channels"]["match-football-3"]["candidateCount"], 2)
 
     def test_total_failure(self):
         with self.assertRaises(RuntimeError):
