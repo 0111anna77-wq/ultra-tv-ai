@@ -12,7 +12,7 @@ function playerModule(){
   const INITEM_ORIGIN = 'https://api.initem.ws';
   const initemEvents = new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']);
   let remoteOptions={shows:{},embeds:{},episodes:{}};
-  function state(){ const s=app.state; if(!s.sources || typeof s.sources!=='object')s.sources={};if(!s.progress || typeof s.progress!=='object')s.progress={};if(!s.initemProgress || Array.isArray(s.initemProgress) || typeof s.initemProgress!=='object')s.initemProgress={};return s;}
+  function state(){ const s=app.state; if(!s.sources || typeof s.sources!=='object')s.sources={};if(!s.progress || typeof s.progress!=='object')s.progress={};if(!s.initemProgress || Array.isArray(s.initemProgress) || typeof s.initemProgress!=='object')s.initemProgress={};if(!s.initemDiag||Array.isArray(s.initemDiag)||typeof s.initemDiag!=='object')s.initemDiag={};return s;}
   function validUrl(raw){try{const u=new URL(String(raw).trim());if(u.protocol!=='https:'||u.username||u.password)throw Error();return u.href;}catch{throw Error('Нужна прямая HTTPS-ссылка на видео или страницу.');}}
   function parseSource(raw){
   let src=String(raw||'').trim(),embedded=false;
@@ -95,8 +95,19 @@ function playerModule(){
     try{if(new URL(frame.getAttribute('src')||'').origin!==INITEM_ORIGIN)return null;}catch{return null;}
     return frame;
   }
+  function persistInitemDiag(){
+    if(!initemSession||!current?.key)return;
+    const d=initemSession, records=state().initemDiag;
+    // Diagnostic metadata only. No media URLs, raw events or user content.
+    records[current.key]={at:Date.now(),received:d.received,episodes:d.episodes,
+      times:d.times,wrongFrame:d.wrongFrame,otherOrigin:d.otherOrigin,invalid:d.invalid,ads:d.ads,
+      last:d.last,confirmed:Boolean(d.confirmedKey)};
+    const keys=Object.keys(records).sort((a,b)=>Number(records[b]?.at||0)-Number(records[a]?.at||0));
+    for(const key of keys.slice(20))delete records[key];
+    app.persist();
+  }
   function initemSessionStart(){
-    initemSession={received:0,episodes:0,times:0,wrongFrame:0,invalid:0,ads:0,
+    initemSession={received:0,episodes:0,times:0,wrongFrame:0,otherOrigin:0,invalid:0,ads:0,
       last:'Ожидание сообщений',confirmedKey:null,seconds:null,duration:null,
       adPlaying:false,lastStoredAt:0};
     updateInitemUI();
@@ -118,7 +129,7 @@ function playerModule(){
         'Ожидаем время и номер серии от Initem';
     }
     if(counters)counters.textContent='Сообщений: '+s.received+' · эпизодов: '+s.episodes+
-      ' · таймкодов: '+s.times+' · реклама: '+s.ads+' · другой кадр: '+s.wrongFrame+
+      ' · таймкодов: '+s.times+' · реклама: '+s.ads+' · другой кадр: '+s.wrongFrame+' · другой домен: '+s.otherOrigin+
       ' · отклонено: '+s.invalid+'. Последнее: '+s.last+
       (saved?' · сохранено: '+prettyTime(saved.seconds):'');
   }
@@ -146,11 +157,18 @@ function playerModule(){
   function handleInitemMessage(event){
     if(!current||!event||!event.data)return false;
     const frame=activeInitemFrame();
-    if(!frame||event.origin!==INITEM_ORIGIN)return false;
+    if(!frame)return false;
     const data=event.data;
     if(!data||typeof data!=='object'||Array.isArray(data)||!initemEvents.has(data.event))return false;
     const s=initemSession;
     if(!s)return false;
+    if(event.origin!==INITEM_ORIGIN){
+      // Diagnose mismatched embedded-frame origin, but never accept its commands.
+      if(event.source===frame.contentWindow){
+        s.otherOrigin++;s.last='Сообщение от другого домена плеера';updateInitemUI();
+      }
+      return false;
+    }
     s.received++;
     if(event.source!==frame.contentWindow){
       s.wrongFrame++;s.last='Сообщение от другого кадра';updateInitemUI();return false;
@@ -200,7 +218,7 @@ function playerModule(){
     s.last='Событие '+data.event;updateInitemUI();return true;
   }
   window.addEventListener('message',handleInitemMessage,false);
-  window.addEventListener('pagehide',()=>flushInitemTime(true));
+  window.addEventListener('pagehide',()=>{flushInitemTime(true);persistInitemDiag();});
   function stopMedia(){
     const v=$('#ut-video');
     if(v){try{v.pause();v.removeAttribute('src');v.load();}catch{}}
@@ -209,6 +227,7 @@ function playerModule(){
   function close(){
     if(!current)return;
     flushInitemTime(true);
+    persistInitemDiag();
     stopMedia();current=null;initemSession=null;
     const root=$('#player-root');if(root)root.innerHTML='';
     app.draw();
@@ -273,6 +292,7 @@ function playerModule(){
   function render(autoPick){
       if(!current)return;
       flushInitemTime(true);
+      persistInitemDiag();
       initemSession=null;current.activeSource=null;
       stopMedia();
       const x=app.getEntry(current.key);
@@ -371,6 +391,7 @@ function playerModule(){
     if(!current)return;
     const src=(current.sourceSnapshot||list())[index];if(!src)return;
     flushInitemTime(true);
+    persistInitemDiag();
     const previous=state();previous.lastSource ||= {};previous.lastSource[keyOf()]=src.url;app.persist();
     const chooser=$('#ut-select-source');if(chooser)chooser.value=String(index);
     stopMedia();

@@ -61,7 +61,7 @@
 .tracking-notice button{margin-left:auto;white-space:nowrap}
 @media(max-width:560px){.tracking-notice button{margin-left:0}.tracking-tools button{width:100%}}
 </style>
-<link rel="stylesheet" href="./player.css?v=12">
+<link rel="stylesheet" href="./player.css?v=13">
 </head>
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
@@ -110,7 +110,7 @@ const dateRU=s=>s?new Date(s+'T12:00:00').toLocaleDateString('ru-RU',{day:'numer
 const pad=n=>String(n||0).padStart(2,'0');
 const safeImage=s=>typeof s==='string'&&/^https:\/\//.test(s)?s:'';
 const fromStore=(key)=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
-const base={tracked:{},extras:{},watched:{},dubs:{},prefs:{},firstSeen:{},data:{},sources:{},progress:{},initemProgress:{},recent:{},bookmarks:{}};
+const base={tracked:{},extras:{},watched:{},dubs:{},prefs:{},firstSeen:{},data:{},sources:{},progress:{},initemProgress:{},initemDiag:{},recent:{},bookmarks:{}};
 let saved=fromStore(STORE),state={...base,...(saved||{})};
 for(const k of Object.keys(base))if(!state[k]||Array.isArray(state[k])||typeof state[k]!=='object')state[k]={};
 if(!saved){for(const x of seeds)state.tracked[x.key]=true;const old=fromStore('ultra-tv-v1');if(old){state.watched=old.watched||{};state.dubs=old.dubs||{};state.prefs=old.prefs||{};}}
@@ -220,6 +220,24 @@ function recentItems(){
     .filter(({x,info})=>x&&state.tracked[x.key]!==false&&info&&Number.isFinite(info.at)&&Number.isInteger(info.season)&&Number.isInteger(info.number))
     .sort((a,b)=>b.info.at-a.info.at).slice(0,6);
 }
+function recentInitemDiagnostics(){
+ const rows=Object.entries(state.initemDiag||{}).filter(([key,d])=>getEntry(key)&&d&&Number.isFinite(Number(d.at)))
+   .sort((a,b)=>Number(b[1].at)-Number(a[1].at));
+ if(!rows.length)return '';
+ const [key,d]=rows[0],name=getEntry(key)?.ru||'Сериал';
+ const status=d.times>0&&d.confirmed?'Плеер передавал время и подтвердил серию':
+   d.times>0?'Время приходило, но серия не подтверждена':
+   d.episodes>0?'Приходил номер серии, но таймкод не получен':
+   Number(d.received)>0?'События приходили, но таймкод и серия не получены':
+   'Сообщения Initem не поступали';
+ return '<details class="recent-initem-diag"><summary>🔎 Проверка времени Initem · последний сеанс</summary>'+
+   '<p><strong>'+esc(name)+'</strong> · '+esc(status)+'</p>'+
+   '<p>Сообщений: '+(Number(d.received)||0)+' · номеров серий: '+(Number(d.episodes)||0)+
+   ' · таймкодов: '+(Number(d.times)||0)+' · другой кадр: '+(Number(d.wrongFrame)||0)+' · другой домен: '+(Number(d.otherOrigin)||0)+
+   ' · отклонено: '+(Number(d.invalid)||0)+'</p>'+
+   '<p>Последнее: '+esc(String(d.last||'нет событий').slice(0,100))+'</p>'+
+   '<p class="subtle">Эта проверка относится только к просмотру на сайте в данном браузере. История приставки сюда не передаётся.</p></details>';
+}
 function recentSection(){
   const items=recentItems();
   if(!items.length)return '';
@@ -231,7 +249,7 @@ function recentSection(){
       const pos=lastPosition(x.key,info);
       return '<button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
         miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">⏱ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'свой плеер'))+'</small>':'')+'<em>▶ Открыть плеер</em></span></button>';
-    }).join('')+'</div><p class="subtle recent-footnote">Время Initem показывается только при получении и подтверждении серии самим плеером; иначе доступна ручная отметка. Автоматическая перемотка Initem пока не подтверждена.</p></section>';
+    }).join('')+'</div>'+recentInitemDiagnostics()+'<p class="subtle recent-footnote">Время Initem показывается только при получении и подтверждении серии самим плеером; иначе доступна ручная отметка. Автоматическая перемотка Initem пока не подтверждена.</p></section>';
 }
 
 function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<div class="card-unit"><button type="button" class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span></button><button type="button" class="follow-tag ${tracked?'active':''}" data-toggle-follow="${esc(x.key)}" aria-label="${tracked?'Убрать из отслеживания':'Отслеживать сериал'} ${esc(x.ru)}">${tracked?'✓ Отслеживается · убрать':'＋ Следить за сериалом'}</button></div>`}
@@ -331,6 +349,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=12" defer></script>
+<script src="./player.js?v=13" defer></script>
 </body>
 </html>
