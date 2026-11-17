@@ -48,10 +48,6 @@
 .recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
 .recent-item{display:flex;align-items:center;gap:12px;background:#20262d;border:1px solid #424852;border-radius:11px;padding:9px;text-align:left;color:var(--text);width:100%}
 .recent-item:hover{border-color:#b99b67;background:#31333a}
-.recent-watch-row{display:flex;gap:7px;align-items:stretch;min-width:0}
-.recent-watch-row>.recent-item{flex:1;min-width:0}
-.recent-resume-probe{flex:0 0 44px;align-self:stretch;min-height:52px;padding:0;border:1px solid #9b7a48;border-radius:11px;background:#343025;color:#f5d39a;font-size:25px;font-weight:700}
-.recent-resume-probe:hover,.recent-resume-probe:focus-visible{background:#4a3b28;border-color:#efd39b}
 .recent-item .thumb{flex:0 0 56px}
 .recent-text{display:flex;flex-direction:column;gap:4px;min-width:0}
 .recent-text strong{font-size:14px}
@@ -254,15 +250,9 @@ function recentSection(){
       const id=ep?.id||info.episodeId||'';
       const code='S'+pad(info.season)+'E'+pad(info.number);
       const pos=lastPosition(x.key,info);
-      const sample=state.initemProgress?.[x.key+':'+code];
-      const canTest=Boolean(id&&pos&&!pos.manual&&sample?.provider==='initem'&&
-        (sample.confirmed===true||sample.selection==='site')&&
-        Number.isSafeInteger(sample.seconds)&&sample.seconds>=5&&
-        Number.isFinite(sample.duration)&&sample.duration>sample.seconds+10);
-      return '<div class="recent-watch-row"><button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
-        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">⏱ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'свой плеер'))+'</small>':'')+'<em>▶ Открыть плеер</em></span></button>'+
-        (canTest?'<button type="button" class="recent-resume-probe" data-resume-probe="'+esc(x.key)+'" data-episode="'+esc(id)+'" title="Проверить запуск Initem с '+esc(formattedTime(sample.seconds))+'" aria-label="Проверить продолжение '+esc(x.ru)+' с '+esc(formattedTime(sample.seconds))+'">↪</button>':'')+'</div>';
-    }).join('')+'</div>'+recentInitemDiagnostics()+'<p class="subtle recent-footnote">Прогресс Initem сохраняется приблизительно раз в минуту. ↪ — пробный запуск с сохранённой отметки: проверяем, принимает ли Initem параметр t. Кнопка не синхронизирует устройства и не переключает озвучку. Обычное открытие ничего не перематывает.</p></section>';
+      return '<button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
+        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">⏱ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'свой плеер'))+'</small>':'')+'<em>▶ Открыть плеер</em></span></button>';
+    }).join('')+'</div>'+recentInitemDiagnostics()+'<p class="subtle recent-footnote">Прогресс Initem сохраняется автоматически после получения таймкода (примерно раз в минуту). Значок ≈ означает приблизительное время. Если Initem не подтвердил номер серии, отображается серия, выбранная в Ultra TV; смена серии внутри плеера может не определиться.</p></section>';
 }
 
 function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<div class="card-unit"><button type="button" class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span></button><button type="button" class="follow-tag ${tracked?'active':''}" data-toggle-follow="${esc(x.key)}" aria-label="${tracked?'Убрать из отслеживания':'Отслеживать сериал'} ${esc(x.ru)}">${tracked?'✓ Отслеживается · убрать':'＋ Следить за сериалом'}</button></div>`}
@@ -328,7 +318,6 @@ async function importFile(e){const f=e.target.files?.[0];if(!f)return;try{const 
 document.addEventListener('click',e=>{const n=e.target.closest('[data-view]');if(n){setView(n.dataset.view);return}const a=e.target.closest('[data-action]');if(a){const act=a.dataset.action;if(act==='close')closeDetail();if(act==='refresh'){loadReleaseFeed();refresh(true)}if(act==='more'){feedLimit+=50;draw()}if(act==='lookup')lookup();if(act==='export')saveFile();if(act==='import')$('#import-json')?.click();if(act==='clear-recent'){state.recent={};persist();draw()}if(act==='catalog-toggle-hidden'){catalogShowAll=!catalogShowAll;trackingNotice=null;draw()}if(act==='tracking-undo'&&trackingNotice){state.tracked[trackingNotice.key]=true;trackingNotice=null;persist();draw()}if(act==='toggle-track'){toggleFollow(a.dataset.key);closeDetail()}return}
  const follow=e.target.closest('[data-toggle-follow]');if(follow){toggleFollow(follow.dataset.toggleFollow);return}
  const b=e.target.closest('[data-watch]');if(b){state.watched[b.dataset.watch]=!state.watched[b.dataset.watch];persist();const dialog=$('#dialog-root .dialog');if(dialog){const cur=dialog.querySelector('#season').value;const k=dialog.querySelector('[data-action="toggle-track"]').dataset.key;openDetail(k);$('#season').value=cur;$('#season').dispatchEvent(new Event('change'));}draw();return}
- const probe=e.target.closest('[data-resume-probe]');if(probe){window.UltraTVPlayer?.testResume(probe.dataset.resumeProbe,probe.dataset.episode);return}
  const open=e.target.closest('[data-open]');if(open){if(window.UltraTVPlayer)window.UltraTVPlayer.open(open.dataset.open,open.dataset.episode);else openDetail(open.dataset.open,open.dataset.episode);return}
  const add=e.target.closest('[data-add]');if(add){addCustom(Number(add.dataset.add),add.dataset.name,add.dataset.year);return}
  });
@@ -363,6 +352,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=17" defer></script>
+<script src="./player.js?v=16" defer></script>
 </body>
 </html>
