@@ -33,11 +33,11 @@ const bookmarkKey=()=>{
  return ep?'test:'+app.epCode(ep):null;
 };
 const prettyTime=seconds=>Math.floor(seconds/60)+':'+String(Math.floor(seconds%60)).padStart(2,'0');
-const factory=new Function('$','qsa','app','state','episodesFor','bookmarkKey','prettyTime','current','INITEM_ORIGIN','initemEvents',
+const factory=new Function('$','qsa','app','state','episodesFor','bookmarkKey','prettyTime','current','INITEM_ORIGIN','initemEvents','URL',
  'let initemSession=null;'+src.slice(start,end)+
  ';return {handleInitemMessage,initemSessionStart,flushInitemTime,peek:()=>initemSession};');
 const t=factory($,qsa,app,state,episodesFor,bookmarkKey,prettyTime,current,
- 'https://api.initem.ws',new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']));
+ 'https://api.initem.ws',new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']),URL);
 const ev=(data,source=frameWindow,origin='https://api.initem.ws')=>({data,source,origin});
 t.initemSessionStart();
 assert.equal(t.handleInitemMessage(ev({event:'viewProgress',time:125,duration:2400})),true);
