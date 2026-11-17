@@ -100,14 +100,14 @@ function playerModule(){
     const d=initemSession, records=state().initemDiag;
     // Diagnostic metadata only. No media URLs, raw events or user content.
     records[current.key]={at:Date.now(),received:d.received,episodes:d.episodes,
-      times:d.times,wrongFrame:d.wrongFrame,invalid:d.invalid,ads:d.ads,
+      times:d.times,wrongFrame:d.wrongFrame,otherOrigin:d.otherOrigin,invalid:d.invalid,ads:d.ads,
       last:d.last,confirmed:Boolean(d.confirmedKey)};
     const keys=Object.keys(records).sort((a,b)=>Number(records[b]?.at||0)-Number(records[a]?.at||0));
     for(const key of keys.slice(20))delete records[key];
     app.persist();
   }
   function initemSessionStart(){
-    initemSession={received:0,episodes:0,times:0,wrongFrame:0,invalid:0,ads:0,
+    initemSession={received:0,episodes:0,times:0,wrongFrame:0,otherOrigin:0,invalid:0,ads:0,
       last:'Ожидание сообщений',confirmedKey:null,seconds:null,duration:null,
       adPlaying:false,lastStoredAt:0};
     updateInitemUI();
@@ -129,7 +129,7 @@ function playerModule(){
         'Ожидаем время и номер серии от Initem';
     }
     if(counters)counters.textContent='Сообщений: '+s.received+' · эпизодов: '+s.episodes+
-      ' · таймкодов: '+s.times+' · реклама: '+s.ads+' · другой кадр: '+s.wrongFrame+
+      ' · таймкодов: '+s.times+' · реклама: '+s.ads+' · другой кадр: '+s.wrongFrame+' · другой домен: '+s.otherOrigin+
       ' · отклонено: '+s.invalid+'. Последнее: '+s.last+
       (saved?' · сохранено: '+prettyTime(saved.seconds):'');
   }
@@ -157,11 +157,18 @@ function playerModule(){
   function handleInitemMessage(event){
     if(!current||!event||!event.data)return false;
     const frame=activeInitemFrame();
-    if(!frame||event.origin!==INITEM_ORIGIN)return false;
+    if(!frame)return false;
     const data=event.data;
     if(!data||typeof data!=='object'||Array.isArray(data)||!initemEvents.has(data.event))return false;
     const s=initemSession;
     if(!s)return false;
+    if(event.origin!==INITEM_ORIGIN){
+      // Diagnose mismatched embedded-frame origin, but never accept its commands.
+      if(event.source===frame.contentWindow){
+        s.otherOrigin++;s.last='Сообщение от другого домена плеера';updateInitemUI();
+      }
+      return false;
+    }
     s.received++;
     if(event.source!==frame.contentWindow){
       s.wrongFrame++;s.last='Сообщение от другого кадра';updateInitemUI();return false;
