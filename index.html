@@ -61,7 +61,7 @@
 .tracking-notice button{margin-left:auto;white-space:nowrap}
 @media(max-width:560px){.tracking-notice button{margin-left:0}.tracking-tools button{width:100%}}
 </style>
-<link rel="stylesheet" href="./player.css?v=11">
+<link rel="stylesheet" href="./player.css?v=12">
 </head>
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
@@ -110,7 +110,7 @@ const dateRU=s=>s?new Date(s+'T12:00:00').toLocaleDateString('ru-RU',{day:'numer
 const pad=n=>String(n||0).padStart(2,'0');
 const safeImage=s=>typeof s==='string'&&/^https:\/\//.test(s)?s:'';
 const fromStore=(key)=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
-const base={tracked:{},extras:{},watched:{},dubs:{},prefs:{},firstSeen:{},data:{},sources:{},progress:{},recent:{},bookmarks:{}};
+const base={tracked:{},extras:{},watched:{},dubs:{},prefs:{},firstSeen:{},data:{},sources:{},progress:{},initemProgress:{},recent:{},bookmarks:{}};
 let saved=fromStore(STORE),state={...base,...(saved||{})};
 for(const k of Object.keys(base))if(!state[k]||Array.isArray(state[k])||typeof state[k]!=='object')state[k]={};
 if(!saved){for(const x of seeds)state.tracked[x.key]=true;const old=fromStore('ultra-tv-v1');if(old){state.watched=old.watched||{};state.dubs=old.dubs||{};state.prefs=old.prefs||{};}}
@@ -193,7 +193,21 @@ async function loadReleaseFeed(){
 
 
 function formattedTime(seconds){const t=Math.max(0,Math.floor(Number(seconds)||0));return t>=3600?Math.floor(t/3600)+':'+pad(Math.floor(t%3600/60))+':'+pad(t%60):Math.floor(t/60)+':'+pad(t%60);}
-function lastPosition(key,info){const manual=state.bookmarks[key+':S'+pad(info.season)+'E'+pad(info.number)];if(manual&&Number.isFinite(manual.seconds)&&manual.seconds>0)return {text:formattedTime(manual.seconds),manual:true};const auto=state.progress[key+':'+info.episodeId];if(Number.isFinite(Number(auto))&&Number(auto)>0)return {text:formattedTime(auto),manual:false};return null;}
+function lastPosition(key,info){
+ const epKey=key+':S'+pad(info.season)+'E'+pad(info.number);
+ const manual=state.bookmarks[epKey];
+ if(manual&&Number.isFinite(manual.seconds)&&manual.seconds>0)
+   return {text:formattedTime(manual.seconds),manual:true};
+ const initem=state.initemProgress?.[epKey];
+ if(initem?.confirmed===true&&initem.provider==='initem'&&
+    Number.isFinite(initem.seconds)&&initem.seconds>0&&
+    Number.isFinite(initem.duration)&&initem.duration>0)
+   return {text:formattedTime(initem.seconds),manual:false,source:'Initem'};
+ const own=state.progress[key+':'+info.episodeId];
+ if(Number.isFinite(Number(own))&&Number(own)>0)
+   return {text:formattedTime(own),manual:false,source:'свой плеер'};
+ return null;
+}
 function recordOpen(key,ep){
   if(!getEntry(key)||!ep||!Number.isInteger(Number(ep.season))||!Number.isInteger(Number(ep.number))||Number(ep.number)<1)return;
   state.recent[key]={episodeId:String(ep.id||''),season:Number(ep.season),number:Number(ep.number),at:Date.now()};
@@ -216,8 +230,8 @@ function recentSection(){
       const code='S'+pad(info.season)+'E'+pad(info.number);
       const pos=lastPosition(x.key,info);
       return '<button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
-        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">⏱ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · свой плеер')+'</small>':'')+'<em>▶ Открыть плеер</em></span></button>';
-    }).join('')+'</div><p class="subtle recent-footnote">Initem не передаёт время просмотра в Ultra TV: здесь показана только вручную сохранённая отметка, а не автоматическое продолжение воспроизведения.</p></section>';
+        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">⏱ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'свой плеер'))+'</small>':'')+'<em>▶ Открыть плеер</em></span></button>';
+    }).join('')+'</div><p class="subtle recent-footnote">Время Initem показывается только при получении и подтверждении серии самим плеером; иначе доступна ручная отметка. Автоматическая перемотка Initem пока не подтверждена.</p></section>';
 }
 
 function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<div class="card-unit"><button type="button" class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span></button><button type="button" class="follow-tag ${tracked?'active':''}" data-toggle-follow="${esc(x.key)}" aria-label="${tracked?'Убрать из отслеживания':'Отслеживать сериал'} ${esc(x.ru)}">${tracked?'✓ Отслеживается · убрать':'＋ Следить за сериалом'}</button></div>`}
@@ -317,6 +331,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=11" defer></script>
+<script src="./player.js?v=12" defer></script>
 </body>
 </html>
