@@ -64,7 +64,7 @@ assert.equal(persistCount,2);
 assert.equal(t.peek().wrongFrame,1);
 assert.ok(opened.includes('test:e5'));
 assert.equal(t.handleInitemMessage(ev({event:'viewProgress',time:180,duration:2200},frameWindow,'https://wrong-provider.example')),false);
-assert.equal(t.peek().otherOrigin,1,'Count wrong-origin messages without accepting time');
+assert.equal(t.peek().otherOrigin,2,'Count wrong-origin messages without accepting time');
 assert.equal(data.initemProgress['test:S01E05'].seconds,75,'Untrusted origin must not overwrite history');
 const persistStart=src.indexOf('function persistInitemDiag(){');
 const persistEnd=src.indexOf('function initemSessionStart(){',persistStart);
@@ -73,7 +73,7 @@ const diagStore=new Function('current','app','state','initemSession',
  src.slice(persistStart,persistEnd)+';return persistInitemDiag;')
  (current,app,state,t.peek());
 diagStore();
-assert.equal(data.initemDiag.test.otherOrigin,1);
+assert.equal(data.initemDiag.test.otherOrigin,2);
 assert.equal(data.initemDiag.test.times,3);
 assert.equal(data.initemDiag.test.confirmed,true);
 
