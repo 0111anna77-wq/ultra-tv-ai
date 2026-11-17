@@ -1,8 +1,38 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-16T02:23:51Z",
+  "updatedAt": "2026-11-17T03:11:11Z",
   "entries": [
+    {
+      "id": "ae9664485968fa9a12ca",
+      "title": "12 12 12 (12 12 12). Хочу вернуть свой нимб. (S01E02)",
+      "seriesRu": "12 12 12",
+      "seriesEn": "",
+      "season": 1,
+      "episode": 2,
+      "published": "2026-11-16T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/12_12_12/season_1/episode_2/"
+    },
+    {
+      "id": "663afa3b7d866437fa3d",
+      "title": "12 12 12 (12 12 12). Граблю дом в канун Рождества, пока хозяева на мессе. (S01E01)",
+      "seriesRu": "12 12 12",
+      "seriesEn": "",
+      "season": 1,
+      "episode": 1,
+      "published": "2026-11-16T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/12_12_12/season_1/episode_1/"
+    },
+    {
+      "id": "8e5a6e106810829bcd34",
+      "title": "Ноктюрн (Nocturne). Курьер. (S01E04)",
+      "seriesRu": "Ноктюрн",
+      "seriesEn": "Nocturne",
+      "season": 1,
+      "episode": 4,
+      "published": "2026-11-16T20:44:38Z",
+      "link": "https://www.lostfilm.download/mr/series/Nocturne/season_1/episode_4/"
+    },
     {
       "id": "d77446cffd88eb9047e9",
       "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Дар смертным. (S03E02)",
