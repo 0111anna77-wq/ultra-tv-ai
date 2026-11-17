@@ -136,5 +136,25 @@ data.initemProgress['test:S01E05']={...data.initemProgress['test:S01E05'],
  seconds:180,sampledAt:Date.now()+6000,at:Date.now()+6000};
 assert.match(bookmarkBlock(),/Последний сигнал Initem: ≈3:00/,
  'Newer automatic sample supersedes an old manual bookmark');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const posStart=html.indexOf('function lastPosition(key,info){');
+const posEnd=html.indexOf('function recordOpen(key,ep){',posStart);
+assert.ok(posStart>0&&posEnd>posStart);
+const pad=n=>String(n).padStart(2,'0');
+const formattedTime=prettyTime;
+const lastPosition=new Function('state','pad','formattedTime',
+ html.slice(posStart,posEnd)+';return lastPosition;')(data,pad,formattedTime);
+const recent=lastPosition('test',{season:1,number:5,episodeId:'e5'});
+assert.equal(recent.text,'≈3:00');
+assert.equal(recent.manual,false);
+assert.equal(recent.source,'Initem');
+const fallback=lastPosition('test',{season:1,number:1,episodeId:'e1'});
+assert.equal(fallback,null);
+const selectedOnly={...data.initemProgress['test:S01E04'],seconds:194,
+ confirmed:false,selection:'site',at:Date.now()+8000,sampledAt:Date.now()+8000};
+data.initemProgress['test:S01E04']=selectedOnly;
+const unconfirmed=lastPosition('test',{season:1,number:4,episodeId:'e4'});
+assert.equal(unconfirmed.text,'≈3:14');
+assert.match(unconfirmed.source,/серия выбрана в Ultra TV/);
 console.log('PASS Initem: trusted events, selected-episode autosave, no manual Save button');
 
