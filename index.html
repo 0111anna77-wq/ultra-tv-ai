@@ -61,7 +61,7 @@
 .tracking-notice button{margin-left:auto;white-space:nowrap}
 @media(max-width:560px){.tracking-notice button{margin-left:0}.tracking-tools button{width:100%}}
 </style>
-<link rel="stylesheet" href="./player.css?v=13">
+<link rel="stylesheet" href="./player.css?v=14">
 </head>
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
@@ -236,6 +236,7 @@ function recentInitemDiagnostics(){
    ' · таймкодов: '+(Number(d.times)||0)+' · другой кадр: '+(Number(d.wrongFrame)||0)+' · другой домен: '+(Number(d.otherOrigin)||0)+
    ' · отклонено: '+(Number(d.invalid)||0)+'</p>'+
    '<p>Последнее: '+esc(String(d.last||'нет событий').slice(0,100))+'</p>'+
+   (Number(d.probeSent)>0?'<p>Запрос к PlayerJS: '+esc(String(d.probeStatus||'нет ответа').slice(0,180))+'</p>':'')+
    '<p class="subtle">Эта проверка относится только к просмотру на сайте в данном браузере. История приставки сюда не передаётся.</p></details>';
 }
 function recentSection(){
@@ -349,6 +350,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=13" defer></script>
+<script src="./player.js?v=14" defer></script>
 </body>
 </html>
