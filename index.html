@@ -255,7 +255,7 @@ function recentSection(){
       const code='S'+pad(info.season)+'E'+pad(info.number);
       const pos=lastPosition(x.key,info);
       const sample=state.initemProgress?.[x.key+':'+code];
-      const canTest=Boolean(id&&sample?.provider==='initem'&&
+      const canTest=Boolean(id&&pos&&!pos.manual&&sample?.provider==='initem'&&
         (sample.confirmed===true||sample.selection==='site')&&
         Number.isSafeInteger(sample.seconds)&&sample.seconds>=5&&
         Number.isFinite(sample.duration)&&sample.duration>sample.seconds+10);
