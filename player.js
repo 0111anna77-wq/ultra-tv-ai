@@ -8,8 +8,11 @@ function playerModule(){
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const labels = {LostFilm:'LostFilm',Dub:'Полноценный дубляж',DubReported:'Дубляж (заявлен)',RuReported:'Русская озвучка (заявлена)',Other:'Другая озвучка',Unknown:'Не указана'};
   let current = null, hls = null, lastProgress = 0, hlsPromise = null;
+  let initemSession = null;
+  const INITEM_ORIGIN = 'https://api.initem.ws';
+  const initemEvents = new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']);
   let remoteOptions={shows:{},embeds:{},episodes:{}};
-  function state(){ const s=app.state; if(!s.sources || typeof s.sources!=='object')s.sources={};if(!s.progress || typeof s.progress!=='object')s.progress={};return s;}
+  function state(){ const s=app.state; if(!s.sources || typeof s.sources!=='object')s.sources={};if(!s.progress || typeof s.progress!=='object')s.progress={};if(!s.initemProgress || Array.isArray(s.initemProgress) || typeof s.initemProgress!=='object')s.initemProgress={};return s;}
   function validUrl(raw){try{const u=new URL(String(raw).trim());if(u.protocol!=='https:'||u.username||u.password)throw Error();return u.href;}catch{throw Error('Нужна прямая HTTPS-ссылка на видео или страницу.');}}
   function parseSource(raw){
   let src=String(raw||'').trim(),embedded=false;
@@ -66,16 +69,138 @@ function playerModule(){
     return Number.isSafeInteger(seconds)&&seconds>0&&seconds<=24*3600?seconds:null;
   }
   function bookmarkBlock(){
-    const key=bookmarkKey(),record=key&&state().bookmarks?.[key],stored=record&&Number.isFinite(record.seconds)?record.seconds:null;
+    const key=bookmarkKey(),manual=key&&state().bookmarks?.[key],auto=key&&state().initemProgress?.[key];
+    const manualSeconds=Number.isFinite(manual?.seconds)&&manual.seconds>0?manual.seconds:null;
+    const autoSeconds=auto?.confirmed===true&&auto?.provider==='initem'&&Number.isFinite(auto.seconds)&&auto.seconds>0?auto.seconds:null;
+    const stored=manualSeconds??autoSeconds;
+    const status=manualSeconds!=null?'Отметка: '+prettyTime(manualSeconds)+' · вручную':
+      autoSeconds!=null?'Отметка: '+prettyTime(autoSeconds)+' · получена от Initem':'Отметка не задана';
     return '<div class="ut-bookmark"><div class="ut-bookmark-heading">⏱ На какой минуте остановился?</div>'+
       '<div class="ut-bookmark-form"><label for="ut-bookmark-time" class="sr-only">Минута и секунда остановки</label>'+
       '<input id="ut-bookmark-time" type="text" inputmode="numeric" maxlength="8" placeholder="Напр. 24:35" value="'+(stored!=null?esc(prettyTime(stored)):'')+'">'+
       '<button type="button" data-ut-save-bookmark>Запомнить</button>'+
-      (stored!=null?'<button type="button" data-ut-clear-bookmark>Сбросить</button>':'')+'</div>'+
-      '<small id="ut-bookmark-status">'+(stored!=null?'Отметка: '+esc(prettyTime(stored))+' · сохранено вручную':'Отметка не задана')+'</small>'+
-      '<p>Initem не передаёт нашему сайту точную минуту. Пока время указываем вручную — оно появится в «Вернуться к просмотру». Плеер не перемотается автоматически.</p></div>';
+      (manualSeconds!=null?'<button type="button" data-ut-clear-bookmark>Сбросить</button>':'')+'</div>'+
+      '<small id="ut-bookmark-status">'+esc(status)+'</small>'+
+      '<p id="ut-initem-live" class="ut-initem-live" hidden></p>'+
+      '<details id="ut-initem-diagnostics" class="ut-initem-diagnostics" hidden><summary>Диагностика времени Initem</summary><p id="ut-initem-counters">Пока нет данных.</p></details>'+
+      '<p>Если Initem сообщает время и подтверждает серию, отметка сохраняется автоматически. Иначе можно ввести её вручную. Автоматическая перемотка Initem на эту секунду пока не подтверждена.</p></div>';
   }
   function message(msg){const el=$('#ut-player-message');if(el)el.textContent=msg;}
+  // External player messages are advisory. Only the active trusted iframe may
+  // modify watch history; no cross-origin DOM access or player injections.
+  function activeInitemFrame(){
+    if(!current||current.activeSource?.platform!=='initem')return null;
+    const frame=$('#ut-media iframe');
+    if(!frame)return null;
+    try{if(new URL(frame.getAttribute('src')||'').origin!==INITEM_ORIGIN)return null;}catch{return null;}
+    return frame;
+  }
+  function initemSessionStart(){
+    initemSession={received:0,episodes:0,times:0,wrongFrame:0,invalid:0,ads:0,
+      last:'Ожидание сообщений',confirmedKey:null,seconds:null,duration:null,
+      adPlaying:false,lastStoredAt:0};
+    updateInitemUI();
+  }
+  function updateInitemUI(){
+    const live=$('#ut-initem-live'),details=$('#ut-initem-diagnostics'),counters=$('#ut-initem-counters');
+    const active=Boolean(activeInitemFrame()),s=initemSession;
+    if(live)live.hidden=!active;
+    if(details)details.hidden=!active;
+    if(!active||!s)return;
+    const saved=s.confirmedKey&&state().initemProgress?.[s.confirmedKey];
+    const code=s.confirmedKey?s.confirmedKey.split(':').pop():'';
+    if(live){
+      if(s.times>0&&s.seconds!==null){
+        live.textContent='⏱ '+(code?'Серия '+code:'Серия не подтверждена')+
+          ' · '+prettyTime(s.seconds)+(s.duration?' / '+prettyTime(s.duration):'')+
+          (code?' · сохраняется автоматически':' · пока не привязано к серии');
+      }else live.textContent=s.episodes>0?'Серия подтверждена, ожидаем время от Initem':
+        'Ожидаем время и номер серии от Initem';
+    }
+    if(counters)counters.textContent='Сообщений: '+s.received+' · эпизодов: '+s.episodes+
+      ' · таймкодов: '+s.times+' · реклама: '+s.ads+' · другой кадр: '+s.wrongFrame+
+      ' · отклонено: '+s.invalid+'. Последнее: '+s.last+
+      (saved?' · сохранено: '+prettyTime(saved.seconds):'');
+  }
+  function flushInitemTime(force=false){
+    const s=initemSession;
+    if(!s||!s.confirmedKey||s.seconds===null||!Number.isFinite(s.seconds)||
+       !Number.isFinite(s.duration)||s.duration<=0)return;
+    const now=Date.now();
+    if(!force&&now-s.lastStoredAt<3000)return;
+    const previous=state().initemProgress[s.confirmedKey];
+    const next={seconds:Math.floor(Math.min(s.seconds,s.duration)),duration:Math.floor(s.duration),
+      at:now,confirmed:true,provider:'initem'};
+    if(!previous||previous.seconds!==next.seconds||previous.duration!==next.duration){
+      state().initemProgress[s.confirmedKey]=next;
+      // Bound personal localStorage growth without touching manually saved marks.
+      const records=Object.entries(state().initemProgress);
+      if(records.length>200){
+        records.sort((a,b)=>Number(b[1]?.at||0)-Number(a[1]?.at||0));
+        state().initemProgress=Object.fromEntries(records.slice(0,200));
+      }
+      app.persist();
+    }
+    s.lastStoredAt=now;
+  }
+  function handleInitemMessage(event){
+    if(!current||!event||!event.data)return false;
+    const frame=activeInitemFrame();
+    if(!frame||event.origin!==INITEM_ORIGIN)return false;
+    const data=event.data;
+    if(!data||typeof data!=='object'||Array.isArray(data)||!initemEvents.has(data.event))return false;
+    const s=initemSession;
+    if(!s)return false;
+    s.received++;
+    if(event.source!==frame.contentWindow){
+      s.wrongFrame++;s.last='Сообщение от другого кадра';updateInitemUI();return false;
+    }
+    if(data.event==='adStart'){s.adPlaying=true;s.ads++;s.last='Реклама';updateInitemUI();return true;}
+    if(data.event==='adStop'){s.adPlaying=false;s.last='Реклама завершена';updateInitemUI();return true;}
+    if(data.event==='changeEpisode'){
+      const season=Number(data.season),number=Number(data.episode);
+      if(!Number.isInteger(season)||!Number.isInteger(number)||season<1||season>30||number<1||number>200){
+        s.invalid++;s.last='Неверный номер серии';updateInitemUI();return false;
+      }
+      const selected=episodesFor(current.key).find(ep=>Number(ep.season)===season&&Number(ep.number)===number);
+      flushInitemTime(true);
+      s.confirmedKey=null;s.seconds=null;s.duration=null;s.lastStoredAt=0;
+      s.episodes++;
+      if(!selected){s.last='Серия '+season+'/'+number+' не найдена в каталоге';updateInitemUI();return true;}
+      current.episodeId=String(selected.id);
+      current.autoChoose=false;
+      s.confirmedKey=bookmarkKey();
+      s.last='Подтверждена серия '+app.epCode(selected);
+      app.recordOpen(current.key,selected);
+      const heading=$('.ut-heading h2');
+      if(heading)heading.textContent=(app.getEntry(current.key)?.ru||'Сериал')+' · '+app.epCode(selected);
+      const title=$('.ut-heading p');
+      if(title)title.textContent=selected.name||'Серия';
+      qsa('[data-ut-episode]').forEach(button=>button.classList.toggle('ut-episode-active',button.dataset.utEpisode===String(selected.id)));
+      const seasonPicker=$('#ut-season');
+      if(seasonPicker&&[...seasonPicker.options].some(opt=>Number(opt.value)===season))seasonPicker.value=String(season);
+      const input=$('#ut-bookmark-time'),status=$('#ut-bookmark-status'),manual=state().bookmarks?.[s.confirmedKey];
+      const saved=manual||state().initemProgress?.[s.confirmedKey];
+      if(input)input.value=Number.isFinite(saved?.seconds)?prettyTime(saved.seconds):'';
+      if(status)status.textContent=Number.isFinite(saved?.seconds)?'Отметка: '+prettyTime(saved.seconds)+(manual?' · вручную':' · Initem'):'Отметка не задана';
+      updateInitemUI();return true;
+    }
+    if(data.event==='viewProgress'){
+      if(s.adPlaying){s.ads++;s.last='Время рекламы пропущено';updateInitemUI();return true;}
+      const seconds=Number(data.time),duration=Number(data.duration);
+      if(!Number.isFinite(seconds)||seconds<0||seconds>86400||!Number.isFinite(duration)||
+         duration<=0||duration>86400||seconds>duration+5){
+        s.invalid++;s.last='Некорректный таймкод';updateInitemUI();return false;
+      }
+      s.seconds=Math.floor(Math.min(seconds,duration));s.duration=Math.floor(duration);
+      s.times++;s.last='Получено время '+prettyTime(s.seconds);
+      flushInitemTime();
+      updateInitemUI();return true;
+    }
+    s.last='Событие '+data.event;updateInitemUI();return true;
+  }
+  window.addEventListener('message',handleInitemMessage,false);
+  window.addEventListener('pagehide',()=>flushInitemTime(true));
   function stopMedia(){
     const v=$('#ut-video');
     if(v){try{v.pause();v.removeAttribute('src');v.load();}catch{}}
@@ -83,7 +208,8 @@ function playerModule(){
   }
   function close(){
     if(!current)return;
-    stopMedia();current=null;
+    flushInitemTime(true);
+    stopMedia();current=null;initemSession=null;
     const root=$('#player-root');if(root)root.innerHTML='';
     app.draw();
   }
@@ -146,6 +272,8 @@ function playerModule(){
   }
   function render(autoPick){
       if(!current)return;
+      flushInitemTime(true);
+      initemSession=null;current.activeSource=null;
       stopMedia();
       const x=app.getEntry(current.key);
       if(!x){close();return;}
@@ -240,24 +368,40 @@ function playerModule(){
   async function selectSource(index){
     if(!current)return;
     const src=list()[index];if(!src)return;
+    flushInitemTime(true);
     const previous=state();previous.lastSource ||= {};previous.lastSource[keyOf()]=src.url;app.persist();
     const chooser=$('#ut-select-source');if(chooser)chooser.value=String(index);
     stopMedia();
-    current.selected=index;
+    current.selected=index;current.activeSource=src;initemSession=null;
     const token=current, type=kindOf(src), media=$('#ut-media');
     qsa('.ut-source button[data-ut-source]').forEach(el=>el.classList.toggle('ut-active',Number(el.dataset.utSource)===index));
     if(type==='embed'){
-      media.innerHTML=`<iframe class="ut-iframe" title="Плеер ${esc(src.name||'Видео')}" src="${esc(src.url)}" loading="eager" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"></iframe>`;
+      let url=src.url;
+      // These provider parameters select an episode, NOT a playback timestamp.
+      if(src.platform==='initem'){
+        const ep=episodesFor(current.key).find(e=>String(e.id)===String(current.episodeId));
+        if(ep){
+          const parsed=new URL(url);
+          parsed.searchParams.set('season',String(ep.season));
+          parsed.searchParams.set('episode',String(ep.number));
+          url=parsed.href;
+        }
+      }
+      media.innerHTML=`<iframe class="ut-iframe" title="Плеер ${esc(src.name||'Видео')}" src="${esc(url)}" loading="eager" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"></iframe>`;
+      if(src.platform==='initem')initemSessionStart();
+      else updateInitemUI();
       message(src.mode==='browse'?'Экспериментальный плеер. Выбери нужный сезон, серию и озвучку внутри него: текущая серия и LostFilm не гарантированы. При региональной блокировке используй другие источники.':'Встроенный плеер: '+(src.name||'Источник')+' · '+(labels[src.dub]||labels.Unknown)+'. Если изображение не появляется, сервис может запрещать встраивание.');
       const link=document.createElement('a');link.href=src.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Открыть плеер отдельно ↗';$('#ut-player-message')?.append(' ',link);
       return;
     }
     if(type==='page'){
+      updateInitemUI();
       media.innerHTML=`<div class="ut-placeholder">↗<small>Это веб-страница. Она откроется в отдельной вкладке, поскольку сторонние плееры не всегда разрешают встраивание.</small><a class="ut-link" target="_blank" rel="noopener noreferrer" href="${esc(src.url)}">Открыть сайт с видео ↗</a></div>`;
       message('Выбран источник: '+src.name+'. Озвучка: '+(labels[src.dub]||labels.Unknown));
       return;
     }
     media.innerHTML='<video id="ut-video" tabindex="0" controls playsinline preload="metadata" aria-label="Видеоплеер Ultra TV"></video>';
+    updateInitemUI();
     const video=$('#ut-video');
     video.addEventListener('loadedmetadata',()=>{
       const p=Number(state().progress[keyOf()]||0);
@@ -336,8 +480,9 @@ function playerModule(){
       const key=bookmarkKey();
       if(key&&state().bookmarks){
         delete state().bookmarks[key];app.persist();app.draw();
-        const status=$('#ut-bookmark-status');if(status)status.textContent='Отметка сброшена';
-        const input=$('#ut-bookmark-time');if(input)input.value='';
+        const auto=state().initemProgress?.[key];
+        const status=$('#ut-bookmark-status');if(status)status.textContent=Number.isFinite(auto?.seconds)?'Отметка: '+prettyTime(auto.seconds)+' · Initem':'Отметка сброшена';
+        const input=$('#ut-bookmark-time');if(input)input.value=Number.isFinite(auto?.seconds)?prettyTime(auto.seconds):'';
         e.target.closest('[data-ut-clear-bookmark]').remove();
       }
       return;
