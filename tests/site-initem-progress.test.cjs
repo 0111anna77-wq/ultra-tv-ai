@@ -17,7 +17,7 @@ for(const id of ['#ut-initem-live','#ut-initem-diagnostics','#ut-initem-counters
  dom[id]={textContent:'',value:'',hidden:false};
 const $=selector=>selector==='#ut-media iframe'?frame:dom[selector]||null;
 const qsa=()=>[];
-const data={initemProgress:{},bookmarks:{},initemDiag:{}};
+const data={initemProgress:{},bookmarks:{},initemDiag:{},progress:{}};
 const state=()=>data;
 let persistCount=0;
 const opened=[];
@@ -34,15 +34,24 @@ const bookmarkKey=()=>{
  return ep?'test:'+app.epCode(ep):null;
 };
 const prettyTime=seconds=>Math.floor(seconds/60)+':'+String(Math.floor(seconds%60)).padStart(2,'0');
-const factory=new Function('$','qsa','app','state','episodesFor','bookmarkKey','prettyTime','current','INITEM_ORIGIN','initemEvents','URL','setTimeout',
+const statusStart=src.indexOf('function progressStatus(key){');
+const statusEnd=src.indexOf('function bookmarkBlock(){',statusStart);
+assert.ok(statusStart>0&&statusEnd>statusStart);
+const progressStatus=new Function('state','prettyTime',
+ src.slice(statusStart,statusEnd)+';return progressStatus;')(state,prettyTime);
+const factory=new Function('$','qsa','app','state','episodesFor','bookmarkKey','prettyTime','current','INITEM_ORIGIN','initemEvents','URL','setTimeout','progressStatus',
  'let initemSession=null;'+src.slice(start,end)+
  ';return {handleInitemMessage,initemSessionStart,flushInitemTime,probeInitemTime,peek:()=>initemSession};');
 const t=factory($,qsa,app,state,episodesFor,bookmarkKey,prettyTime,current,
- 'https://api.initem.ws',new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']),URL,()=>{});
+ 'https://api.initem.ws',new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']),URL,()=>{},progressStatus);
 const ev=(data,source=frameWindow,origin='https://api.initem.ws')=>({data,source,origin});
 t.initemSessionStart();
 assert.equal(t.handleInitemMessage(ev({event:'viewProgress',time:125,duration:2400})),true);
-assert.deepEqual(data.initemProgress,{},'Unconfirmed episode must not be guessed from player clock');
+assert.equal(data.initemProgress['test:S01E04'].seconds,125,
+ 'Automatically save when Initem omits the initial changeEpisode');
+assert.equal(data.initemProgress['test:S01E04'].confirmed,false);
+assert.equal(data.initemProgress['test:S01E04'].selection,'site');
+assert.match(dom['#ut-bookmark-status'].textContent,/≈2:05.*не подтверждена/);
 assert.equal(t.handleInitemMessage(ev({event:'changeEpisode',season:1,episode:4})),true);
 assert.equal(t.handleInitemMessage(ev({event:'viewProgress',time:601,duration:2400})),true);
 assert.equal(data.initemProgress['test:S01E04'].seconds,601);
@@ -68,7 +77,7 @@ t.flushInitemTime(true);
 assert.equal(data.initemProgress['test:S01E05'].at,lastSampleTime,
  'Leaving player cannot make an old sample appear fresh');
 
-assert.equal(persistCount,2);
+assert.equal(persistCount,3);
 assert.equal(t.peek().wrongFrame,1);
 assert.ok(opened.includes('test:e5'));
 assert.equal(t.handleInitemMessage(ev({event:'viewProgress',time:180,duration:2200},frameWindow,'https://wrong-provider.example')),false);
@@ -113,15 +122,39 @@ const bookmarkStart=src.indexOf('function bookmarkBlock(){');
 const bookmarkEnd=src.indexOf('function message(msg)',bookmarkStart);
 assert.ok(bookmarkStart>0&&bookmarkEnd>bookmarkStart);
 const esc=v=>String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-const bookmarkBlock=new Function('state','bookmarkKey','prettyTime','esc',
+const bookmarkBlock=new Function('state','bookmarkKey','prettyTime','esc','progressStatus',
   src.slice(bookmarkStart,bookmarkEnd)+';return bookmarkBlock;')
-  (state,bookmarkKey,prettyTime,esc);
+  (state,bookmarkKey,prettyTime,esc,progressStatus);
 const preview=bookmarkBlock();
 assert.match(preview,/Последний сигнал Initem: ≈1:50/);
-assert.match(preview,/value=""/,'Approximate times must not auto-fill the precise manual input');
-data.bookmarks['test:S01E05']={seconds:143,manual:true};
-const manualPreview=bookmarkBlock();
-assert.match(manualPreview,/value="2:23"/);
-assert.match(manualPreview,/Точная отметка вручную: 2:23/);
-console.log('PASS website Initem: trusted events, approximate sample labels, manual precision, no fake fresh time');
+assert.ok(!preview.includes('data-ut-save-bookmark')&&!preview.includes('ut-bookmark-time'),
+ 'Manual input and Save button are removed');
+data.bookmarks['test:S01E05']={seconds:143,manual:true,at:Date.now()+5000};
+assert.match(bookmarkBlock(),/Ранее сохранено вручную: 2:23/,
+ 'Legacy manual history remains accessible');
+data.initemProgress['test:S01E05']={...data.initemProgress['test:S01E05'],
+ seconds:180,sampledAt:Date.now()+6000,at:Date.now()+6000};
+assert.match(bookmarkBlock(),/Последний сигнал Initem: ≈3:00/,
+ 'Newer automatic sample supersedes an old manual bookmark');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const posStart=html.indexOf('function lastPosition(key,info){');
+const posEnd=html.indexOf('function recordOpen(key,ep){',posStart);
+assert.ok(posStart>0&&posEnd>posStart);
+const pad=n=>String(n).padStart(2,'0');
+const formattedTime=prettyTime;
+const lastPosition=new Function('state','pad','formattedTime',
+ html.slice(posStart,posEnd)+';return lastPosition;')(data,pad,formattedTime);
+const recent=lastPosition('test',{season:1,number:5,episodeId:'e5'});
+assert.equal(recent.text,'≈3:00');
+assert.equal(recent.manual,false);
+assert.equal(recent.source,'Initem');
+const fallback=lastPosition('test',{season:1,number:1,episodeId:'e1'});
+assert.equal(fallback,null);
+const selectedOnly={...data.initemProgress['test:S01E04'],seconds:194,
+ confirmed:false,selection:'site',at:Date.now()+8000,sampledAt:Date.now()+8000};
+data.initemProgress['test:S01E04']=selectedOnly;
+const unconfirmed=lastPosition('test',{season:1,number:4,episodeId:'e4'});
+assert.equal(unconfirmed.text,'≈3:14');
+assert.match(unconfirmed.source,/серия выбрана в Ultra TV/);
+console.log('PASS Initem: trusted events, selected-episode autosave, no manual Save button');
 
