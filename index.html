@@ -233,7 +233,7 @@ function recentInitemDiagnostics(){
  return '<details class="recent-initem-diag"><summary>🔎 Проверка времени Initem · последний сеанс</summary>'+
    '<p><strong>'+esc(name)+'</strong> · '+esc(status)+'</p>'+
    '<p>Сообщений: '+(Number(d.received)||0)+' · номеров серий: '+(Number(d.episodes)||0)+
-   ' · таймкодов: '+(Number(d.times)||0)+' · другой кадр: '+(Number(d.wrongFrame)||0)+
+   ' · таймкодов: '+(Number(d.times)||0)+' · другой кадр: '+(Number(d.wrongFrame)||0)+' · другой домен: '+(Number(d.otherOrigin)||0)+
    ' · отклонено: '+(Number(d.invalid)||0)+'</p>'+
    '<p>Последнее: '+esc(String(d.last||'нет событий').slice(0,100))+'</p>'+
    '<p class="subtle">Эта проверка относится только к просмотру на сайте в данном браузере. История приставки сюда не передаётся.</p></details>';
