@@ -206,6 +206,13 @@ function searchMatches(){
  const found=items().filter(x=>!q||(x.ru+' '+x.en).toLocaleLowerCase('ru-RU').includes(q));
  return found.length?found.map(card).join(''):'<div class="empty">Совпадений нет. Новые сериалы добавляются в общий каталог на сайте.</div>';
 }
+function initemDiagnosticText(){
+ const d=S.initemDiag||{};
+ return 'За последний запуск просмотра: событий '+(d.received||0)+
+   ', выбор серии '+(d.episode||0)+', таймкодов '+(d.progress||0)+
+   ', другой кадр '+(d.wrongFrame||0)+', неверное время '+(d.invalidTime||0)+
+   '. Последнее: '+(d.last||'пока ничего не поступало')+'.';
+}
 function settings(){
  return '<h1 class="section-title">Настройки</h1><section class="settings-box">'+
  '<div class="settings-row"><div><h2>Каталог и расписание</h2><p>Сериалы и источники проверяются при запуске и раз в 30 минут.</p></div>'+
@@ -214,6 +221,7 @@ function settings(){
  '<button class="action" data-act="appupdate" data-focus="appupdate">⬇ Проверить обновление</button></div>'+
  '<div class="settings-row"><div><h2>Блокировщик рекламы</h2><p>Включить или выключить фильтр, посмотреть статистику блокировок.</p></div>'+
  '<button class="action" data-act="adsettings">⚙ AdBlock</button></div>'+
+ '<div class="settings-row"><div><h2>Диагностика времени Initem</h2><p>'+esc(initemDiagnosticText())+'</p><p>Счётчики работают только во время просмотра; видео и адреса не записываются.</p></div></div>'+
  '<div class="settings-row"><div><h2>Управление</h2><p>Стрелки — выбор, OK — действие; удержание OK в видео — указатель. Назад — выйти из просмотра.</p></div></div>'+
  '<p class="settings-footer">Общий каталог синхронизируется с сайтом. Сохранённые на приставке добавления пока локальные.</p></section>';
 }
@@ -225,7 +233,7 @@ function progressUI(x){
    'Выбрано '+ep+' · время '+clock(p.seconds)+' (серия не подтверждена плеером)':
    (p?.kind==='direct'||p?.kind==='initem')&&Number(p.seconds)>0?
    'Сохранено '+ep+' · '+clock(p.seconds):
-   p?.confirmed?'Сохранено '+ep:
+   p?.confirmed?'Сохранено '+ep+' · время пока не получено':
    p?.openedAt?'Выбрано '+ep+' · время пока не получено':'Отметь серию';
  return '<div class="progress-panel" role="group" aria-label="Последняя просмотренная серия">'+
   '<span class="progress-summary">'+esc(summary)+'</span>'+
@@ -236,8 +244,9 @@ function progressUI(x){
   '</b><button data-act="progress-step" data-part="episode" data-step="1" aria-label="Следующая серия">+</button></div>'+
   '<button class="action progress-save" data-act="progress-save" aria-label="Запомнить выбранную серию">✓ Запомнить</button>'+
   '<small class="progress-explain">'+
-   (p?.auto&&p?.kind==='initem'?'Серия и минута определены плеером автоматически. Перемотка на сохранённую минуту пока не подтверждена.':
-    'Initem сообщает выбранный эпизод и минуту, когда воспроизведение запущено.')+
+   (p?.auto&&p?.kind==='initem'&&Number(p?.seconds)>0?'Серия и время определены плеером автоматически. Перемотка пока не подтверждена.':
+    p?.auto&&p?.kind==='initem'?'Серия определена автоматически, но время просмотра от Initem пока не получено.':
+    'Initem может сообщать выбранную серию и время при воспроизведении; это ещё не подтверждено для данного сеанса.')+
    '</small>'+
   '</div>';
 }
@@ -385,7 +394,7 @@ function bindNativeVideoProgress(){
 function handleInitemMessage(event){
  if(S.page!=='player'||!S.show||!event||!event.data)return false;
  const frame=$('#tv-player-iframe');
- if(!frame||event.source!==frame.contentWindow)return false;
+ if(!frame)return false;
  let origin;
  try{origin=new URL(frame.getAttribute('src')).origin;}catch{return false;}
  if(event.origin!==origin||origin!=='https://api.initem.ws')return false;
@@ -393,6 +402,11 @@ function handleInitemMessage(event){
  if(!data||typeof data!=='object'||Array.isArray(data))return false;
  const type=data.event;
  if(!['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop'].includes(type))return false;
+ // Diagnostics count trusted-origin events without accepting untrusted iframe sources.
+ // Store only event counts, never third-party payloads, URLs, tokens or video content.
+ const diag=S.initemDiag||(S.initemDiag={received:0,episode:0,progress:0,wrongFrame:0,invalidTime:0,last:''});
+ diag.received++;
+ if(event.source!==frame.contentWindow){diag.wrongFrame++;diag.last='событие '+type+' от другого кадра';return false;}
  const x=item(S.show),sources=x?availableSources(x):[];
  const src=sources[S.source]||sources[0];
  if(!src||src.platform!=='initem')return false;
@@ -404,6 +418,7 @@ function handleInitemMessage(event){
    if(!Number.isInteger(season)||!Number.isInteger(episode)||
       season<1||season>30||episode<1||episode>200)return false;
    const changed=Number(prev.season)!==season||Number(prev.episode)!==episode;
+   diag.episode++;diag.last='серия '+season+'/'+episode;
    S.season=season;S.episode=episode;S.initemLastWrite=0;
    S.progressDraft[S.show]={season,episode};
    setProgress(S.show,{kind:'initem',season,episode,source:S.source,
@@ -417,7 +432,8 @@ function handleInitemMessage(event){
    const seconds=Number(data.time),duration=Number(data.duration);
    if(!Number.isFinite(seconds)||seconds<0||seconds>86400 ||
       !Number.isFinite(duration)||duration<=0||duration>86400||
-      seconds>duration+5)return false;
+      seconds>duration+5){diag.invalidTime++;diag.last='отклонён неверный таймкод';return false;}
+   diag.progress++;diag.last='время '+Math.floor(seconds)+' из '+Math.floor(duration)+' с';
    const now=Date.now();
    if(now-S.initemLastWrite<2500&&seconds<duration-5)return true;
    S.initemLastWrite=now;
@@ -448,6 +464,7 @@ function watch(key){
  const x=item(key||S.show);if(!x)return;
  const previous=getProgress(x.key)||{};
  S.show=x.key;S.initemAdPlaying=false;S.initemLastWrite=0;
+ S.initemDiag={received:0,episode:0,progress:0,wrongFrame:0,invalidTime:0,last:''};
  S.source=Number(S.sourceChoice[x.key]??previous.source??0)||0;
  S.season=Math.max(1,Number(previous.season)||1);
  S.episode=Math.max(1,Number(previous.episode)||1);
