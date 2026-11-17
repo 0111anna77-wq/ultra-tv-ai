@@ -72,12 +72,11 @@ function playerModule(){
     const key=bookmarkKey(),manual=key&&state().bookmarks?.[key],auto=key&&state().initemProgress?.[key];
     const manualSeconds=Number.isFinite(manual?.seconds)&&manual.seconds>0?manual.seconds:null;
     const autoSeconds=auto?.confirmed===true&&auto?.provider==='initem'&&Number.isFinite(auto.seconds)&&auto.seconds>0?auto.seconds:null;
-    const stored=manualSeconds??autoSeconds;
-    const status=manualSeconds!=null?'Отметка: '+prettyTime(manualSeconds)+' · вручную':
-      autoSeconds!=null?'Отметка: '+prettyTime(autoSeconds)+' · получена от Initem':'Отметка не задана';
+    const status=manualSeconds!=null?'Точная отметка вручную: '+prettyTime(manualSeconds):
+      autoSeconds!=null?'Последний сигнал Initem: ≈'+prettyTime(autoSeconds)+' (может отставать от плеера)':'Отметка не задана';
     return '<div class="ut-bookmark"><div class="ut-bookmark-heading">⏱ На какой минуте остановился?</div>'+
       '<div class="ut-bookmark-form"><label for="ut-bookmark-time" class="sr-only">Минута и секунда остановки</label>'+
-      '<input id="ut-bookmark-time" type="text" inputmode="numeric" maxlength="8" placeholder="Напр. 24:35" value="'+(stored!=null?esc(prettyTime(stored)):'')+'">'+
+      '<input id="ut-bookmark-time" type="text" inputmode="numeric" maxlength="8" placeholder="Напр. 24:35" value="'+(manualSeconds!=null?esc(prettyTime(manualSeconds)):'')+'">'+
       '<button type="button" data-ut-save-bookmark>Запомнить</button>'+
       (manualSeconds!=null?'<button type="button" data-ut-clear-bookmark>Сбросить</button>':'')+'</div>'+
       '<small id="ut-bookmark-status">'+esc(status)+'</small>'+
@@ -87,7 +86,7 @@ function playerModule(){
       '<button type="button" class="ut-probe-time" data-ut-probe-time>Проверить запрос времени</button>'+
       '<p id="ut-initem-probe-status">Запрос пока не отправлялся.</p>'+
       '<p>Это однократная проверка совместимости с API PlayerJS. Initem может её не поддерживать. Для обычного события прогресса VenomPlayer иногда требуется около минуты реального воспроизведения после рекламы — одной перемотки недостаточно.</p></details>'+
-      '<p>Если Initem сообщает время и подтверждает серию, отметка сохраняется автоматически. Иначе можно ввести её вручную. Автоматическая перемотка Initem на эту секунду пока не подтверждена.</p></div>';
+      '<p>От Initem приходит периодический, а не посекундный таймкод (у VenomPlayer интервал по умолчанию 60 секунд). Последний сигнал может заметно отставать от позиции в самом плеере. Для точной ручной отметки введи время выше. Автоматическая перемотка не подтверждена.</p></div>';
   }
   function message(msg){const el=$('#ut-player-message');if(el)el.textContent=msg;}
   // External player messages are advisory. Only the active trusted iframe may
@@ -113,7 +112,7 @@ function playerModule(){
   }
   function initemSessionStart(){
     initemSession={received:0,episodes:0,times:0,wrongFrame:0,otherOrigin:0,invalid:0,ads:0,
-      last:'Ожидание сообщений',confirmedKey:null,seconds:null,duration:null,
+      last:'Ожидание сообщений',confirmedKey:null,seconds:null,duration:null,sampledAt:0,
       adPlaying:false,lastStoredAt:0,probeSent:0,probeReplies:0,probeUntil:0,
       probeTime:null,probeDuration:null,probeStatus:'Запрос пока не отправлялся.'};
     updateInitemUI();
@@ -125,14 +124,17 @@ function playerModule(){
     if(details)details.hidden=!active;
     if(!active||!s)return;
     const saved=s.confirmedKey&&state().initemProgress?.[s.confirmedKey];
+    const previous=bookmarkKey()&&state().initemProgress?.[bookmarkKey()];
     const code=s.confirmedKey?s.confirmedKey.split(':').pop():'';
     if(live){
       if(s.times>0&&s.seconds!==null){
         live.textContent='⏱ '+(code?'Серия '+code:'Серия не подтверждена')+
-          ' · '+prettyTime(s.seconds)+(s.duration?' / '+prettyTime(s.duration):'')+
-          (code?' · сохраняется автоматически':' · пока не привязано к серии');
-      }else live.textContent=s.episodes>0?'Серия подтверждена, ожидаем время от Initem':
-        'Ожидаем время и номер серии от Initem';
+          ' · ≈'+prettyTime(s.seconds)+(s.duration?' / '+prettyTime(s.duration):'')+
+          (code?' · последний сигнал Initem':' · пока не привязано к серии');
+      }else live.textContent=(previous?.confirmed&&Number.isFinite(previous.seconds)&&previous.seconds>0?
+        'В этом сеансе время ещё не получено · раньше: ≈'+prettyTime(previous.seconds):
+        s.episodes>0?'Серия подтверждена, ожидаем время от Initem':
+        'Ожидаем время и номер серии от Initem');
     }
     const probe=$('#ut-initem-probe-status');
     if(probe)probe.textContent=s.probeStatus;
@@ -146,10 +148,11 @@ function playerModule(){
     if(!s||!s.confirmedKey||s.seconds===null||!Number.isFinite(s.seconds)||
        !Number.isFinite(s.duration)||s.duration<=0)return;
     const now=Date.now();
+    if(!s.sampledAt)return;
     if(!force&&now-s.lastStoredAt<3000)return;
     const previous=state().initemProgress[s.confirmedKey];
     const next={seconds:Math.floor(Math.min(s.seconds,s.duration)),duration:Math.floor(s.duration),
-      at:now,confirmed:true,provider:'initem'};
+      at:s.sampledAt,sampledAt:s.sampledAt,confirmed:true,provider:'initem'};
     if(!previous||previous.seconds!==next.seconds||previous.duration!==next.duration){
       state().initemProgress[s.confirmedKey]=next;
       // Bound personal localStorage growth without touching manually saved marks.
@@ -229,6 +232,7 @@ function playerModule(){
         // Do not misattribute a time to a guessed episode.
         if(s.confirmedKey&&!s.adPlaying){
           s.seconds=Math.min(s.probeTime,s.probeDuration);s.duration=s.probeDuration;
+          s.sampledAt=Date.now();
           flushInitemTime(true);
         }
         s.probeUntil=0;
@@ -244,7 +248,7 @@ function playerModule(){
       }
       const selected=episodesFor(current.key).find(ep=>Number(ep.season)===season&&Number(ep.number)===number);
       flushInitemTime(true);
-      s.confirmedKey=null;s.seconds=null;s.duration=null;s.lastStoredAt=0;
+      s.confirmedKey=null;s.seconds=null;s.duration=null;s.sampledAt=0;s.lastStoredAt=0;
       s.episodes++;
       if(!selected){s.last='Серия '+season+'/'+number+' не найдена в каталоге';updateInitemUI();return true;}
       current.episodeId=String(selected.id);
@@ -260,9 +264,10 @@ function playerModule(){
       const seasonPicker=$('#ut-season');
       if(seasonPicker&&[...seasonPicker.options].some(opt=>Number(opt.value)===season))seasonPicker.value=String(season);
       const input=$('#ut-bookmark-time'),status=$('#ut-bookmark-status'),manual=state().bookmarks?.[s.confirmedKey];
-      const saved=manual||state().initemProgress?.[s.confirmedKey];
-      if(input)input.value=Number.isFinite(saved?.seconds)?prettyTime(saved.seconds):'';
-      if(status)status.textContent=Number.isFinite(saved?.seconds)?'Отметка: '+prettyTime(saved.seconds)+(manual?' · вручную':' · Initem'):'Отметка не задана';
+      const auto=state().initemProgress?.[s.confirmedKey];
+      if(input)input.value=Number.isFinite(manual?.seconds)?prettyTime(manual.seconds):'';
+      if(status)status.textContent=Number.isFinite(manual?.seconds)?'Точная отметка вручную: '+prettyTime(manual.seconds):
+        Number.isFinite(auto?.seconds)?'Последний сигнал Initem: ≈'+prettyTime(auto.seconds)+' (не точка остановки)':'Отметка не задана';
       updateInitemUI();return true;
     }
     if(data.event==='viewProgress'){
@@ -273,6 +278,7 @@ function playerModule(){
         s.invalid++;s.last='Некорректный таймкод';updateInitemUI();return false;
       }
       s.seconds=Math.floor(Math.min(seconds,duration));s.duration=Math.floor(duration);
+      s.sampledAt=Date.now();
       s.times++;s.last='Получено время '+prettyTime(s.seconds);
       flushInitemTime();
       updateInitemUI();return true;
@@ -567,8 +573,8 @@ function playerModule(){
       if(key&&state().bookmarks){
         delete state().bookmarks[key];app.persist();app.draw();
         const auto=state().initemProgress?.[key];
-        const status=$('#ut-bookmark-status');if(status)status.textContent=Number.isFinite(auto?.seconds)?'Отметка: '+prettyTime(auto.seconds)+' · Initem':'Отметка сброшена';
-        const input=$('#ut-bookmark-time');if(input)input.value=Number.isFinite(auto?.seconds)?prettyTime(auto.seconds):'';
+        const status=$('#ut-bookmark-status');if(status)status.textContent=Number.isFinite(auto?.seconds)?'Последний сигнал Initem: ≈'+prettyTime(auto.seconds)+' (не точка остановки)':'Отметка сброшена';
+        const input=$('#ut-bookmark-time');if(input)input.value='';
         e.target.closest('[data-ut-clear-bookmark]').remove();
       }
       return;

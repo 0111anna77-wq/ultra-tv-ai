@@ -61,6 +61,13 @@ assert.equal(t.handleInitemMessage(ev({event:'changeEpisode',season:1,episode:5}
 assert.equal(t.handleInitemMessage(ev({event:'viewProgress',time:75,duration:2100})),true);
 assert.equal(data.initemProgress['test:S01E04'].seconds,601);
 assert.equal(data.initemProgress['test:S01E05'].seconds,75);
+assert.equal(data.initemProgress['test:S01E05'].at,t.peek().sampledAt,
+ 'Timestamp must correspond to the last player signal');
+const lastSampleTime=data.initemProgress['test:S01E05'].at;
+t.flushInitemTime(true);
+assert.equal(data.initemProgress['test:S01E05'].at,lastSampleTime,
+ 'Leaving player cannot make an old sample appear fresh');
+
 assert.equal(persistCount,2);
 assert.equal(t.peek().wrongFrame,1);
 assert.ok(opened.includes('test:e5'));
@@ -102,4 +109,19 @@ assert.equal(t.handleInitemMessage(ev({event:'duration',answer:2200})),true);
 assert.equal(data.initemProgress['test:S01E05'].seconds,110,
  'No guessed episode: query replies alone must not overwrite progress');
 
-console.log('PASS website Initem: trusted frame, series, seconds, ads, unknown episode and isolation');
+const bookmarkStart=src.indexOf('function bookmarkBlock(){');
+const bookmarkEnd=src.indexOf('function message(msg)',bookmarkStart);
+assert.ok(bookmarkStart>0&&bookmarkEnd>bookmarkStart);
+const esc=v=>String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+const bookmarkBlock=new Function('state','bookmarkKey','prettyTime','esc',
+  src.slice(bookmarkStart,bookmarkEnd)+';return bookmarkBlock;')
+  (state,bookmarkKey,prettyTime,esc);
+const preview=bookmarkBlock();
+assert.match(preview,/Последний сигнал Initem: ≈1:50/);
+assert.match(preview,/value=""/,'Approximate times must not auto-fill the precise manual input');
+data.bookmarks['test:S01E05']={seconds:143,manual:true};
+const manualPreview=bookmarkBlock();
+assert.match(manualPreview,/value="2:23"/);
+assert.match(manualPreview,/Точная отметка вручную: 2:23/);
+console.log('PASS website Initem: trusted events, approximate sample labels, manual precision, no fake fresh time');
+
