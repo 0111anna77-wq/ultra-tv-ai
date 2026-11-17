@@ -452,7 +452,7 @@ function playerModule(){
     let resumeProbe=null;
     if(probe){
       // Never send a timestamp to a different or guessed episode.
-      if(!requested)return;
+      if(!requested){window.alert('Не удалось определить серию для пробного продолжения.');return;}
       const rec=state().initemProgress?.[key+':'+app.epCode(requested)];
       const sec=Number(rec?.seconds),dur=Number(rec?.duration);
       if(rec?.provider!=='initem'||!(rec.confirmed===true||rec.selection==='site')||
