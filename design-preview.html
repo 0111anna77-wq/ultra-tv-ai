@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080d14">
+<meta name="robots" content="noindex,nofollow">
+<title>Ultra TV AI · Новый дизайн (предпросмотр)</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1015;--side:#12161b;--card:#1b2027;--card2:#222832;--line:#363d47;--text:#f7f6f4;--muted:#9fa7af;--gold:#e2bc83;--goldsoft:#2c281f;--green:#a2d9b7;--red:#f29e91}
+*{box-sizing:border-box}html{font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--text);background:var(--bg)}body{margin:0;min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}a{color:var(--gold)}.app{min-height:100vh;display:grid;grid-template-columns:234px minmax(0,1fr)}
+.side{background:var(--side);border-right:1px solid #272d35;padding:32px 20px;display:flex;flex-direction:column;gap:35px}.brand{display:flex;align-items:center;gap:12px;padding:4px 8px}.mark{width:45px;height:45px;display:grid;place-items:center;border:1px solid #aa8c61;border-radius:14px;color:var(--gold);font-size:24px}.brand strong{font-size:23px;letter-spacing:.6px}.brand strong em{font-style:normal;color:var(--gold)}.brand small{display:block;font-size:9px;letter-spacing:1.3px;color:var(--muted);margin-top:5px}.nav{display:grid;gap:8px}.nav button{display:flex;align-items:center;gap:12px;padding:14px 14px;border:0;background:transparent;color:#aeb6bf;border-radius:11px;text-align:left}.nav button span{font-size:20px;width:26px;text-align:center}.nav button.active{background:#2a2825;color:var(--gold)}.nav button:hover{background:#292d33;color:white}.sidefoot{margin-top:auto;color:#86909c;font-size:12px;line-height:1.8}.sidefoot b{color:var(--gold)}
+.main{width:100%;max-width:1660px;margin:auto;padding:32px 48px 65px;min-width:0}.top{display:flex;align-items:center;justify-content:space-between;gap:15px;color:var(--muted);font-size:13px}.badge{background:#29271f;border:1px solid #504332;color:var(--gold);border-radius:30px;padding:9px 14px}.hero{margin:25px 0 31px;position:relative;overflow:hidden;background:linear-gradient(115deg,#302c27 0%,#1e2329 63%,#171d25 100%);border:1px solid #423d35;border-radius:23px;padding:43px 45px}.hero::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;border:1px solid #7c6b4b66;right:-130px;top:-170px;box-shadow:0 0 0 65px #ffffff03,0 0 0 135px #ffffff02;pointer-events:none}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px;font-weight:750}.hero h1{font-size:clamp(31px,3.1vw,49px);letter-spacing:-1.2px;margin:13px 0}.hero p{max-width:650px;color:#bdc0c4;font-size:15px;line-height:1.65;margin:0}.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.stats span{padding:8px 11px;border-radius:9px;background:#ffffff0b;border:1px solid #ffffff16;font-size:12px;color:#e3ded4}
+#main-content{margin-top:28px}.row{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 17px}.row h2{font-size:26px;letter-spacing:-.4px;margin:0}.row p{font-size:13px;color:var(--muted);margin:7px 0 0}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{background:var(--goldsoft);color:var(--gold);border:1px solid #61513c;padding:10px 15px;border-radius:10px}.btn:hover{background:#3b3124}.btn.primary{background:var(--gold);border-color:var(--gold);color:#201b14;font-weight:700}.btn.ghost{background:var(--card);color:#e6e6e7;border-color:var(--line)}.btn.sm{font-size:12px;padding:8px 12px}.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 19px}.filters select,.filters input,.field{background:var(--card);color:var(--text);border:1px solid var(--line);padding:12px 14px;border-radius:11px;min-width:0}.filters input{flex:1;min-width:160px}.filters select{max-width:250px}.subtle{font-size:12px;color:var(--muted)}.panelnote{background:#24231f;border:1px solid #554733;border-radius:11px;color:#ead0ae;font-size:13px;line-height:1.55;padding:12px 16px;margin:16px 0}.alert{color:var(--red)}
+.feed{display:grid;gap:10px}.item{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:14px;background:var(--card);border:1px solid #343b45;border-radius:14px;padding:10px 17px 10px 10px;width:100%;color:var(--text);text-align:left}.item:hover,.card:hover{border-color:#93784e;background:#22272e}.thumb{width:56px;height:75px;object-fit:cover;border-radius:7px;background:linear-gradient(140deg,#605643,#222b35);display:grid;place-items:center;color:var(--gold)}.item-title{display:block;font-size:15px;font-weight:700;margin-bottom:5px}.item-meta{display:block;color:var(--muted);font-size:12px;line-height:1.6}.item-date{text-align:right;color:var(--gold);font-size:13px;white-space:nowrap}.item-date small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.chip{display:inline-block;border:1px solid #655237;color:var(--gold);font-size:10px;padding:3px 7px;border-radius:7px;margin-left:7px;font-weight:normal}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:23px 15px}.card{padding:0;border:1px solid transparent;border-radius:13px;background:transparent;text-align:left;color:var(--text);min-width:0}.poster{width:100%;aspect-ratio:2/3;display:block;border:1px solid #454952;border-radius:12px;background:linear-gradient(135deg,#49443c,#222d39);object-fit:cover}.poster.empty{display:grid;place-items:center;color:var(--gold);font-size:36px}.card h3{font-size:14px;line-height:1.38;margin:10px 3px 5px}.card small{display:block;color:var(--muted);line-height:1.5;margin:0 3px}.card .tag{display:inline-block;margin:8px 3px 0;padding:4px 7px;color:var(--gold);border:1px solid #615137;border-radius:7px;font-size:10px}.emptybox{text-align:center;background:#171c22;border:1px dashed var(--line);border-radius:16px;padding:40px 20px;color:var(--muted);line-height:1.5}.emptybox b{display:block;color:white;font-size:19px;margin-bottom:7px}.more{margin:18px auto;display:block}.footer{color:#828e9c;font-size:12px;line-height:1.7;margin-top:50px}
+.overlay{position:fixed;inset:0;background:#000b;z-index:50;padding:15px;display:grid;place-items:center}.dialog{width:min(850px,100%);max-height:94vh;overflow:auto;background:#1b2027;border:1px solid #575553;border-radius:19px;box-shadow:0 25px 80px #000c}.dialogtop{display:grid;grid-template-columns:155px 1fr;gap:23px;padding:25px;border-bottom:1px solid var(--line)}.dialogtop .poster{max-width:155px}.dialogtop h2{font-size:27px;margin:7px 0}.dialogtop p{color:#b2b6bd;line-height:1.5;font-size:13px}.dialogbody{padding:22px 25px 27px}.dialog .row{align-items:center}.close{float:right}.ep{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid #3a414b}.ep b{font-size:13px}.ep small{display:block;color:var(--muted);margin-top:5px}.epactions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.epactions select{max-width:170px}.epactions button,.epactions select{font-size:12px;background:#2b3038;color:white;border:1px solid #535963;border-radius:8px;padding:8px 9px}.epactions button.done{color:var(--green);border-color:#538267}.topline{display:flex;align-items:start;justify-content:space-between;gap:13px}.setting{border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--card);line-height:1.65;color:#bbc1c9}.setting h3{color:white;margin:0 0 8px}.setting+.setting{margin-top:13px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:920px){.app{grid-template-columns:1fr}.side{padding:11px 15px;border-right:0;border-bottom:1px solid #333a41;gap:10px;flex-direction:row;align-items:center;flex-wrap:wrap}.brand{margin-right:auto}.nav{display:flex;gap:4px;flex-wrap:wrap}.nav button{padding:11px;font-size:12px}.nav button span{display:none}.sidefoot{display:none}.main{padding:22px 19px 50px}.hero{padding:31px}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}@media(max-width:540px){.top{display:none}.side{display:block}.brand{padding-bottom:12px}.nav{display:flex;justify-content:space-between}.nav button{padding:10px 6px;font-size:11px}.hero{padding:24px;margin:17px 0 24px}.hero h1{font-size:31px}.item{grid-template-columns:45px minmax(0,1fr);gap:11px}.thumb{width:45px;height:62px}.item-date{grid-column:2;text-align:left}.item-date small{display:inline;margin-left:10px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dialogtop{grid-template-columns:90px 1fr;gap:15px;padding:17px}.dialogtop .poster{max-width:90px}.dialogtop h2{font-size:21px}.dialogbody{padding:17px}.ep{grid-template-columns:1fr}.epactions{justify-content:flex-start}.filters select{max-width:none;flex:1}}
+
+/* Public LostFilm RSS release events; these are NOT player/audio availability claims. */
+.lf-panel{background:#191f27;border:1px solid #584935;border-radius:17px;padding:17px 18px;margin:15px 0 20px}
+.lf-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.lf-title h3{font-size:17px;line-height:1.4;margin:0;color:#f4d39b}
+.lf-panel p{font-size:12px;line-height:1.55;color:#c1bdba;margin:9px 0}
+.lf-list{display:grid;gap:9px;max-height:590px;overflow:auto;margin-top:13px}
+.lf-item{border:1px solid #434044;background:#222730;border-radius:11px;padding:12px}
+.lf-item strong{font-size:14px;line-height:1.45;display:block;color:#f4f3f1}
+.lf-meta{font-size:12px;color:#b4bec8;display:block;margin:5px 0}
+.lf-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lf-actions .btn{font-size:12px;text-decoration:none;padding:8px 12px}
+.lf-chip{display:inline-block;color:#f4cd89;background:#393123;padding:3px 7px;border-radius:7px;font-size:11px;margin-left:6px}
+.lf-footnote{color:#d9c6a8!important}
+@media(max-width:540px){.lf-panel{padding:13px}.lf-list{max-height:510px}.lf-actions{flex-wrap:wrap}}
+
+/* Episode watch-state management and a personal resume rail. */
+.card-unit{min-width:0;display:flex;flex-direction:column;gap:7px}
+.card-unit .card{width:100%;display:block;flex:1}
+.follow-tag{width:100%;background:#1c2229;border:1px solid #47505a;border-radius:9px;color:#d7dee4;font-size:12px;min-height:44px;padding:10px 6px;text-align:center}
+.follow-tag.active{color:#e3c38c;border-color:#5e503b;background:#29251f}
+.follow-tag:hover,.follow-tag:focus-visible{border-color:#b99b67;background:#34302a}
+.episode-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+.episode-row .item{height:100%}
+.episode-mark{min-width:136px;padding:10px;background:#202830;border:1px solid #45515c;border-radius:12px;color:#d4dce4;font-size:12px}
+.episode-mark:hover{border-color:#b99b67}
+.episode-mark.done{color:#a2d9b7;background:#202e2b;border-color:#4b806a}
+.recent-section{border:1px solid #514735;background:linear-gradient(120deg,#29251e,#1c2228 45%);border-radius:16px;margin-bottom:22px;padding:18px}
+.recent-section .row h2{font-size:21px}
+.recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px}
+.recent-item{display:flex;align-items:center;gap:12px;background:#20262d;border:1px solid #424852;border-radius:11px;padding:9px;text-align:left;color:var(--text);width:100%}
+.recent-item:hover{border-color:#b99b67;background:#31333a}
+.recent-item .thumb{flex:0 0 56px}
+.recent-text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.recent-text strong{font-size:14px}
+.recent-text small{font-size:12px;color:#c5cbd0}
+.recent-text em{font-size:11px;font-style:normal;color:#e8c78f}
+.recent-footnote{line-height:1.55;margin:12px 0 0}
+@media(max-width:540px){.recent-section{padding:13px}.recent-grid{grid-template-columns:1fr}.episode-row{grid-template-columns:1fr}.episode-mark{justify-self:end;min-width:170px}}
+
+.tracking-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:-5px 0 18px;padding:11px 14px;border:1px solid #454b52;border-radius:12px;background:#1e252b}
+.tracking-notice{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 15px;margin:0 0 16px;border:1px solid #826c48;border-radius:12px;background:#312b20;color:#ffe4b6;font-size:13px;line-height:1.5}
+.tracking-notice button{margin-left:auto;white-space:nowrap}
+@media(max-width:560px){.tracking-notice button{margin-left:0}.tracking-tools button{width:100%}}
+</style>
+<link rel="stylesheet" href="./player.css?v=16">
+<link rel="stylesheet" href="./site-cinema.css?v=1">
+<style>
+.design-preview-banner{
+ display:flex;gap:12px;justify-content:space-between;align-items:center;
+ padding:11px 16px;margin:0 0 18px;border:1px solid #365877;border-radius:11px;
+ background:#0e2a40;color:#c6e8ff;font-size:12px;line-height:1.5;
+}
+.design-preview-banner a{color:#e3f5ff;white-space:nowrap}
+@media(max-width:600px){.design-preview-banner{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
+<nav class="nav" aria-label="Разделы"><button class="active" data-view="feed"><span>⌂</span> Главная</button><button data-view="catalog"><span>◈</span> Каталог</button><button data-view="discover"><span>✧</span> Новинки</button><button data-view="search"><span>⌕</span> Поиск</button><button data-view="settings"><span>⚙</span> Настройки</button></nav>
+<div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v1.2 · Управление каталогом</div></aside>
+<main class="main"><div class="design-preview-banner" role="note"><span>✦ Предпросмотр нового дизайна. Основной сайт не изменён.</span><a href="./index.html">Открыть обычный сайт ↗</a></div><div class="top"><span>Твоя коллекция сериалов · свежие эпизоды и история просмотра</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Релизы LostFilm поступают из открытой RSS-ленты; публикация серии не гарантирует, что у неё есть встроенный плеер или подтверждённая аудиодорожка. Видео на сайте не хранятся.</footer></main></div>
+<div id="dialog-root"></div>
+<div id="player-root"></div>
+<script>
+(()=>{
+'use strict';
+const API='https://api.tvmaze.com',STORE='ultra-tv-v2';
+// Названия и жанры — редакционная подборка, не утверждение о доступности русского перевода.
+let seeds=[
+ ['invincible','Неуязвимый','Invincible',['super','animation','scifi'],2021],
+ ['spider-noir','Человек-паук Нуар','Spider-Noir',['super','crime'],2026],
+ ['daredevil','Сорвиголова: Рождённый заново','Daredevil: Born Again',['super','crime','action'],2025],
+ ['wonder-man','Чудо-человек','Wonder Man',['super','comedy'],2026],
+ ['visionquest','Вижн','VisionQuest',['super','scifi'],2026],
+ ['x-men-97','Люди Икс ’97',"X-Men '97",['super','animation','scifi'],2024],
+ ['lanterns','Фонари','Lanterns',['super','scifi','thriller'],2026],
+ ['boys','Пацаны','The Boys',['super','action','comedy'],2019],
+ ['silo','Укрытие','Silo',['scifi','thriller'],2023],
+ ['from','Извне','From',['scifi','horror','thriller'],2022],
+ ['dark-matter','Тёмная материя','Dark Matter',['scifi','thriller'],2024],
+ ['boroughs','The Boroughs','The Boroughs',['scifi','horror'],2026],
+ ['star-city','Звёздный город','Star City',['scifi','drama'],2026],
+ ['monarch','Монарх: Наследие монстров','Monarch: Legacy of Monsters',['scifi','action'],2023],
+ ['for-all-mankind','Ради всего человечества','For All Mankind',['scifi','drama'],2019],
+ ['fallout','Фоллаут','Fallout',['scifi','action','drama'],2024],
+ ['small-prophets','Small Prophets','Small Prophets',['fantasy','comedy','drama'],2026],
+ ['widows-bay',"Widow's Bay","Widow's Bay",['horror','comedy'],2026],
+ ['hacks','Хитрости','Hacks',['comedy','drama'],2021],
+ ['diplomat','Дипломатка','The Diplomat',['drama','thriller'],2023],
+ ['bear','Медведь','The Bear',['drama','comedy'],2022],
+ ['slow-horses','Медленные лошади','Slow Horses',['crime','thriller','drama'],2022],
+ ['knight','Рыцарь Семи Королевств','A Knight of the Seven Kingdoms',['fantasy','drama'],2026],
+ ['mobland','Гангстерленд','MobLand',['crime','thriller','drama'],2025],
+ ['house-dragon','Дом Дракона','House of the Dragon',['fantasy','drama'],2022]
+].map(([key,ru,en,genres,year])=>({key,ru,en,genres,year}));
+const genres=[['all','Все жанры'],['super','Супергерои'],['scifi','Фантастика'],['fantasy','Фэнтези'],['horror','Мистика / ужасы'],['thriller','Триллеры'],['crime','Криминал'],['action','Боевики'],['drama','Драмы'],['comedy','Комедии'],['animation','Анимация']];
+const $=(s,root=document)=>root.querySelector(s), $$=(s,root=document)=>[...root.querySelectorAll(s)], norm=s=>String(s||'').toLocaleLowerCase('ru-RU').replace(/[^a-zа-я0-9]/gi,'');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=()=>{let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const dateRU=s=>s?new Date(s+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}):'дата уточняется';
+const pad=n=>String(n||0).padStart(2,'0');
+const safeImage=s=>typeof s==='string'&&/^https:\/\//.test(s)?s:'';
+const fromStore=(key)=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
+const base={tracked:{},extras:{},watched:{},dubs:{},prefs:{},firstSeen:{},data:{},sources:{},progress:{},initemProgress:{},initemDiag:{},recent:{},bookmarks:{}};
+let saved=fromStore(STORE),state={...base,...(saved||{})};
+for(const k of Object.keys(base))if(!state[k]||Array.isArray(state[k])||typeof state[k]!=='object')state[k]={};
+if(!saved){for(const x of seeds)state.tracked[x.key]=true;const old=fromStore('ultra-tv-v1');if(old){state.watched=old.watched||{};state.dubs=old.dubs||{};state.prefs=old.prefs||{};}}
+const all=()=>[...seeds,...Object.values(state.extras)];
+const getEntry=k=>all().find(x=>x.key===k);
+const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify(state))}catch(e){setStatus('Мало места в хранилище браузера. Экспортируй коллекцию.')}};
+const idKey=(key,ep)=>`${key}:${ep.id}`;
+const released=ep=>ep.airdate&&ep.airdate<=iso();
+let view='feed',flt='all',query='',sort='added',onlyUnwatched=false,feedLimit=50,busy=false,failures=0;
+let catalogShowAll=false,trackingNotice=null;
+let releaseData={updatedAt:null,entries:[]},releaseLoading=true,releaseError=false;
+const showInfo=k=>state.data[k];
+const niceName=x=>x.ru||x.en;
+const epCode=ep=>`S${pad(ep.season)}E${pad(ep.number)}`;
+function setStatus(s){let el=$('#status');if(el){el.textContent=s;return;} if(!$('#main-content'))return;const e=document.createElement('div');e.id='status';e.className='panelnote';e.textContent=s;$('#main-content').prepend(e)}
+function htmlPoster(x){const url=safeImage(showInfo(x.key)?.image);return url?`<img class="poster" src="${esc(url)}" loading="lazy" alt="">`:'<span class="poster empty">▶</span>'}
+function miniPoster(x){const url=safeImage(showInfo(x.key)?.image);return url?`<img class="thumb" src="${esc(url)}" loading="lazy" alt="">`:'<span class="thumb">▶</span>'}
+function lastEpisode(x){let eps=showInfo(x.key)?.episodes||[];return eps.filter(e=>released(e)&&e.number!==null).sort((a,b)=>(b.airdate||'').localeCompare(a.airdate||''))[0]||null}
+function entries(){return all().filter(x=>state.tracked[x.key]!==false)}
+function getFeed(){const out=[];for(const x of entries())for(const ep of showInfo(x.key)?.episodes||[]){if(!ep.airdate||ep.airdate<'2026-01-01'||!released(ep)||ep.number===null)continue;const added=state.firstSeen[idKey(x.key,ep)]||ep.airdate;out.push({x,ep,added});}
+ return out.sort((a,b)=>{if(sort==='aired')return b.ep.airdate.localeCompare(a.ep.airdate)||b.added.localeCompare(a.added);if(sort==='rating')return (showInfo(b.x.key)?.rating||0)-(showInfo(a.x.key)?.rating||0)||b.ep.airdate.localeCompare(a.ep.airdate);return b.added.localeCompare(a.added)||b.ep.airdate.localeCompare(a.ep.airdate)||a.x.ru.localeCompare(b.x.ru)});
+}
+function matchEntry(x){return (flt==='all'||x.genres.includes(flt))&&(!query||norm(x.ru+' '+x.en).includes(norm(query)))}
+function visibleFeed(){return getFeed().filter(({x,ep})=>matchEntry(x)&&(!onlyUnwatched||!state.watched[idKey(x.key,ep)]))}
+
+function releaseMatch(r,x){
+  const en=norm(r.seriesEn),ru=norm(r.seriesRu);
+  return !!((en&&en.length>2&&en===norm(x.en))||(ru&&ru.length>2&&ru===norm(x.ru)));
+}
+function releaseFor(x,ep){
+  return releaseData.entries.find(r=>releaseMatch(r,x)&&Number(r.season)===Number(ep.season)&&Number(r.episode)===Number(ep.number));
+}
+function releaseEvents(){
+  const out=[];
+  for(const r of releaseData.entries){
+    if(!r||!Number.isInteger(r.season)||!Number.isInteger(r.episode))continue;
+    const x=entries().find(x=>releaseMatch(r,x));
+    if(!x||!matchEntry(x))continue;
+    const ep=(showInfo(x.key)?.episodes||[]).find(e=>Number(e.season)===r.season&&Number(e.number)===r.episode);
+    if(onlyUnwatched&&ep&&state.watched[idKey(x.key,ep)])continue;
+    out.push({x,ep,release:r});
+  }
+  return out.sort((a,b)=>(b.release.published||'').localeCompare(a.release.published||'')).slice(0,14);
+}
+function releaseSection(){
+  const found=releaseEvents();
+  const stamp=releaseData.updatedAt?'Последнее изменение подборки: '+new Date(releaseData.updatedAt).toLocaleDateString('ru-RU'):'';
+  const subtitle=releaseLoading?'Синхронизируем выпуск новостей LostFilm…':
+    releaseError?'Пока не удалось загрузить данные об озвучках. Плееры RUTUBE работают отдельно.':
+    !releaseData.updatedAt?'RSS-лента ещё не синхронизирована на сервере.':
+    found.length?'Отслеживаем выбранные сериалы · '+esc(stamp):'Пока нет релизов LostFilm по выбранным сериалам · '+esc(stamp);
+  return `<section class="lf-panel" aria-label="Новые релизы LostFilm">
+    <div class="lf-title"><h3>✦ Новые озвучки LostFilm <span class="lf-chip">RSS</span></h3><span class="subtle">${found.length?found.length+' релизов':''}</span></div>
+    <p>${subtitle}</p>
+    ${found.length?`<div class="lf-list">${found.map(({x,ep,release:r})=>{
+      const safeLink=typeof r.link==='string'&&/^https:\/\/(?:www\.)?lostfilm\.(?:tv|download)\//i.test(r.link)?r.link:'';
+      const code='S'+pad(r.season)+'E'+pad(r.episode);
+      const date=r.published&&!Number.isNaN(Date.parse(r.published))?new Date(r.published).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}):'Дата уточняется';
+      return `<div class="lf-item"><strong>${esc(x.ru)} <span class="lf-chip">${code}</span></strong>
+        <span class="lf-meta">${esc(r.title)} · ${esc(date)}</span>
+        <div class="lf-actions">
+          ${safeLink?`<a class="btn ghost sm" href="${esc(safeLink)}" rel="noopener noreferrer" target="_blank">Описание релиза ↗</a>`:''}
+          ${ep&&window.UltraTVPlayer?.hasEpisode(x.key,ep)?`<button class="btn ghost sm" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">Открыть доступный плеер (озвучка может отличаться)</button>`:window.UltraTVPlayer?.hasSeriesBrowser(x.key)?`<button class="btn ghost sm" data-open="${esc(x.key)}">Проверить новую серию в Initem ↗</button>`:''}
+        </div></div>`;
+    }).join('')}</div>`:''}
+    <p class="lf-footnote">✓ Выход озвучки подтверждён RSS. Это не означает, что плеер с озвучкой LostFilm найден или доступен.</p>
+  </section>`;
+}
+async function loadReleaseFeed(){
+  try{
+    const r=await fetch('./releases.json',{cache:'no-cache'});
+    if(!r.ok)throw Error('RSS HTTP '+r.status);
+    const data=await r.json();
+    if(!data||!Array.isArray(data.entries))throw Error('Некорректный формат RSS');
+    releaseData={updatedAt:data.updatedAt||null,entries:data.entries.slice(0,700).filter(x=>x&&typeof x==='object'&&typeof x.title==='string'&&typeof x.seriesRu==='string'&&typeof x.seriesEn==='string'&&Number.isInteger(x.season)&&Number.isInteger(x.episode))};
+    releaseLoading=false;releaseError=false;
+  }catch(e){releaseLoading=false;releaseError=true;console.warn('Не удалось обновить RSS LostFilm',e)}
+  if(view==='feed')draw();
+}
+
+
+function formattedTime(seconds){const t=Math.max(0,Math.floor(Number(seconds)||0));return t>=3600?Math.floor(t/3600)+':'+pad(Math.floor(t%3600/60))+':'+pad(t%60):Math.floor(t/60)+':'+pad(t%60);}
+function lastPosition(key,info){
+ const epKey=key+':S'+pad(info.season)+'E'+pad(info.number);
+ const manual=state.bookmarks[epKey],initem=state.initemProgress?.[epKey];
+ const manualValid=Number.isFinite(manual?.seconds)&&manual.seconds>0;
+ const autoValid=initem?.provider==='initem'&&
+   (initem.confirmed===true||initem.selection==='site')&&
+   Number.isFinite(initem.seconds)&&initem.seconds>0&&
+   Number.isFinite(initem.duration)&&initem.duration>0;
+ if(autoValid&&(!manualValid||Number(initem.sampledAt||initem.at||0)>=Number(manual.at||0)))
+   return {text:'≈'+formattedTime(initem.seconds),manual:false,
+      source:initem.confirmed===true?'Initem':'Initem · серия выбрана в Ultra TV',
+      pct:Math.min(100,Math.max(0,Math.round(initem.seconds/initem.duration*100)))};
+ if(manualValid)return {text:formattedTime(manual.seconds),manual:true};
+ const own=state.progress[key+':'+info.episodeId];
+ if(Number.isFinite(Number(own))&&Number(own)>0)
+   return {text:formattedTime(own),manual:false,source:'свой плеер'};
+ return null;
+}
+function recordOpen(key,ep){
+  if(!getEntry(key)||!ep||!Number.isInteger(Number(ep.season))||!Number.isInteger(Number(ep.number))||Number(ep.number)<1)return;
+  state.recent[key]={episodeId:String(ep.id||''),season:Number(ep.season),number:Number(ep.number),at:Date.now()};
+  const recent=Object.entries(state.recent).sort((a,b)=>Number(b[1]?.at||0)-Number(a[1]?.at||0)).slice(0,40);
+  state.recent=Object.fromEntries(recent);
+  persist();
+}
+function recentItems(){
+  return Object.entries(state.recent||{}).map(([key,info])=>({x:getEntry(key),info}))
+    .filter(({x,info})=>x&&state.tracked[x.key]!==false&&info&&Number.isFinite(info.at)&&Number.isInteger(info.season)&&Number.isInteger(info.number))
+    .sort((a,b)=>b.info.at-a.info.at).slice(0,6);
+}
+function recentInitemDiagnostics(){
+ const rows=Object.entries(state.initemDiag||{}).filter(([key,d])=>getEntry(key)&&d&&Number.isFinite(Number(d.at)))
+   .sort((a,b)=>Number(b[1].at)-Number(a[1].at));
+ if(!rows.length)return '';
+ const [key,d]=rows[0],name=getEntry(key)?.ru||'Сериал';
+ const status=d.times>0&&d.confirmed?'Плеер передавал время и подтвердил серию':
+   d.times>0?'Время приходило, но серия не подтверждена':
+   d.episodes>0?'Приходил номер серии, но таймкод не получен':
+   Number(d.received)>0?'События приходили, но таймкод и серия не получены':
+   'Сообщения Initem не поступали';
+ return '<details class="recent-initem-diag"><summary>🔎 Проверка времени Initem · последний сеанс</summary>'+
+   '<p><strong>'+esc(name)+'</strong> · '+esc(status)+'</p>'+
+   '<p>Сообщений: '+(Number(d.received)||0)+' · номеров серий: '+(Number(d.episodes)||0)+
+   ' · таймкодов: '+(Number(d.times)||0)+' · другой кадр: '+(Number(d.wrongFrame)||0)+' · другой домен: '+(Number(d.otherOrigin)||0)+
+   ' · отклонено: '+(Number(d.invalid)||0)+'</p>'+
+   '<p>Последнее: '+esc(String(d.last||'нет событий').slice(0,100))+'</p>'+
+   (Number(d.probeSent)>0?'<p>Запрос к PlayerJS: '+esc(String(d.probeStatus||'нет ответа').slice(0,180))+'</p>':'')+
+   '<p class="subtle">Эта проверка относится только к просмотру на сайте в данном браузере. История приставки сюда не передаётся.</p></details>';
+}
+function recentSection(){
+  const items=recentItems();
+  if(!items.length)return '';
+  return '<section class="recent-section"><div class="row"><div><h2>Продолжить просмотр</h2><p>Последние открытые серии · время приблизительное</p></div><button type="button" class="btn ghost sm" data-action="clear-recent">Очистить</button></div><div class="recent-grid">'+
+    items.map(({x,info})=>{
+      const ep=(showInfo(x.key)?.episodes||[]).find(e=>Number(e.season)===info.season&&Number(e.number)===info.number);
+      const id=ep?.id||info.episodeId||'';
+      const code='S'+pad(info.season)+'E'+pad(info.number);
+      const pos=lastPosition(x.key,info);
+      return '<button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
+        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>'+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">◷ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'плеер'))+'</small>':'')+(Number.isFinite(pos?.pct)?'<span class="recent-progress" aria-hidden="true"><i style="width:'+pos.pct+'%"></i></span>':'')+'<em>▶ Смотреть</em></span></button>';
+    }).join('')+'</div>'+recentInitemDiagnostics()+'<details class="recent-help"><summary>Как сохраняется прогресс?</summary><p>Initem передаёт время приблизительно раз в минуту. Значок ≈ означает примерное положение. Если плеер не подтвердил серию, используется серия, выбранная в Ultra TV; смену серии внутри плеера мы можем не заметить.</p></details></section>';
+}
+
+function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<div class="card-unit"><button type="button" class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span></button><button type="button" class="follow-tag ${tracked?'active':''}" data-toggle-follow="${esc(x.key)}" aria-label="${tracked?'Убрать из отслеживания':'Отслеживать сериал'} ${esc(x.ru)}">${tracked?'✓ Отслеживается · убрать':'＋ Следить за сериалом'}</button></div>`}
+function hEpisode({x,ep,added}){let k=idKey(x.key,ep),dub=state.dubs[k],lf=releaseFor(x,ep),seen=!!state.watched[k];return `<div class="episode-row"><button type="button" class="item" data-open="${esc(x.key)}" data-episode="${esc(ep.id)}">${miniPoster(x)}<span><strong class="item-title">${esc(x.ru)} <span class="chip">${epCode(ep)}</span></strong><span class="item-meta">${esc(ep.name||'Новая серия')} · ${seen?'✓ Просмотрено':lf?'✓ Озвучка LostFilm опубликована (плеер не проверен)':dub?'Отмечено вручную: '+esc(dub):'Озвучка не проверена'}</span></span><span class="item-date">${dateRU(ep.airdate)}<small>Добавлено: ${dateRU(added)}</small></span></button><button type="button" class="episode-mark ${seen?'done':''}" data-watch="${esc(k)}" aria-label="${seen?'Отметить не просмотренной':'Отметить просмотренной'}: ${esc(x.ru)} ${epCode(ep)}">${seen?'✓ Просмотрено':'○ Просмотрено?'}</button></div>`}
+function empty(title,desc){return `<div class="emptybox"><b>${esc(title)}</b>${esc(desc)}</div>`}
+function filters(){return `<div class="filters"><label class="sr-only" for="genre">Выбрать жанр</label><select id="genre">${genres.map(([v,l])=>`<option value="${v}" ${flt===v?'selected':''}>${l}</option>`).join('')}</select><label class="sr-only" for="filter-q">Найти сериал</label><input id="filter-q" placeholder="Найти сериал…" value="${esc(query)}" autocomplete="off"><label class="sr-only" for="sort-by">Порядок сортировки</label><select id="sort-by"><option value="added" ${sort==='added'?'selected':''}>Сначала добавленные</option><option value="aired" ${sort==='aired'?'selected':''}>Сначала по дате выхода</option><option value="rating" ${sort==='rating'?'selected':''}>По рейтингу TVmaze</option></select></div>`}
+function draw(){const el=$('#main-content'),track=entries(),feed=getFeed();$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+
+
+ if(view==='feed'){const list=visibleFeed();el.innerHTML=`<section class="dashboard-intro"><div><span class="dashboard-eyebrow">ULTRA TV · ЛИЧНАЯ КОЛЛЕКЦИЯ</span><h1>Моя медиатека</h1><p>Продолжай смотреть и находи новые серии без лишних действий.</p></div><span class="dashboard-count"><b>${track.length}</b> сериалов</span></section>${recentSection()}<div class="row feed-title-row"><div><h2>Новые эпизоды</h2><p>Все обновления в одном месте</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Проверить серии</button></div></div>${filters()}<div class="filters"><label class="subtle"><input id="unwatched" type="checkbox" ${onlyUnwatched?'checked':''}> Только непросмотренные</label><span class="subtle">Показано ${Math.min(feedLimit,list.length)} из ${list.length}</span></div><div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Обновляем расписание и новые серии…':`Не удалось обновить ${failures} сериалов. Останутся последние сохранённые сведения.`}</div><div class="feed">${list.length?list.slice(0,feedLimit).map(hEpisode).join(''):empty(busy?'Собираем эпизоды…':'Пока нет серий в этой выборке',busy?'Данные появятся после загрузки TVmaze.':'Попробуй другой жанр или обнови расписание.')}</div>${list.length>feedLimit?'<button class="btn more" data-action="more">Показать ещё ↓</button>':''}${releaseSection()}<div style="margin-top:37px"><div class="row"><div><h2>Твои сериалы</h2><p>Только выбранные сериалы. Остальные доступны в «Новинках».</p></div><button class="btn sm" data-view="discover">Настроить подписки →</button></div><div class="grid">${track.slice(0,8).map(hCard).join('')}</div></div>`;return;}
+ if(view==='catalog'||view==='discover'){
+  const totalHidden=all().filter(x=>state.tracked[x.key]===false).length;
+  let items=(view==='catalog'?(catalogShowAll?all():track):seeds).filter(matchEntry);
+  items.sort((a,b)=>(lastEpisode(b)?.airdate||'').localeCompare(lastEpisode(a)?.airdate||'')||niceName(a).localeCompare(niceName(b),'ru'));
+  const catTools=view==='catalog'?'<div class="tracking-tools"><span class="subtle">Отслеживаемых: '+track.length+' · Не отслеживаются: '+totalHidden+'</span><button type="button" class="btn ghost sm" data-action="catalog-toggle-hidden">'+(catalogShowAll?'Показать только мои':'Показать все, включая скрытые ('+totalHidden+')')+'</button></div>':'';
+  const catNotice=view==='catalog'&&trackingNotice?'<div class="tracking-notice" role="status">«'+esc(trackingNotice.name)+'» больше не отслеживается. Сериал не удалён, история просмотра сохранена. <button type="button" class="btn sm" data-action="tracking-undo">↶ Вернуть в мои</button></div>':'';
+  el.innerHTML=`<div class="row"><div><h2>${view==='catalog'?'Мой каталог':'Подборка 2026 года'}</h2><p>${view==='catalog'?'Управляй подписками: отключённые сериалы не удаляются и доступны по кнопке «Показать все»':'Подборка из предыдущего обсуждения — все 25 названий'}</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Обновить</button><button class="btn primary sm" data-view="search">＋ Добавить</button></div></div>${filters()}${catTools}${catNotice}<div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Загружаем данные о сериалах…':`Обновление недоступно для ${failures} сериалов. Список сохранён.`}</div><div class="grid">${items.length?items.map(hCard).join(''):empty('Ничего не найдено','Измени фильтр жанра или поисковую фразу.')}</div>`;return;}
+ if(view==='search'){el.innerHTML=`<div class="row"><div><h2>Добавить сериал</h2><p>Поиск по TVmaze (английские названия работают надёжнее)</p></div></div><div class="filters"><input id="remote-search" class="field" placeholder="Например, Severance или The Last of Us" style="flex:1"><button class="btn primary" data-action="lookup">Найти</button></div><div id="remote-results">${empty('Ищи по названию','Выбери сериал в результатах и добавь в каталог.')}</div>`;return;}
+ if(view==='settings'){el.innerHTML=`<div class="setting"><h3>Новые эпизоды — в начало списка</h3>При первом добавлении сериалов все серии получают одну дату импорта, поэтому внутри этой даты порядок определяется датой премьеры. Когда позже появляется новая серия и каталог обновляется, она получает новую дату добавления и поднимается наверх. Даты сохраняются в браузере.</div><div class="setting"><h3>Озвучка</h3>По умолчанию: <b>LostFilm → полноценный профессиональный дубляж</b>. Многоголосый закадровый перевод не считаем дубляжом. Из RSS автоматически отмечаем опубликованные переводы LostFilm, а доступность соответствующей дорожки в плеере проверяется отдельно. Другие переводы пока можно отмечать вручную. Через кнопку «Смотреть» можно добавить свои ссылки на видео и выбрать источник.</div><div class="setting"><h3>Сохранение коллекции</h3><p>Пока каталог сохраняется в браузере отдельно на каждом устройстве. Автоматической синхронизации между приставками ещё нет.</p><button class="btn primary" data-action="export">↓ Скачать резервную копию</button> <button class="btn ghost" data-action="import">↑ Восстановить копию</button><input id="import-json" type="file" accept=".json,application/json" hidden></div><div class="setting"><h3>Данные и обновления</h3>Данные о расписании поступают из TVmaze при открытии каталога и при нажатии кнопки обновления. RSS-новости LostFilm собираются отдельно по расписанию GitHub Actions (при включённых Actions), независимо от телевизора или ПК. Из RSS не извлекаются видео и плееры. Даты премьер — из TVmaze.</div>`;$('#import-json').addEventListener('change',importFile);}
+}
+function toggleFollow(key){
+  const x=getEntry(key);if(!x)return;
+  const wasTracked=state.tracked[key]!==false;
+  state.tracked[key]=!wasTracked;
+  persist();
+  if(view==='catalog'){
+    if(wasTracked){catalogShowAll=true;trackingNotice={key,name:x.ru};}
+    else trackingNotice=null;
+  }
+  draw();
+}
+function setView(v){view=v;query='';flt='all';feedLimit=50;catalogShowAll=false;trackingNotice=null;draw();window.scrollTo(0,0);if(v==='search')$('#remote-search')?.focus()}
+async function request(path){for(let i=0;i<3;i++){try{const r=await fetch(API+path,{headers:{'Accept':'application/json'}});if(r.status===429){await delay(1700*(i+1));continue}if(r.status===404)return null;if(!r.ok)throw Error('TVmaze: '+r.status);return await r.json()}catch(e){if(i===2)throw e;await delay(600*(i+1));}}throw Error('Не удалось получить данные TVmaze')}
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+function chooseShow(results,x){const exact=results.filter(z=>norm(z.show?.name)===norm(x.en));const list=exact.length?exact:results.filter(z=>norm(z.show?.name).includes(norm(x.en))||norm(x.en).includes(norm(z.show?.name)));
+ if(!list.length)return null;return list.sort((a,b)=>Math.abs(Number(a.show?.premiered?.slice(0,4)||2000)-x.year)-Math.abs(Number(b.show?.premiered?.slice(0,4)||2000)-x.year))[0]?.show||null}
+function pack(show,episodes){return {id:show.id,name:show.name,imdb:/^tt\d{5,12}$/.test(String(show.externals?.imdb||''))?show.externals.imdb:null,image:safeImage(show.image?.medium||show.image?.original),premiered:show.premiered,url:show.url,rating:show.rating?.average||null,genres:show.genres||[],episodes:(episodes||[]).filter(e=>e.id&&e.season!=null).map(e=>({id:e.id,name:e.name,season:e.season,number:e.number,airdate:e.airdate})),fetchedAt:Date.now()}}
+async function fetchShow(x){let old=showInfo(x.key),j=null;
+ if(old?.id)j=await request(`/shows/${old.id}?embed=episodes`);
+ else{const results=await request('/search/shows?q='+encodeURIComponent(x.en));const resolved=chooseShow(results||[],x);if(!resolved)return false;j=await request(`/shows/${resolved.id}?embed=episodes`)}
+ if(!j||!j._embedded?.episodes)return false;
+ let info=pack(j,j._embedded.episodes);state.data[x.key]=info;
+ for(const ep of info.episodes){if(ep.airdate&&ep.airdate>='2026-01-01'&&released(ep)&&ep.number!==null){const k=idKey(x.key,ep);if(!state.firstSeen[k])state.firstSeen[k]=iso();}}
+ return true;
+}
+async function refresh(force=false){if(busy)return;busy=true;failures=0;draw();const shows=all();for(let i=0;i<shows.length;i++){
+ const x=shows[i];if(!force&&state.data[x.key]&&Object.prototype.hasOwnProperty.call(state.data[x.key],'imdb')&&Date.now()-state.data[x.key].fetchedAt<6*60*60*1000)continue;
+ try{if(!await fetchShow(x))failures++;}catch(e){console.warn('Не удалось загрузить',x.key,e);failures++;}
+ persist();if(i%3===0||i===shows.length-1)draw();await delay(650);
+ }busy=false;persist();draw();}
+function openDetail(key,requestedEp){const x=getEntry(key);if(!x)return;const info=showInfo(key),eps=info?.episodes||[];const seasons=[...new Set(eps.map(e=>e.season))].sort((a,b)=>b-a);let season=eps.find(e=>String(e.id)===String(requestedEp))?.season||seasons.find(s=>eps.some(e=>e.season===s&&released(e)))||seasons[0]||1;
+ const wrap=$('#dialog-root');wrap.innerHTML=`<div class="overlay"><div class="dialog" role="dialog" aria-modal="true" aria-label="${esc(x.ru)}"><div class="dialogtop"><div>${htmlPoster(x)}</div><div><div class="topline"><div><div class="eyebrow">${esc(x.genres.map(g=>genres.find(v=>v[0]===g)?.[1]||g).join(' · '))}</div><h2>${esc(x.ru)}</h2></div><button class="btn ghost close" data-action="close">✕</button></div><p>${esc(x.en)} · ${x.year} · ★ TVmaze ${esc(info?.rating||'—')}</p><button class="btn ${state.tracked[key]===false?'primary':'ghost'}" data-action="toggle-track" data-key="${esc(key)}">${state.tracked[key]===false?'＋ Следить за сериалом':'✓ В моём каталоге · убрать'}</button></div></div><div class="dialogbody"><div class="row"><div><h2 style="font-size:20px">Серии</h2><p>Выбери сезон и нажми «Смотреть» — если плеер подключён, он откроется сразу</p></div><select id="season" class="field">${seasons.map(s=>`<option value="${s}" ${s===season?'selected':''}>Сезон ${s}</option>`).join('')}</select></div><div class="panelnote">Дорожки LostFilm и дубляж не определяются автоматически. Если источник предоставляет меню озвучки, выбирай её прямо во встроенном плеере.</div><div id="episode-list"></div>${info?.url?`<p class="subtle">Источник: <a href="${esc(info.url)}" target="_blank" rel="noopener">TVmaze ↗</a></p>`:''}</div></div></div>`;
+ function episodesDraw(){let s=Number($('#season')?.value||season),items=eps.filter(e=>e.season===s&&e.number!==null).sort((a,b)=>a.number-b.number);$('#episode-list').innerHTML=items.length?items.map(ep=>{const k=idKey(key,ep),dub=state.dubs[k]||'unknown',seen=!!state.watched[k];return `<div class="ep" id="ep-${ep.id}"><div><b>${epCode(ep)} · ${esc(ep.name||'Без названия')}</b><small>${dateRU(ep.airdate)}${!released(ep)?' · ещё не вышла':''}</small></div><div class="epactions"><label class="sr-only" for="dub-${ep.id}">Озвучка ${epCode(ep)}</label><select id="dub-${ep.id}" data-dub="${esc(k)}"><option value="unknown" ${dub==='unknown'?'selected':''}>Озвучка не проверена</option><option value="LostFilm" ${dub==='LostFilm'?'selected':''}>LostFilm</option><option value="Дубляж" ${dub==='Дубляж'?'selected':''}>Полный дубляж</option><option value="Другая" ${dub==='Другая'?'selected':''}>Другая</option></select><button class="${seen?'done':''}" data-watch="${esc(k)}">${seen?'✓ Просмотрено':'○ Не смотрел'}</button><button class="watch-entry" data-player-key="${esc(key)}" data-player-episode="${esc(ep.id)}" ${!released(ep)?'disabled':''}>▶ Смотреть</button></div></div>`}).join(''):empty(info?'Пока нет эпизодов':'Данные загружаются','Если серия уже объявлена, но её нет в TVmaze, попробуй обновить каталог.');if(requestedEp){$('#ep-'+requestedEp)?.scrollIntoView({block:'nearest'});requestedEp=null;}}
+ if($('#season'))$('#season').addEventListener('change',episodesDraw);episodesDraw();
+ wrap.querySelector('.overlay').addEventListener('click',e=>{if(e.target.classList.contains('overlay'))closeDetail()});}
+function closeDetail(){$('#dialog-root').innerHTML=''}
+async function lookup(){const q=$('#remote-search')?.value.trim();if(!q)return;$('#remote-results').innerHTML=empty('Ищем…','Загрузка результатов.');try{const res=await request('/search/shows?q='+encodeURIComponent(q));if(!res?.length){$('#remote-results').innerHTML=empty('Не найдено','Попробуй оригинальное название.');return;}
+ $('#remote-results').innerHTML=`<div class="grid">${res.slice(0,15).map(z=>{const s=z.show;const pic=safeImage(s.image?.medium);return `<button class="card" data-add="${s.id}" data-name="${esc(s.name)}" data-year="${esc((s.premiered||'').slice(0,4))}">${pic?`<img class="poster" src="${esc(pic)}" alt="">`:'<span class="poster empty">▶</span>'}<h3>${esc(s.name)}</h3><small>${esc(s.premiered?.slice(0,4)||'—')} · ★ ${esc(s.rating?.average||'—')}</small><span class="tag">＋ Добавить в каталог</span></button>`}).join('')}</div>`;
+ }catch(e){$('#remote-results').innerHTML=empty('Не удалось выполнить поиск',e.message)}}
+async function addCustom(id,name,year){const existing=all().find(x=>showInfo(x.key)?.id===id);if(existing){state.tracked[existing.key]=true;persist();window.UltraTVPlayer?.open(existing.key);return}const key='user-'+id;const x={key,ru:name,en:name,genres:['drama'],year:Number(year)||2026};state.extras[key]=x;state.tracked[key]=true;persist();setView('catalog');try{await fetchShow(x);persist();draw();}catch(e){setStatus('Сериал добавлен, но сведения о сериях пока недоступны. Нажми «Обновить».')}}
+function saveFile(){const blob=new Blob([JSON.stringify({version:2,state},null,2)],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='ultra-tv-collection.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+async function importFile(e){const f=e.target.files?.[0];if(!f)return;try{const j=JSON.parse(await f.text());if(j.version!==2||!j.state||!j.state.tracked)throw Error('Несовместимый формат');if(!confirm('Заменить текущую коллекцию резервной копией?'))return;state={...base,...j.state};persist();setView('feed')}catch(err){alert('Импорт не удался: '+err.message)}}
+document.addEventListener('click',e=>{const n=e.target.closest('[data-view]');if(n){setView(n.dataset.view);return}const a=e.target.closest('[data-action]');if(a){const act=a.dataset.action;if(act==='close')closeDetail();if(act==='refresh'){loadReleaseFeed();refresh(true)}if(act==='more'){feedLimit+=50;draw()}if(act==='lookup')lookup();if(act==='export')saveFile();if(act==='import')$('#import-json')?.click();if(act==='clear-recent'){state.recent={};persist();draw()}if(act==='catalog-toggle-hidden'){catalogShowAll=!catalogShowAll;trackingNotice=null;draw()}if(act==='tracking-undo'&&trackingNotice){state.tracked[trackingNotice.key]=true;trackingNotice=null;persist();draw()}if(act==='toggle-track'){toggleFollow(a.dataset.key);closeDetail()}return}
+ const follow=e.target.closest('[data-toggle-follow]');if(follow){toggleFollow(follow.dataset.toggleFollow);return}
+ const b=e.target.closest('[data-watch]');if(b){state.watched[b.dataset.watch]=!state.watched[b.dataset.watch];persist();const dialog=$('#dialog-root .dialog');if(dialog){const cur=dialog.querySelector('#season').value;const k=dialog.querySelector('[data-action="toggle-track"]').dataset.key;openDetail(k);$('#season').value=cur;$('#season').dispatchEvent(new Event('change'));}draw();return}
+ const open=e.target.closest('[data-open]');if(open){if(window.UltraTVPlayer)window.UltraTVPlayer.open(open.dataset.open,open.dataset.episode);else openDetail(open.dataset.open,open.dataset.episode);return}
+ const add=e.target.closest('[data-add]');if(add){addCustom(Number(add.dataset.add),add.dataset.name,add.dataset.year);return}
+ });
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='genre'){flt=t.value;feedLimit=50;draw()}if(t.id==='sort-by'){sort=t.value;draw()}if(t.id==='unwatched'){onlyUnwatched=t.checked;draw()}if(t.matches('[data-dub]')){if(t.value==='unknown')delete state.dubs[t.dataset.dub];else state.dubs[t.dataset.dub]=t.value;persist();draw();}});
+document.addEventListener('input',e=>{if(e.target.id==='filter-q'){const value=e.target.value;const s=e.target.selectionStart;query=value;draw();const n=$('#filter-q');n?.focus();n?.setSelectionRange(s,s);}});
+document.addEventListener('keydown',e=>{if($('#player-root').innerHTML)return;if(e.key==='Escape'&&$('#dialog-root').innerHTML){closeDetail();return}if(e.key==='Enter'&&document.activeElement?.id==='remote-search'){lookup();return}const t=document.activeElement;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)||!t||['INPUT','TEXTAREA','SELECT'].includes(t.tagName))return;
+ const context=$('#dialog-root .dialog')||document;const active=$$('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled)',context).filter(el=>el.getClientRects().length);let best=null,score=Infinity;const r=t.getBoundingClientRect();if(!r.width)return;for(const el of active){if(el===t)continue;const b=el.getBoundingClientRect(),dx=b.left+b.width/2-r.left-r.width/2,dy=b.top+b.height/2-r.top-r.height/2,dir=e.key.replace('Arrow','');if((dir==='Right'&&dx<=6)||(dir==='Left'&&dx>=-6)||(dir==='Down'&&dy<=6)||(dir==='Up'&&dy>=-6))continue;const main=dir==='Left'||dir==='Right'?Math.abs(dx):Math.abs(dy),cross=dir==='Left'||dir==='Right'?Math.abs(dy):Math.abs(dx),val=main+cross*2;if(val<score){score=val;best=el}}if(best){e.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:'nearest',behavior:'smooth'})}});
+window.UltraTV={get state(){return state},get releases(){return releaseData},persist,draw,recordOpen,getEntry,showInfo,idKey,epCode,released,openDetail,closeDetail};
+ async function syncSharedCatalog(){
+   try{
+     const response=await fetch('./tv-catalog.json?v='+Date.now(),{cache:'no-store'});
+     if(!response.ok) return;
+     const data=await response.json();
+     if(!Array.isArray(data.shows)||data.shows.length<1)return;
+     const valid=data.shows.filter(x=>x&&/^[a-z0-9-]{2,64}$/.test(x.key)&&typeof x.ru==='string'&&typeof x.en==='string'&&Array.isArray(x.genres)&&Number.isFinite(Number(x.year)));
+     if(!valid.length)return;
+     const prior=new Set(seeds.map(x=>x.key));
+     const unique=new Set();
+     seeds=valid.filter(x=>!unique.has(x.key)&&unique.add(x.key)).map(x=>({key:x.key,ru:x.ru,en:x.en,genres:x.genres,year:Number(x.year)}));
+     const additions=seeds.filter(x=>!prior.has(x.key));
+     for(const show of additions){
+       if(!Object.prototype.hasOwnProperty.call(state.tracked,show.key))state.tracked[show.key]=true;
+     }
+     if(additions.length)persist();
+     draw();
+     if(additions.length)setTimeout(()=>refresh(),9000);
+   }catch(e){console.warn('Общий каталог временно недоступен, используем встроенный список',e);}
+ }
+ $('#date-now').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});draw();loadReleaseFeed();refresh();syncSharedCatalog();
+setInterval(()=>{if(!document.hidden)loadReleaseFeed();},900000);
+setInterval(()=>{if(!document.hidden)refresh();},3600000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
+})();
+</script>
+<script src="./player.js?v=16" defer></script>
+</body>
+</html>
