@@ -380,7 +380,13 @@ function playerModule(){
       current.sourceSnapshot=list();
       const rows=current.sourceSnapshot.map((src,i)=>({...src,index:i})).sort((a,b)=>preference(a)-preference(b));
       const last=state().lastSource?.[keyOf()];
-      const preferred=rows.find(r=>r.url===last)||rows[0];
+      const probeSource=current.resumeProbe?rows.find(r=>{
+        if(r.platform!=='initem'||kindOf(r)!=='embed')return false;
+        try{return new URL(r.url).origin==='https://api.initem.ws'}catch{return false}
+      }):null;
+      const probeUnavailable=Boolean(current.resumeProbe&&!probeSource);
+      if(probeUnavailable)current.resumeProbe=null;
+      const preferred=probeUnavailable?null:(probeSource||rows.find(r=>r.url===last)||rows[0]);
       const hasOwnSeriesPicker=!!preferred&&preferred.__key==='show:'+current.key&&kindOf(preferred)==='embed'||
         !!preferred&&preferred.__key==='public:show'&&kindOf(preferred)==='embed';
       const seasons=[...new Set(allEpisodes.map(e=>e.season))].sort((a,b)=>b-a);
@@ -423,6 +429,7 @@ function playerModule(){
         </details></div></section></div>`;
       root.querySelector('.ut-overlay').addEventListener('click',e=>{if(e.target.classList.contains('ut-overlay'))close();});
       root.querySelector('.ut-close')?.focus({preventScroll:true});
+      if(probeUnavailable)message('↪ В этой серии не найден Initem: перенос времени не запущен. Выбери источник вручную.');
       if(autoPick&&preferred)selectSource(preferred.index);
   }
   function playableFor(key,ep){
@@ -437,14 +444,39 @@ function playerModule(){
     return [...eps].sort((a,b)=>(b.airdate||'').localeCompare(a.airdate||'')||
       b.season-a.season||b.number-a.number)[0]||null;
   }
-  function open(key,epId){
+  function open(key,epId,probe=false){
     const x=app.getEntry(key);if(!x)return;
     const eps=episodesFor(key);
     const requested=eps.find(e=>String(e.id)===String(epId));
     const selected=requested||newest(eps.filter(e=>playableFor(key,e)))||newest(eps);
+    let resumeProbe=null;
+    if(probe){
+      // Never send a timestamp to a different or guessed episode.
+      if(!requested){window.alert('Не удалось определить серию для пробного продолжения.');return;}
+      const rec=state().initemProgress?.[key+':'+app.epCode(requested)];
+      const sec=Number(rec?.seconds),dur=Number(rec?.duration);
+      if(rec?.provider!=='initem'||!(rec.confirmed===true||rec.selection==='site')||
+         !Number.isSafeInteger(sec)||sec<5||!Number.isFinite(dur)||dur<=sec+10){
+        window.alert('Для этой серии пока нет подходящей сохранённой отметки Initem.');
+        return;
+      }
+      resumeProbe={seconds:sec,episodeId:String(requested.id)};
+    }
     close();
-    current={key,episodeId:selected?String(selected.id):null,autoChoose:!requested};
+    current={key,episodeId:selected?String(selected.id):null,autoChoose:!requested,resumeProbe};
     render(true);
+  }
+  // Initem may not forward VenomPlayer's t parameter: this remains opt-in.
+  function initemEmbedUrl(raw,ep,resumeProbe){
+    const parsed=new URL(raw);
+    if(ep){
+      parsed.searchParams.set('season',String(ep.season));
+      parsed.searchParams.set('episode',String(ep.number));
+      if(parsed.origin==='https://api.initem.ws'&&resumeProbe&&String(resumeProbe.episodeId)===String(ep.id)&&
+         Number.isSafeInteger(resumeProbe.seconds)&&resumeProbe.seconds>=5&&
+         resumeProbe.seconds<=86400)parsed.searchParams.set('t',String(resumeProbe.seconds));
+    }
+    return parsed.href;
   }
   async function getHls(){
     if(window.Hls)return window.Hls;
@@ -471,21 +503,25 @@ function playerModule(){
     const token=current, type=kindOf(src), media=$('#ut-media');
     qsa('.ut-source button[data-ut-source]').forEach(el=>el.classList.toggle('ut-active',Number(el.dataset.utSource)===index));
     if(type==='embed'){
-      let url=src.url;
-      // These provider parameters select an episode, NOT a playback timestamp.
+      let url=src.url,attempt=null;
       if(src.platform==='initem'){
         const ep=episodesFor(current.key).find(e=>String(e.id)===String(current.episodeId));
-        if(ep){
-          const parsed=new URL(url);
-          parsed.searchParams.set('season',String(ep.season));
-          parsed.searchParams.set('episode',String(ep.number));
-          url=parsed.href;
-        }
+        if(current.resumeProbe&&ep&&String(current.resumeProbe.episodeId)===String(ep.id)&&
+          new URL(url).origin==='https://api.initem.ws')
+          attempt={seconds:current.resumeProbe.seconds};
+        url=initemEmbedUrl(url,ep,current.resumeProbe);
       }
+      // One-time attempt only. No ordinary opening or future source change
+      // should inherit a forced time parameter.
+      current.resumeProbe=null;
       media.innerHTML=`<iframe class="ut-iframe" title="Плеер ${esc(src.name||'Видео')}" src="${esc(url)}" loading="eager" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"></iframe>`;
       if(src.platform==='initem')initemSessionStart();
       else updateInitemUI();
       message(src.mode==='browse'?'Экспериментальный плеер. Выбери нужный сезон, серию и озвучку внутри него: текущая серия и LostFilm не гарантированы. При региональной блокировке используй другие источники.':'Встроенный плеер: '+(src.name||'Источник')+' · '+(labels[src.dub]||labels.Unknown)+'. Если изображение не появляется, сервис может запрещать встраивание.');
+      if(attempt){
+        message('↪ Проверочный запуск с ≈'+prettyTime(attempt.seconds)+
+          '. Передали Initem параметр t; поддержка перемотки пока не подтверждена. Выбор озвучки не передаём.');
+      }
       const link=document.createElement('a');link.href=src.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Открыть плеер отдельно ↗';$('#ut-player-message')?.append(' ',link);
       return;
     }
@@ -600,6 +636,7 @@ function playerModule(){
   });
   window.UltraTVPlayer={
     open,close,
+    testResume:(key,episode)=>open(key,episode,true),
     hasEpisode:(key,episode)=>!!episode&&playableFor(key,episode),
     hasSeriesBrowser:key=>(remoteOptions.embeds?.[key]||[]).some(src=>src.mode==='browse')||/^tt\d{5,12}$/.test(String(app.showInfo(key)?.imdb||''))
   };
