@@ -15,10 +15,10 @@ const db={initemProgress:{'show:S01E04':{
  seconds:840,duration:2600,confirmed:false,selection:'site',provider:'initem'
 }}};
 const fakeApp={getEntry:()=>({key:'show'}),epCode:e=>'S'+String(e.season).padStart(2,'0')+'E'+String(e.number).padStart(2,'0')};
-const fn=new Function('app','episodesFor','newest','playableFor','close','render','state','window',
+const fn=new Function('app','episodesFor','newest','playableFor','close','render','state','window','URL',
  'let current=null;'+js.slice(start,end)+';return {open,initemEmbedUrl,get:()=>current};');
 const api=fn(fakeApp,()=>[episode,{id:'e5',season:1,number:5}],eps=>eps[0],
- ()=>true,()=>{opened++},()=>{rendered++},()=>db,{alert:m=>alerted.push(m)});
+ ()=>true,()=>{opened++},()=>{rendered++},()=>db,{alert:m=>alerted.push(m)},URL);
 api.open('show','e4');
 assert.equal(api.get().resumeProbe,null,'Ordinary opening must never apply a timestamp');
 api.open('show','e4',true);
