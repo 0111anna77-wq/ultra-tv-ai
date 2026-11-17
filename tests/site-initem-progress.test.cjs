@@ -17,7 +17,7 @@ for(const id of ['#ut-initem-live','#ut-initem-diagnostics','#ut-initem-counters
  dom[id]={textContent:'',value:'',hidden:false};
 const $=selector=>selector==='#ut-media iframe'?frame:dom[selector]||null;
 const qsa=()=>[];
-const data={initemProgress:{},bookmarks:{},initemDiag:{}};
+const data={initemProgress:{},bookmarks:{},initemDiag:{},progress:{}};
 const state=()=>data;
 let persistCount=0;
 const opened=[];
