@@ -115,3 +115,11 @@ Regression checks:
 The checks use a fake iframe, validate exact origin/source, progress storage,
 episode resets, ad handling and unknown-episode fallback. Physical TV playback
 still requires device validation; do not claim a real-TV pass from CI alone.
+
+### v0.15 — first-episode badge and visible playback timestamp
+
+- A first episode opened by default now appears as `S01E01` in Continue Watching, even if the external iframe never sends `changeEpisode` for the initial selection. This is the episode selected *in Ultra TV*, not an unverified claim about the external player's current playlist.
+- A compact status line under the nonfullscreen player shows `S01E01`, the elapsed time, and optionally the duration (for example `2:05 / 43:20`). It updates without replacing the iframe and interrupting video. The series detail view also identifies the initially selected episode.
+- Until a trusted external episode event is received, any timestamp is clearly marked as not confirming the episode. When Initem has not sent a valid timestamp, the interface explicitly says so. Displaying time does not imply that external Initem can seek to it automatically.
+- Home cards remain compact: unconfirmed first-episode state shows just `S01E01`, without extra seconds.
+- Regression: `node android-tv/tests/initem-progress.test.cjs` and `node android-tv/tests/progress-display.test.cjs`.

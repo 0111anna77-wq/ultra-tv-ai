@@ -3,13 +3,14 @@ plugins { id 'com.android.application' }
 android {
     namespace 'ai.ultra.tv'
     compileSdk 35
+    buildToolsVersion '35.0.0'
 
     defaultConfig {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 14
-        versionName '0.14-initem-auto-progress'
+        versionCode 15
+        versionName '0.15-progress-visibility'
     }
     buildTypes {
         release { minifyEnabled false }

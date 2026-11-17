@@ -47,15 +47,36 @@ function setProgress(key,updates){
  const prev=getProgress(key)||{};
  S.progress[key]={...prev,...updates};
  save('tv-progress-v1',S.progress);
+ // Refresh only the text. Rerendering the iframe would interrupt playback.
+ if(S.page==='player'&&S.show===key){
+   const label=$('#player-progress');
+   if(label)label.textContent=playerProgressLabel(key);
+ }
 }
 function progressLabel(key){
  const p=getProgress(key);
  if(!p)return '';
  if(p.completed)return 'Просмотрена · '+episodeCode(p.season,p.episode);
- if(p.kind==='initem'&&!p.confirmed&&Number(p.seconds)>0)return clock(p.seconds)+' · серия не определена';
- if((p.kind==='direct'||p.kind==='initem')&&Number(p.seconds)>0)return episodeCode(p.season,p.episode)+' · '+clock(p.seconds);
+ if(p.confirmed&&(p.kind==='direct'||p.kind==='initem')&&Number(p.seconds)>0)
+   return episodeCode(p.season,p.episode)+' · '+clock(p.seconds);
  if(p.confirmed)return 'Отмечено · '+episodeCode(p.season,p.episode);
+ // The default first episode was missing from the resume badge because
+ // opening an iframe does not necessarily emit changeEpisode.
+ if(p.openedAt)return episodeCode(p.season,p.episode);
  return 'Последний просмотр';
+}
+function playerProgressLabel(key){
+ const p=getProgress(key);
+ if(!p)return 'Время просмотра пока не получено';
+ const ep=episodeCode(p.season,p.episode);
+ if(p.completed)return 'Серия '+ep+' · просмотрена';
+ if(Number(p.seconds)>0){
+   const total=Number(p.duration)>0?' / '+clock(p.duration):'';
+   return 'Серия '+ep+' · '+clock(p.seconds)+total+
+      (p.kind==='initem'&&!p.confirmed?' · номер серии не подтверждён плеером':'');
+ }
+ return 'Серия '+ep+' · время просмотра пока не получено'+
+   (p.kind==='initem'&&!p.confirmed?' (выбрана в Ultra TV)':'');
 }
 function progressDraft(key){
  if(!S.progressDraft[key]){
@@ -199,12 +220,13 @@ function settings(){
 
 function progressUI(x){
  const key=x.key,p=getProgress(key),v=progressDraft(key);
+ const ep=episodeCode(p?.season,p?.episode);
  const summary=p?.kind==='initem'&&!p.confirmed&&Number(p.seconds)>0?
-   'Сохранено '+clock(p.seconds)+' · серия не определена':
+   'Выбрано '+ep+' · время '+clock(p.seconds)+' (серия не подтверждена плеером)':
    (p?.kind==='direct'||p?.kind==='initem')&&Number(p.seconds)>0?
-   'Сохранено '+episodeCode(p.season,p.episode)+' · '+clock(p.seconds):
-   p?.confirmed?'Сохранено '+episodeCode(p.season,p.episode):
-   p?.openedAt?'Последний просмотр':'Отметь серию';
+   'Сохранено '+ep+' · '+clock(p.seconds):
+   p?.confirmed?'Сохранено '+ep:
+   p?.openedAt?'Выбрано '+ep+' · время пока не получено':'Отметь серию';
  return '<div class="progress-panel" role="group" aria-label="Последняя просмотренная серия">'+
   '<span class="progress-summary">'+esc(summary)+'</span>'+
   '<div class="progress-picker">'+
@@ -290,6 +312,7 @@ function player(){
  '<button class="primary" data-act="cursor" data-focus="player-cursor">⛶ Полный экран</button></div>'+
  '<h1>'+esc(x.ru)+' · просмотр</h1>'+
  '<div id="tv-video-frame" class="player-frame" role="button" tabindex="0" data-act="frame" aria-label="Плеер. OK — просмотр на весь экран">'+sourceMedia(src)+'</div>'+
+ '<p id="player-progress" class="player-progress" aria-live="off">'+esc(playerProgressLabel(S.show))+'</p>'+
  '<p class="player-help" id="player-help">«Полный экран» включает просмотр с управлением указателем. Стрелки — движение, OK — выбор. Курсор сам скрывается через 3 секунды и появляется при следующем движении.</p>'+
  '<div class="player-tools"><button class="action" data-act="reload">↻ Перезагрузить плеер</button></div>'+
  (src?'<p class="subtle">Источник: '+esc(src.name||'Видео')+'</p>':'<p class="banner">Для этого сериала пока нет источника. Данные обновляются через общий каталог.</p>')+
