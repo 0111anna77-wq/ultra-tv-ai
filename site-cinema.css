@@ -126,6 +126,10 @@ body {
 .recent-footnote{
   font-size:11px;line-height:1.65;color:#8296aa;margin:14px 0 0;
 }
+.recent-help{margin:13px 0 0;padding:0 2px;color:#91aabd;font-size:12px}
+.recent-help summary{display:inline-block;cursor:pointer;color:#9ebacf;border-bottom:1px dotted #416580;padding:6px 0}
+.recent-help summary:hover{color:#d9efff}
+.recent-help p{max-width:720px;line-height:1.6;margin:9px 0;color:#95a9ba}
 .recent-initem-diag{border-color:#304459;background:#141e2b;color:#a7b7c7}
 .recent-initem-diag summary{color:#97c9e7}
 .feed-title-row{margin:0 0 19px;padding:0 0 15px;border-bottom:1px solid #23374b}
