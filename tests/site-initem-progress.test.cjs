@@ -8,10 +8,11 @@ const start=src.indexOf('function activeInitemFrame(){');
 const end=src.indexOf("window.addEventListener('message',handleInitemMessage,false);",start);
 assert(start>0&&end>start,'The site must have an Initem message handler');
 new Function(src); // Parse whole website player before testing the handler.
-const frameWindow={};
+const sent=[];
+const frameWindow={postMessage:(data,origin)=>sent.push({data,origin})};
 const frame={contentWindow:frameWindow,getAttribute:()=> 'https://api.initem.ws/embed/imdb/tt1234567?season=1&episode=4'};
 const dom={};
-for(const id of ['#ut-initem-live','#ut-initem-diagnostics','#ut-initem-counters',
+for(const id of ['#ut-initem-live','#ut-initem-diagnostics','#ut-initem-counters','#ut-initem-probe-status',
  '.ut-heading h2','.ut-heading p','#ut-bookmark-time','#ut-bookmark-status'])
  dom[id]={textContent:'',value:'',hidden:false};
 const $=selector=>selector==='#ut-media iframe'?frame:dom[selector]||null;
@@ -33,11 +34,11 @@ const bookmarkKey=()=>{
  return ep?'test:'+app.epCode(ep):null;
 };
 const prettyTime=seconds=>Math.floor(seconds/60)+':'+String(Math.floor(seconds%60)).padStart(2,'0');
-const factory=new Function('$','qsa','app','state','episodesFor','bookmarkKey','prettyTime','current','INITEM_ORIGIN','initemEvents','URL',
+const factory=new Function('$','qsa','app','state','episodesFor','bookmarkKey','prettyTime','current','INITEM_ORIGIN','initemEvents','URL','setTimeout',
  'let initemSession=null;'+src.slice(start,end)+
- ';return {handleInitemMessage,initemSessionStart,flushInitemTime,peek:()=>initemSession};');
+ ';return {handleInitemMessage,initemSessionStart,flushInitemTime,probeInitemTime,peek:()=>initemSession};');
 const t=factory($,qsa,app,state,episodesFor,bookmarkKey,prettyTime,current,
- 'https://api.initem.ws',new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']),URL);
+ 'https://api.initem.ws',new Set(['changeEpisode','viewProgress','startWatching','ended','playerReady','adStart','adStop']),URL,()=>{});
 const ev=(data,source=frameWindow,origin='https://api.initem.ws')=>({data,source,origin});
 t.initemSessionStart();
 assert.equal(t.handleInitemMessage(ev({event:'viewProgress',time:125,duration:2400})),true);
@@ -76,5 +77,29 @@ diagStore();
 assert.equal(data.initemDiag.test.otherOrigin,2);
 assert.equal(data.initemDiag.test.times,3);
 assert.equal(data.initemDiag.test.confirmed,true);
+assert.equal(t.handleInitemMessage(ev({event:'time',answer:150})),false,'Do not accept unsolicited time reply');
+assert.equal(t.probeInitemTime(),true);
+assert.deepEqual(sent,[
+ {data:{api:'time'},origin:'https://api.initem.ws'},
+ {data:{api:'duration'},origin:'https://api.initem.ws'}],
+ 'Only two read-only queries to exact trusted origin');
+assert.equal(t.handleInitemMessage(ev({event:'time',answer:500},frameWindow,'https://evil.example')),false);
+assert.equal(t.handleInitemMessage(ev({event:'time',answer:500},{})),false);
+assert.equal(t.handleInitemMessage(ev({event:'time',answer:110})),true);
+assert.equal(t.handleInitemMessage(ev({event:'duration',answer:2100})),true);
+assert.equal(data.initemProgress['test:S01E05'].seconds,110,'Confirmed series + both answers can save progress');
+assert.equal(t.peek().probeReplies,2);
+assert.match(dom['#ut-initem-probe-status'].textContent,/1:50.*35:00/);
+assert.equal(t.handleInitemMessage(ev({event:'time',answer:1200})),false,
+ 'Unsolicited replies after probe completion are ignored');
+diagStore();
+assert.equal(data.initemDiag.test.probeSent,1);
+assert.equal(data.initemDiag.test.probeReplies,2);
+t.initemSessionStart();
+assert.equal(t.probeInitemTime(),true);
+assert.equal(t.handleInitemMessage(ev({event:'time',answer:240})),true);
+assert.equal(t.handleInitemMessage(ev({event:'duration',answer:2200})),true);
+assert.equal(data.initemProgress['test:S01E05'].seconds,110,
+ 'No guessed episode: query replies alone must not overwrite progress');
 
 console.log('PASS website Initem: trusted frame, series, seconds, ads, unknown episode and isolation');

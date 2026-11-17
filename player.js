@@ -82,7 +82,11 @@ function playerModule(){
       (manualSeconds!=null?'<button type="button" data-ut-clear-bookmark>Сбросить</button>':'')+'</div>'+
       '<small id="ut-bookmark-status">'+esc(status)+'</small>'+
       '<p id="ut-initem-live" class="ut-initem-live" hidden></p>'+
-      '<details id="ut-initem-diagnostics" class="ut-initem-diagnostics" hidden><summary>Диагностика времени Initem</summary><p id="ut-initem-counters">Пока нет данных.</p></details>'+
+      '<details id="ut-initem-diagnostics" class="ut-initem-diagnostics" hidden><summary>Диагностика времени Initem</summary>'+
+      '<p id="ut-initem-counters">Пока нет данных.</p>'+
+      '<button type="button" class="ut-probe-time" data-ut-probe-time>Проверить запрос времени</button>'+
+      '<p id="ut-initem-probe-status">Запрос пока не отправлялся.</p>'+
+      '<p>Это однократная проверка совместимости с API PlayerJS. Initem может её не поддерживать. Для обычного события прогресса VenomPlayer иногда требуется около минуты реального воспроизведения после рекламы — одной перемотки недостаточно.</p></details>'+
       '<p>Если Initem сообщает время и подтверждает серию, отметка сохраняется автоматически. Иначе можно ввести её вручную. Автоматическая перемотка Initem на эту секунду пока не подтверждена.</p></div>';
   }
   function message(msg){const el=$('#ut-player-message');if(el)el.textContent=msg;}
@@ -101,6 +105,7 @@ function playerModule(){
     // Diagnostic metadata only. No media URLs, raw events or user content.
     records[current.key]={at:Date.now(),received:d.received,episodes:d.episodes,
       times:d.times,wrongFrame:d.wrongFrame,otherOrigin:d.otherOrigin,invalid:d.invalid,ads:d.ads,
+      probeSent:d.probeSent,probeReplies:d.probeReplies,probeStatus:d.probeStatus,
       last:d.last,confirmed:Boolean(d.confirmedKey)};
     const keys=Object.keys(records).sort((a,b)=>Number(records[b]?.at||0)-Number(records[a]?.at||0));
     for(const key of keys.slice(20))delete records[key];
@@ -109,7 +114,8 @@ function playerModule(){
   function initemSessionStart(){
     initemSession={received:0,episodes:0,times:0,wrongFrame:0,otherOrigin:0,invalid:0,ads:0,
       last:'Ожидание сообщений',confirmedKey:null,seconds:null,duration:null,
-      adPlaying:false,lastStoredAt:0};
+      adPlaying:false,lastStoredAt:0,probeSent:0,probeReplies:0,probeUntil:0,
+      probeTime:null,probeDuration:null,probeStatus:'Запрос пока не отправлялся.'};
     updateInitemUI();
   }
   function updateInitemUI(){
@@ -128,6 +134,8 @@ function playerModule(){
       }else live.textContent=s.episodes>0?'Серия подтверждена, ожидаем время от Initem':
         'Ожидаем время и номер серии от Initem';
     }
+    const probe=$('#ut-initem-probe-status');
+    if(probe)probe.textContent=s.probeStatus;
     if(counters)counters.textContent='Сообщений: '+s.received+' · эпизодов: '+s.episodes+
       ' · таймкодов: '+s.times+' · реклама: '+s.ads+' · другой кадр: '+s.wrongFrame+' · другой домен: '+s.otherOrigin+
       ' · отклонено: '+s.invalid+'. Последнее: '+s.last+
@@ -154,12 +162,38 @@ function playerModule(){
     }
     s.lastStoredAt=now;
   }
+  function probeInitemTime(){
+    const s=initemSession,frame=activeInitemFrame();
+    if(!s||!frame)return false;
+    // Read-only PlayerJS request. This does NOT control, seek, or modify video.
+    s.probeSent++;s.probeReplies=0;s.probeTime=null;s.probeDuration=null;
+    s.probeUntil=Date.now()+7000;
+    s.probeStatus='Отправлены запросы времени и длительности. Ждём ответ до 7 секунд…';
+    try{
+      frame.contentWindow.postMessage({api:'time'},INITEM_ORIGIN);
+      frame.contentWindow.postMessage({api:'duration'},INITEM_ORIGIN);
+    }catch{
+      s.probeStatus='Не удалось отправить запрос';s.probeUntil=0;
+      updateInitemUI();return false;
+    }
+    updateInitemUI();
+    setTimeout(()=>{
+      if(s!==initemSession||!s.probeUntil||Date.now()<s.probeUntil)return;
+      s.probeUntil=0;
+      if(s.probeReplies===0)s.probeStatus='Ответа нет. Вероятно, Initem не поддерживает API PlayerJS.';
+      else if(s.probeTime===null)s.probeStatus='Ответ пришёл, но время не получено.';
+      else if(s.probeDuration===null)s.probeStatus='Получено время '+prettyTime(s.probeTime)+', длительность не передана.';
+      updateInitemUI();
+    },7200);
+    return true;
+  }
   function handleInitemMessage(event){
     if(!current||!event||!event.data)return false;
     const frame=activeInitemFrame();
     if(!frame)return false;
     const data=event.data;
-    if(!data||typeof data!=='object'||Array.isArray(data)||!initemEvents.has(data.event))return false;
+    if(!data||typeof data!=='object'||Array.isArray(data)||
+       (!initemEvents.has(data.event)&&!['time','duration'].includes(data.event)))return false;
     const s=initemSession;
     if(!s)return false;
     if(event.origin!==INITEM_ORIGIN){
@@ -172,6 +206,34 @@ function playerModule(){
     s.received++;
     if(event.source!==frame.contentWindow){
       s.wrongFrame++;s.last='Сообщение от другого кадра';updateInitemUI();return false;
+    }
+    if(data.event==='time'||data.event==='duration'){
+      // PlayerJS sends {event:'time'|'duration', answer:number} if enabled.
+      // Only accept responses after an explicit request from the user.
+      if(!s.probeUntil||Date.now()>s.probeUntil)return false;
+      const n=Number(data.answer);
+      if(data.answer===null||data.answer===undefined||!Number.isFinite(n)||
+         n<0||n>86400||(data.event==='duration'&&n<=0)){
+        s.invalid++;s.probeStatus='Ответ получен, но значение времени некорректно';
+        updateInitemUI();return false;
+      }
+      s.probeReplies++;
+      if(data.event==='time')s.probeTime=Math.floor(n);
+      else s.probeDuration=Math.floor(n);
+      s.probeStatus=s.probeTime!==null?
+        'PlayerJS ответил: '+prettyTime(s.probeTime)+
+           (s.probeDuration!==null?' / '+prettyTime(s.probeDuration):' (ожидаем длительность)'):
+        'PlayerJS ответил длительностью '+prettyTime(s.probeDuration)+'; ожидаем время.';
+      if(s.probeTime!==null&&s.probeDuration!==null&&s.probeTime<=s.probeDuration+5){
+        s.probeStatus+=' · протокол работает'+(s.confirmedKey?' · серия подтверждена':' · серия пока не подтверждена');
+        // Do not misattribute a time to a guessed episode.
+        if(s.confirmedKey&&!s.adPlaying){
+          s.seconds=Math.min(s.probeTime,s.probeDuration);s.duration=s.probeDuration;
+          flushInitemTime(true);
+        }
+        s.probeUntil=0;
+      }
+      updateInitemUI();return true;
     }
     if(data.event==='adStart'){s.adPlaying=true;s.ads++;s.last='Реклама';updateInitemUI();return true;}
     if(data.event==='adStop'){s.adPlaying=false;s.last='Реклама завершена';updateInitemUI();return true;}
@@ -482,6 +544,7 @@ function playerModule(){
     if(play){e.preventDefault();open(play.dataset.playerKey,play.dataset.playerEpisode);return;}
     if(!current)return;
     const closer=e.target.closest('[data-ut-close]');if(closer){close();return;}
+    if(e.target.closest('[data-ut-probe-time]')){probeInitemTime();return;}
     if(e.target.closest('[data-ut-save-bookmark]')){
       const key=bookmarkKey(),raw=$('#ut-bookmark-time')?.value,seconds=parseTime(raw);
       const status=$('#ut-bookmark-status');

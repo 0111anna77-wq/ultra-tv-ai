@@ -104,3 +104,8 @@
 .recent-initem-diag{margin-top:14px;padding:10px 13px;background:#242b31;border:1px solid #48505a;border-radius:9px;font-size:13px;color:#c3ccd4}
 .recent-initem-diag summary{cursor:pointer;color:#edce98;font-size:13px;font-weight:600}
 .recent-initem-diag p{font-size:12px;line-height:1.55;margin:8px 0 0;color:#c3ccd4;overflow-wrap:anywhere}
+
+/* Initem / PlayerJS compatibility probe, opt-in and not intrusive. */
+.ut-initem-diagnostics .ut-probe-time{display:inline-block;margin:9px 0 2px;padding:9px 12px;min-height:42px;background:#2c3641;border:1px solid #697684;border-radius:8px;color:#efdbb9;font-size:13px;cursor:pointer}
+.ut-initem-diagnostics .ut-probe-time:hover,.ut-initem-diagnostics .ut-probe-time:focus-visible{border-color:#e9c68f}
+.ut-initem-diagnostics #ut-initem-probe-status{font-weight:600;color:#dfcca5;overflow-wrap:anywhere}
