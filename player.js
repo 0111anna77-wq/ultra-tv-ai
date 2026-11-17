@@ -284,7 +284,9 @@ function playerModule(){
         if(ep)current.episodeId=String(ep.id);
       }
       if(ep)app.recordOpen(current.key,ep);
-      const rows=list().map((src,i)=>({...src,index:i})).sort((a,b)=>preference(a)-preference(b));
+      // Keep indices stable while Initem switches episodes internally.
+      current.sourceSnapshot=list();
+      const rows=current.sourceSnapshot.map((src,i)=>({...src,index:i})).sort((a,b)=>preference(a)-preference(b));
       const last=state().lastSource?.[keyOf()];
       const preferred=rows.find(r=>r.url===last)||rows[0];
       const hasOwnSeriesPicker=!!preferred&&preferred.__key==='show:'+current.key&&kindOf(preferred)==='embed'||
@@ -367,7 +369,7 @@ function playerModule(){
   }
   async function selectSource(index){
     if(!current)return;
-    const src=list()[index];if(!src)return;
+    const src=(current.sourceSnapshot||list())[index];if(!src)return;
     flushInitemTime(true);
     const previous=state();previous.lastSource ||= {};previous.lastSource[keyOf()]=src.url;app.persist();
     const chooser=$('#ut-select-source');if(chooser)chooser.value=String(index);
