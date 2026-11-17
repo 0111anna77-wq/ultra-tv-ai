@@ -61,7 +61,7 @@
 .tracking-notice button{margin-left:auto;white-space:nowrap}
 @media(max-width:560px){.tracking-notice button{margin-left:0}.tracking-tools button{width:100%}}
 </style>
-<link rel="stylesheet" href="./player.css?v=15">
+<link rel="stylesheet" href="./player.css?v=16">
 </head>
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
@@ -195,14 +195,16 @@ async function loadReleaseFeed(){
 function formattedTime(seconds){const t=Math.max(0,Math.floor(Number(seconds)||0));return t>=3600?Math.floor(t/3600)+':'+pad(Math.floor(t%3600/60))+':'+pad(t%60):Math.floor(t/60)+':'+pad(t%60);}
 function lastPosition(key,info){
  const epKey=key+':S'+pad(info.season)+'E'+pad(info.number);
- const manual=state.bookmarks[epKey];
- if(manual&&Number.isFinite(manual.seconds)&&manual.seconds>0)
-   return {text:formattedTime(manual.seconds),manual:true};
- const initem=state.initemProgress?.[epKey];
- if(initem?.confirmed===true&&initem.provider==='initem'&&
-    Number.isFinite(initem.seconds)&&initem.seconds>0&&
-    Number.isFinite(initem.duration)&&initem.duration>0)
-   return {text:'≈'+formattedTime(initem.seconds),manual:false,source:'последняя отметка Initem'};
+ const manual=state.bookmarks[epKey],initem=state.initemProgress?.[epKey];
+ const manualValid=Number.isFinite(manual?.seconds)&&manual.seconds>0;
+ const autoValid=initem?.provider==='initem'&&
+   (initem.confirmed===true||initem.selection==='site')&&
+   Number.isFinite(initem.seconds)&&initem.seconds>0&&
+   Number.isFinite(initem.duration)&&initem.duration>0;
+ if(autoValid&&(!manualValid||Number(initem.sampledAt||initem.at||0)>=Number(manual.at||0)))
+   return {text:'≈'+formattedTime(initem.seconds),manual:false,
+      source:initem.confirmed===true?'Initem':'Initem · серия выбрана в Ultra TV'};
+ if(manualValid)return {text:formattedTime(manual.seconds),manual:true};
  const own=state.progress[key+':'+info.episodeId];
  if(Number.isFinite(Number(own))&&Number(own)>0)
    return {text:formattedTime(own),manual:false,source:'свой плеер'};
@@ -250,7 +252,7 @@ function recentSection(){
       const pos=lastPosition(x.key,info);
       return '<button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
         miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">⏱ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'свой плеер'))+'</small>':'')+'<em>▶ Открыть плеер</em></span></button>';
-    }).join('')+'</div>'+recentInitemDiagnostics()+'<p class="subtle recent-footnote">Initem передаёт время периодически, поэтому отметка ≈ — это последнее полученное значение, а не точная секунда остановки. Встроенный Initem может запоминать свою позицию отдельно. Автоматическая перемотка со стороны Ultra TV пока не подтверждена.</p></section>';
+    }).join('')+'</div>'+recentInitemDiagnostics()+'<p class="subtle recent-footnote">Прогресс Initem сохраняется автоматически после получения таймкода (примерно раз в минуту). Значок ≈ означает приблизительное время. Если Initem не подтвердил номер серии, отображается серия, выбранная в Ultra TV; смена серии внутри плеера может не определиться.</p></section>';
 }
 
 function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<div class="card-unit"><button type="button" class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span></button><button type="button" class="follow-tag ${tracked?'active':''}" data-toggle-follow="${esc(x.key)}" aria-label="${tracked?'Убрать из отслеживания':'Отслеживать сериал'} ${esc(x.ru)}">${tracked?'✓ Отслеживается · убрать':'＋ Следить за сериалом'}</button></div>`}
@@ -350,6 +352,6 @@ setInterval(()=>{if(!document.hidden)refresh();},3600000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){loadReleaseFeed();refresh()}});
 })();
 </script>
-<script src="./player.js?v=15" defer></script>
+<script src="./player.js?v=16" defer></script>
 </body>
 </html>
