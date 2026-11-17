@@ -380,7 +380,10 @@ function playerModule(){
       current.sourceSnapshot=list();
       const rows=current.sourceSnapshot.map((src,i)=>({...src,index:i})).sort((a,b)=>preference(a)-preference(b));
       const last=state().lastSource?.[keyOf()];
-      const probeSource=current.resumeProbe?rows.find(r=>r.platform==='initem'&&kindOf(r)==='embed'):null;
+      const probeSource=current.resumeProbe?rows.find(r=>{
+        if(r.platform!=='initem'||kindOf(r)!=='embed')return false;
+        try{return new URL(r.url).origin==='https://api.initem.ws'}catch{return false}
+      }):null;
       const probeUnavailable=Boolean(current.resumeProbe&&!probeSource);
       if(probeUnavailable)current.resumeProbe=null;
       const preferred=probeUnavailable?null:(probeSource||rows.find(r=>r.url===last)||rows[0]);
@@ -469,7 +472,7 @@ function playerModule(){
     if(ep){
       parsed.searchParams.set('season',String(ep.season));
       parsed.searchParams.set('episode',String(ep.number));
-      if(resumeProbe&&String(resumeProbe.episodeId)===String(ep.id)&&
+      if(parsed.origin==='https://api.initem.ws'&&resumeProbe&&String(resumeProbe.episodeId)===String(ep.id)&&
          Number.isSafeInteger(resumeProbe.seconds)&&resumeProbe.seconds>=5&&
          resumeProbe.seconds<=86400)parsed.searchParams.set('t',String(resumeProbe.seconds));
     }
@@ -503,7 +506,8 @@ function playerModule(){
       let url=src.url,attempt=null;
       if(src.platform==='initem'){
         const ep=episodesFor(current.key).find(e=>String(e.id)===String(current.episodeId));
-        if(current.resumeProbe&&ep&&String(current.resumeProbe.episodeId)===String(ep.id))
+        if(current.resumeProbe&&ep&&String(current.resumeProbe.episodeId)===String(ep.id)&&
+          new URL(url).origin==='https://api.initem.ws')
           attempt={seconds:current.resumeProbe.seconds};
         url=initemEmbedUrl(url,ep,current.resumeProbe);
       }
@@ -516,7 +520,7 @@ function playerModule(){
       message(src.mode==='browse'?'Экспериментальный плеер. Выбери нужный сезон, серию и озвучку внутри него: текущая серия и LostFilm не гарантированы. При региональной блокировке используй другие источники.':'Встроенный плеер: '+(src.name||'Источник')+' · '+(labels[src.dub]||labels.Unknown)+'. Если изображение не появляется, сервис может запрещать встраивание.');
       if(attempt){
         message('↪ Проверочный запуск с ≈'+prettyTime(attempt.seconds)+
-          '. Передали Initem параметр t; поддержка перемотки пока не подтверждена. Озвучку не меняем.');
+          '. Передали Initem параметр t; поддержка перемотки пока не подтверждена. Выбор озвучки не передаём.');
       }
       const link=document.createElement('a');link.href=src.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Открыть плеер отдельно ↗';$('#ut-player-message')?.append(' ',link);
       return;
