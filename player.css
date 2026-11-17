@@ -99,3 +99,8 @@
 .ut-bookmark .ut-initem-diagnostics{margin-top:9px;font-size:12px;color:#b8c7d6}
 .ut-bookmark .ut-initem-diagnostics summary{cursor:pointer;color:#b7c5d3;line-height:1.5}
 .ut-bookmark .ut-initem-diagnostics p{font-size:12px;line-height:1.6;color:#b8c7d6;margin:5px 0 0}
+
+/* Initem watch-time diagnostics are collapsed and unobtrusive on the feed. */
+.recent-initem-diag{margin-top:14px;padding:10px 13px;background:#242b31;border:1px solid #48505a;border-radius:9px;font-size:13px;color:#c3ccd4}
+.recent-initem-diag summary{cursor:pointer;color:#edce98;font-size:13px;font-weight:600}
+.recent-initem-diag p{font-size:12px;line-height:1.55;margin:8px 0 0;color:#c3ccd4;overflow-wrap:anywhere}
