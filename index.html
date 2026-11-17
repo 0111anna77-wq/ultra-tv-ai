@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d1015">
+<meta name="theme-color" content="#080d14">
 <meta name="robots" content="noindex,nofollow">
-<title>Ultra TV AI · Лента серий</title>
+<title>Ultra TV AI · Моя медиатека</title>
 <style>
 :root{color-scheme:dark;--bg:#0d1015;--side:#12161b;--card:#1b2027;--card2:#222832;--line:#363d47;--text:#f7f6f4;--muted:#9fa7af;--gold:#e2bc83;--goldsoft:#2c281f;--green:#a2d9b7;--red:#f29e91}
 *{box-sizing:border-box}html{font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--text);background:var(--bg)}body{margin:0;min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}a{color:var(--gold)}.app{min-height:100vh;display:grid;grid-template-columns:234px minmax(0,1fr)}
@@ -62,12 +62,13 @@
 @media(max-width:560px){.tracking-notice button{margin-left:0}.tracking-tools button{width:100%}}
 </style>
 <link rel="stylesheet" href="./player.css?v=16">
+<link rel="stylesheet" href="./site-cinema.css?v=1">
 </head>
 <body>
 <div class="app"><aside class="side"><div class="brand"><div class="mark">▶</div><div><strong>ULTRA <em>TV</em></strong><small>ПЕРСОНАЛЬНЫЙ КИНОКАТАЛОГ</small></div></div>
-<nav class="nav" aria-label="Разделы"><button class="active" data-view="feed"><span>▤</span> Лента серий</button><button data-view="catalog"><span>◈</span> Каталог</button><button data-view="discover"><span>✧</span> Новинки</button><button data-view="search"><span>⌕</span> Поиск</button><button data-view="settings"><span>⚙</span> Настройки</button></nav>
+<nav class="nav" aria-label="Разделы"><button class="active" data-view="feed"><span>⌂</span> Главная</button><button data-view="catalog"><span>◈</span> Каталог</button><button data-view="discover"><span>✧</span> Новинки</button><button data-view="search"><span>⌕</span> Поиск</button><button data-view="settings"><span>⚙</span> Настройки</button></nav>
 <div class="sidefoot">Предпочтение: <b>LostFilm → полноценный дубляж</b><br>v1.2 · Управление каталогом</div></aside>
-<main class="main"><div class="top"><span>Твои сериалы · все новые эпизоды в одной ленте</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Релизы LostFilm поступают из открытой RSS-ленты; публикация серии не гарантирует, что у неё есть встроенный плеер или подтверждённая аудиодорожка. Видео на сайте не хранятся.</footer></main></div>
+<main class="main"><div class="top"><span>Твоя коллекция сериалов · свежие эпизоды и история просмотра</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Релизы LostFilm поступают из открытой RSS-ленты; публикация серии не гарантирует, что у неё есть встроенный плеер или подтверждённая аудиодорожка. Видео на сайте не хранятся.</footer></main></div>
 <div id="dialog-root"></div>
 <div id="player-root"></div>
 <script>
@@ -203,7 +204,8 @@ function lastPosition(key,info){
    Number.isFinite(initem.duration)&&initem.duration>0;
  if(autoValid&&(!manualValid||Number(initem.sampledAt||initem.at||0)>=Number(manual.at||0)))
    return {text:'≈'+formattedTime(initem.seconds),manual:false,
-      source:initem.confirmed===true?'Initem':'Initem · серия выбрана в Ultra TV'};
+      source:initem.confirmed===true?'Initem':'Initem · серия выбрана в Ultra TV',
+      pct:Math.min(100,Math.max(0,Math.round(initem.seconds/initem.duration*100)))};
  if(manualValid)return {text:formattedTime(manual.seconds),manual:true};
  const own=state.progress[key+':'+info.episodeId];
  if(Number.isFinite(Number(own))&&Number(own)>0)
@@ -244,15 +246,15 @@ function recentInitemDiagnostics(){
 function recentSection(){
   const items=recentItems();
   if(!items.length)return '';
-  return '<section class="recent-section"><div class="row"><div><h2>Вернуться к просмотру</h2><p>Последние открытые серии · не список уже просмотренных</p></div><button type="button" class="btn ghost sm" data-action="clear-recent">Очистить историю</button></div><div class="recent-grid">'+
+  return '<section class="recent-section"><div class="row"><div><h2>Продолжить просмотр</h2><p>Последние открытые серии · время приблизительное</p></div><button type="button" class="btn ghost sm" data-action="clear-recent">Очистить</button></div><div class="recent-grid">'+
     items.map(({x,info})=>{
       const ep=(showInfo(x.key)?.episodes||[]).find(e=>Number(e.season)===info.season&&Number(e.number)===info.number);
       const id=ep?.id||info.episodeId||'';
       const code='S'+pad(info.season)+'E'+pad(info.number);
       const pos=lastPosition(x.key,info);
       return '<button type="button" class="recent-item" data-open="'+esc(x.key)+'"'+(id?' data-episode="'+esc(id)+'"':'')+'>'+
-        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>Вернуться к '+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">⏱ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'свой плеер'))+'</small>':'')+'<em>▶ Открыть плеер</em></span></button>';
-    }).join('')+'</div>'+recentInitemDiagnostics()+'<p class="subtle recent-footnote">Прогресс Initem сохраняется автоматически после получения таймкода (примерно раз в минуту). Значок ≈ означает приблизительное время. Если Initem не подтвердил номер серии, отображается серия, выбранная в Ultra TV; смена серии внутри плеера может не определиться.</p></section>';
+        miniPoster(x)+'<span class="recent-text"><strong>'+esc(x.ru)+'</strong><small>'+esc(code)+'</small>'+(pos?'<small class="recent-timestamp">◷ '+esc(pos.text)+(pos.manual?' · отметка вручную':' · '+esc(pos.source||'плеер'))+'</small>':'')+(Number.isFinite(pos?.pct)?'<span class="recent-progress" aria-hidden="true"><i style="width:'+pos.pct+'%"></i></span>':'')+'<em>▶ Смотреть</em></span></button>';
+    }).join('')+'</div>'+recentInitemDiagnostics()+'<details class="recent-help"><summary>Как сохраняется прогресс?</summary><p>Initem передаёт время приблизительно раз в минуту. Значок ≈ означает примерное положение. Если плеер не подтвердил серию, используется серия, выбранная в Ultra TV; смену серии внутри плеера мы можем не заметить.</p></details></section>';
 }
 
 function hCard(x){let info=showInfo(x.key),last=lastEpisode(x),tracked=state.tracked[x.key]!==false;return `<div class="card-unit"><button type="button" class="card" data-open="${esc(x.key)}">${htmlPoster(x)}<h3>${esc(x.ru)}</h3><small>${esc(x.en)} · ${esc(info?.rating||'—')} ★</small><span class="tag">${last?'Последняя: '+epCode(last):info?'Даты уточняются':'Загрузка данных'}</span></button><button type="button" class="follow-tag ${tracked?'active':''}" data-toggle-follow="${esc(x.key)}" aria-label="${tracked?'Убрать из отслеживания':'Отслеживать сериал'} ${esc(x.ru)}">${tracked?'✓ Отслеживается · убрать':'＋ Следить за сериалом'}</button></div>`}
@@ -262,7 +264,7 @@ function filters(){return `<div class="filters"><label class="sr-only" for="genr
 function draw(){const el=$('#main-content'),track=entries(),feed=getFeed();$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
 
 
- if(view==='feed'){const list=visibleFeed();el.innerHTML=`<div class="row"><div><h2>Последние серии</h2><p>Общий список · даты премьер и озвучек отслеживаются отдельно</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Проверить новые серии</button></div></div>${recentSection()}${releaseSection()}${filters()}<div class="filters"><label class="subtle"><input id="unwatched" type="checkbox" ${onlyUnwatched?'checked':''}> Только непросмотренные</label><span class="subtle">Показано ${Math.min(feedLimit,list.length)} из ${list.length}</span></div><div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Обновляем расписание и новые серии…':`Не удалось обновить ${failures} сериалов. Останутся последние сохранённые сведения.`}</div><div class="feed">${list.length?list.slice(0,feedLimit).map(hEpisode).join(''):empty(busy?'Собираем эпизоды…':'Пока нет серий в этой выборке',busy?'Данные появятся после загрузки TVmaze.':'Попробуй другой жанр или обнови расписание.')}</div>${list.length>feedLimit?'<button class="btn more" data-action="more">Показать ещё ↓</button>':''}<div style="margin-top:37px"><div class="row"><div><h2>Твои сериалы</h2><p>Только выбранные сериалы. Остальные доступны в «Новинках».</p></div><button class="btn sm" data-view="discover">Настроить подписки →</button></div><div class="grid">${track.slice(0,8).map(hCard).join('')}</div></div>`;return;}
+ if(view==='feed'){const list=visibleFeed();el.innerHTML=`<section class="dashboard-intro"><div><span class="dashboard-eyebrow">ULTRA TV · ЛИЧНАЯ КОЛЛЕКЦИЯ</span><h1>Моя медиатека</h1><p>Продолжай смотреть и находи новые серии без лишних действий.</p></div><span class="dashboard-count"><b>${track.length}</b> сериалов</span></section>${recentSection()}<div class="row feed-title-row"><div><h2>Новые эпизоды</h2><p>Все обновления в одном месте</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Проверить серии</button></div></div>${filters()}<div class="filters"><label class="subtle"><input id="unwatched" type="checkbox" ${onlyUnwatched?'checked':''}> Только непросмотренные</label><span class="subtle">Показано ${Math.min(feedLimit,list.length)} из ${list.length}</span></div><div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Обновляем расписание и новые серии…':`Не удалось обновить ${failures} сериалов. Останутся последние сохранённые сведения.`}</div><div class="feed">${list.length?list.slice(0,feedLimit).map(hEpisode).join(''):empty(busy?'Собираем эпизоды…':'Пока нет серий в этой выборке',busy?'Данные появятся после загрузки TVmaze.':'Попробуй другой жанр или обнови расписание.')}</div>${list.length>feedLimit?'<button class="btn more" data-action="more">Показать ещё ↓</button>':''}${releaseSection()}<div style="margin-top:37px"><div class="row"><div><h2>Твои сериалы</h2><p>Только выбранные сериалы. Остальные доступны в «Новинках».</p></div><button class="btn sm" data-view="discover">Настроить подписки →</button></div><div class="grid">${track.slice(0,8).map(hCard).join('')}</div></div>`;return;}
  if(view==='catalog'||view==='discover'){
   const totalHidden=all().filter(x=>state.tracked[x.key]===false).length;
   let items=(view==='catalog'?(catalogShowAll?all():track):seeds).filter(matchEntry);
