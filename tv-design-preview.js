@@ -17,6 +17,21 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   progress:store('tv-progress-v1',{}),progressDraft:{},
   ruSummaries:store('tv-summary-ru-cache',{}),initemLastWrite:0,initemAdPlaying:false};
 const root=$('#content');
+
+// A missing CDN image must never leave a black resume card.
+root.addEventListener('error',event=>{
+ const img=event.target;
+ if(!img?.matches?.('.resume-art img[data-landscape-key]'))return;
+ const key=img.dataset.landscapeKey;
+ delete img.dataset.landscapeKey;
+ const x=item(key);
+ if(x){
+   S.meta[key]={...meta(key),backdrop:null,backdropCheckedAt:Date.now()};
+   save('tv-meta-cache',S.meta);
+   const fallback=poster(x);
+   if(fallback&&fallback!==img.src)img.src=fallback;
+ }
+},true);
 let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
 const items=()=>{
@@ -33,6 +48,18 @@ const poster=x=>{
  return url.replace('/original_untouched/','/medium_portrait/')
            .replace('/original/','/medium_portrait/');
 };
+// TVmaze classifies widescreen artwork as "background". Never stretch a poster
+// when a genuine landscape image has already been cached.
+function validLandscape(url){
+ return typeof url==='string'&&/^https:\/\/static\.tvmaze\.com\/uploads\/images\/[a-z0-9_.\/-]+$/i.test(url);
+}
+function pickLandscape(images){
+ if(!Array.isArray(images))return '';
+ const valid=images.filter(p=>p?.type==='background'&&validLandscape(p?.resolutions?.original?.url));
+ return (valid.find(p=>p.main===true)||valid[0])?.resolutions.original.url||'';
+}
+const resumeImage=x=>validLandscape(meta(x.key).backdrop)?meta(x.key).backdrop:poster(x);
+
 const imdb=x=>meta(x.key).imdb||x.imdb||'';
 const summaryRu=x=>S.ruSummaries[x.key]||'Русское описание пока недоступно.';
 const latest=()=>items().filter(x=>S.tracked[x.key]!==false);
@@ -102,6 +129,7 @@ function navigate(page,key){
   const first=$(selector)||$('#content button');
   if(first)first.focus({preventScroll:true});
   if(page==='catalog')setTimeout(loadSchedule,80);
+  if(page==='home')loadResumeBackdrops();
 }
 function notify(text){
   const el=$('#toast');el.textContent=text;el.classList.add('show');
@@ -144,11 +172,13 @@ function progressPercent(key){
  return Math.max(0,Math.min(100,100*seconds/duration));
 }
 const resumeCard=x=>{
- const p=getProgress(x.key),pct=progressPercent(x.key),url=poster(x);
+ const p=getProgress(x.key),pct=progressPercent(x.key),url=resumeImage(x);
  const episode=p?episodeCode(p.season,p.episode):'';
  return '<button class="card resume-card" data-act="continue" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'" aria-label="'+esc('Продолжить '+x.ru+(episode?' '+episode:''))+'">'+
   '<span class="resume-art" data-poster="'+esc(x.key)+'">'+
-   (url?'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async">':'<span class="no-art">▶</span>')+
+   (url?'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async"'+
+     (validLandscape(meta(x.key).backdrop)?' data-landscape-key="'+esc(x.key)+'"':'')+'>':
+     '<span class="no-art">▶</span>')+
    '<span class="resume-shade"></span>'+
    '<span class="resume-copy"><strong class="resume-title">'+esc(x.ru)+'</strong>'+
     (episode?'<small class="resume-episode">'+esc(episode)+'</small>':'')+
@@ -898,7 +928,9 @@ async function refresh(manual=false){
   if(manual)notify(c?.online?'Каталог обновлён · '+S.shows.length+' сериалов':'Используем сохранённый каталог. Проверь соединение.');
  }catch(err){$('#network').textContent='● Локальный каталог';if(manual)notify('Ошибка обновления: '+err.message);}
  finally{S.loading=false;}
- if(S.shows.length)loadPosters(manual);
+ // Reuse the normal TVmaze show search first; artwork discovery is
+ // sequenced afterwards, avoiding competing API bursts on low-power boxes.
+ if(S.shows.length)loadPosters(manual).then(loadResumeBackdrops).catch(()=>{});
  if(S.page==='catalog'&&!S.scheduleLoading)loadSchedule();
 }
 async function loadPosters(force=false){
@@ -930,6 +962,69 @@ async function loadPosters(force=false){
    }
    await new Promise(resolve=>setTimeout(resolve,180));
   }catch{}
+ }
+}
+// Only watched, selected shows need landscape artwork. Results (including
+// "no background") are cached to avoid a network call per screen visit.
+const landscapeRequests=new Set();
+async function loadResumeBackdrops(){
+ const selected=new Set(latest().map(x=>x.key));
+ const history=Object.entries(S.progress)
+   .filter(([key,p])=>p&&Number(p.openedAt)>0&&selected.has(key))
+   .sort((a,b)=>Number(b[1].openedAt)-Number(a[1].openedAt))
+   .slice(0,12);
+ for(const [key] of history){
+  if(landscapeRequests.has(key))continue;
+  const m=meta(key);
+  const freshness=validLandscape(m.backdrop)?30:7; // days
+  if(Number(m.backdropCheckedAt)>0&&Date.now()-Number(m.backdropCheckedAt)<freshness*86400000)continue;
+  landscapeRequests.add(key);
+  try{
+   let id=Number(meta(key).id)||0;
+   if(!id){
+     // Newly added shows may not have passed the regular poster lookup yet.
+     const x=item(key);
+     if(!x?.en)continue;
+     const found=await fetch('https://api.tvmaze.com/search/shows?q='+encodeURIComponent(x.en));
+     if(!found.ok)continue; // Retry later on offline/HTTP 429.
+     const candidates=await found.json();
+     if(!Array.isArray(candidates))continue;
+     const target=candidates.map(r=>r.show).filter(Boolean)
+       .sort((a,b)=>{
+         const score=t=>(String(t.name).toLowerCase()===String(x.en).toLowerCase()?0:1)+
+           Math.abs(Number((t.premiered||'').slice(0,4))-(x.year||2020))*.03;
+         return score(a)-score(b);
+       })[0];
+     id=Number(target?.id)||0;
+     if(!id)continue;
+     S.meta[key]={...meta(key),id};save('tv-meta-cache',S.meta);
+   }
+   const result=await fetch('https://api.tvmaze.com/shows/'+id+'/images');
+   if(!result.ok)continue; // Failed requests are not cached as "missing".
+   const images=await result.json();
+   if(!Array.isArray(images))continue;
+   const url=pickLandscape(images);
+   S.meta[key]={...meta(key),backdrop:url||null,backdropCheckedAt:Date.now()};
+   save('tv-meta-cache',S.meta);
+   if(url&&S.page==='home'){
+     // Update only the image, never re-render or interrupt active playback.
+     document.querySelectorAll('.resume-art[data-poster]').forEach(art=>{
+       if(art.dataset.poster!==key)return;
+       const img=art.querySelector('img');
+       if(img){
+         if(img.getAttribute('src')!==url){img.dataset.landscapeKey=key;img.src=url;}
+       }else{
+         const created=document.createElement('img');
+         created.alt='';created.loading='lazy';created.decoding='async';
+         created.dataset.landscapeKey=key;created.src=url;
+         art.querySelector('.no-art')?.replaceWith(created);
+       }
+     });
+   }
+  }catch{} // Stay with the existing poster when disconnected.
+  finally{landscapeRequests.delete(key);}
+  // TVmaze public API is rate-limited; stagger requests by design.
+  await new Promise(resolve=>setTimeout(resolve,850));
  }
 }
 async function loadEpisodes(key){
