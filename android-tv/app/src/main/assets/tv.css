@@ -217,3 +217,168 @@ main{padding:15px 42px 45px}
 
 /* Compact, live watch-time display, outside the external iframe. */
 .player-progress{font-size:15px;line-height:1.35;color:#e9ce9b;background:#192635;border:1px solid #425367;border-radius:9px;padding:8px 12px;margin:9px 0 0}
+
+/* UВидео TV v0.17 — TV-first skin. No blur filters, transitions, or extra image requests. */
+:root{
+ --bg:#050d18; --panel:#0e1b2a; --card:#0e1b2a; --line:#24405a;
+ --text:#f3f7ff; --muted:#a6b7c9; --gold:#20baff; --gold2:#54d5ff;
+}
+html{background:#050d18}
+body{
+ background:radial-gradient(ellipse at 83% -6%,#103355 0%,#07172a 36%,#050d18 72%);
+ color:#f3f7ff;
+}
+.topbar{
+ gap:clamp(16px,2.6vw,44px);
+ min-height:86px;
+ padding:16px clamp(20px,3.5vw,56px);
+ background:linear-gradient(180deg,#06101df2,#061322f0);
+ border-bottom:1px solid #1a2e43;
+}
+.brand{gap:12px;font-size:26px;letter-spacing:-.03em;flex:none}
+.brand .brand-logo{
+ width:49px;height:49px;display:block;flex:none;object-fit:contain;
+ border-radius:12px;
+}
+.brand .brand-wordmark{color:#f5f8ff!important;font-weight:800;font-size:clamp(20px,1.75vw,29px)}
+.brand .brand-wordmark b{color:#35caff;font-weight:800}
+nav{gap:3px;justify-content:center;min-width:0}
+nav button{
+ color:#c3d1e0;font-size:clamp(15px,1.3vw,20px);
+ padding:11px clamp(10px,1.2vw,20px);border-radius:15px;
+}
+nav button.nav-active{
+ background:linear-gradient(180deg,#175381,#0d2949);
+ border:1px solid #247cbb;color:#fff;
+ box-shadow:inset 0 0 0 1px #22567f;
+}
+nav button:focus{background:#1d5077;color:#fff}
+.net-status{font-size:12px;color:#7d9ab3}
+main{padding:27px clamp(24px,3.45vw,56px) 72px}
+.eyebrow{color:#79badf}
+.primary{background:#0e87c5;border-color:#36b6ef;color:#fff}
+.secondary,.action{background:#152c41;border-color:#315370}
+.badge{border-color:#285d81;color:#9bdcf9;background:#0d2a43}
+.select-list button.selected{background:#144e72;border-color:#39bafa}
+.toast{border-color:#3ba2d3;background:#122c42}
+.card:focus,.card:focus-visible{
+ outline:none!important;box-shadow:none!important;
+}
+.tv-home .rail{margin-bottom:28px}
+.tv-home .rail h2{
+ font-size:clamp(23px,1.75vw,30px);
+ letter-spacing:-.025em;color:#f5f7fb;margin:0 0 11px 3px;
+}
+.tv-home .rail .strip{
+ gap:clamp(12px,1.25vw,23px);
+ padding:7px 5px 20px;
+ overflow-x:auto;overflow-y:hidden;
+}
+.tv-home .card{
+ width:auto;min-width:0;
+ padding:0;border:0;
+ background:transparent;
+ color:#fff;text-align:left;
+ border-radius:15px;
+ flex-shrink:0;
+}
+.tv-home .resume-card{
+ flex-basis:clamp(290px,27vw,465px);
+ width:clamp(290px,27vw,465px);
+}
+.tv-home .resume-art{
+ display:block;position:relative;
+ width:100%;aspect-ratio:16/9;overflow:hidden;
+ border-radius:15px;border:1px solid #2c4155;
+ background:linear-gradient(120deg,#1d3852,#081625 78%);
+}
+.tv-home .resume-art img{
+ display:block;width:100%;height:100%;
+ object-fit:cover;object-position:center 26%;
+}
+.tv-home .resume-shade{
+ position:absolute;inset:0;
+ background:linear-gradient(180deg,transparent 27%,#06101e7a 59%,#040e1bed 100%);
+ pointer-events:none;
+}
+.tv-home .resume-copy{
+ position:absolute;left:18px;right:74px;bottom:31px;
+ z-index:1;display:flex;flex-direction:column;gap:3px;
+ text-shadow:0 2px 7px #000d;pointer-events:none;
+}
+.tv-home .resume-title{
+ font-size:clamp(21px,1.6vw,28px);line-height:1.1;
+ overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+}
+.tv-home .resume-episode{font-size:16px;color:#e2edfa}
+.tv-home .resume-play{
+ display:grid;place-items:center;position:absolute;right:16px;bottom:37px;z-index:1;
+ width:44px;height:44px;border-radius:50%;border:2px solid #b9e6fc;
+ color:#fff;background:#0c2434b7;font-size:20px;padding-left:3px;
+ pointer-events:none;
+}
+.tv-home .resume-track{
+ position:absolute;left:18px;right:18px;bottom:15px;height:7px;
+ overflow:hidden;border-radius:6px;background:#60748b80;z-index:1;pointer-events:none;
+}
+.tv-home .resume-fill{
+ display:block;height:100%;border-radius:6px;
+ background:linear-gradient(90deg,#0098e9,#33cdff);
+}
+.tv-home .resume-card:focus .resume-art,.tv-home .resume-card:focus-visible .resume-art{
+ border-color:#9be8ff;outline:2px solid #60cffe;outline-offset:2px;
+ box-shadow:0 0 14px #0098ee8c;
+}
+.tv-home .poster-card{
+ flex-basis:clamp(143px,12.5vw,210px);
+ width:clamp(143px,12.5vw,210px);
+}
+.tv-home .poster-card .art{
+ position:relative;display:block;
+ width:100%;aspect-ratio:2/3;
+ border:1px solid #274158;
+ border-radius:15px;overflow:hidden;
+ background:linear-gradient(160deg,#20415e,#091725);
+}
+.tv-home .poster-card .art::after{
+ content:"";position:absolute;inset:45% 0 0;
+ background:linear-gradient(transparent,#030c18ec);pointer-events:none;
+}
+.tv-home .poster-card .art img{width:100%;height:100%;object-fit:cover}
+.tv-home .poster-name{
+ position:absolute;bottom:13px;left:12px;right:10px;
+ z-index:2;font-size:clamp(16px,1.2vw,21px);font-weight:700;line-height:1.15;
+ text-shadow:0 2px 6px #000c;
+ overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+}
+.tv-home .poster-card .card-title,.tv-home .poster-card .card-sub{display:none}
+.tv-home .poster-card:focus .art,.tv-home .poster-card:focus-visible .art{
+ outline:2px solid #67d5ff;outline-offset:2px;
+ border-color:#7ddcff;box-shadow:0 0 10px #007acb80;
+}
+.new-episode-badge{
+ position:absolute;right:9px;top:9px;z-index:3;
+ color:#fff!important;background:#086fce;
+ font-weight:700;font-size:14px;line-height:1.2;
+ padding:6px 9px;border-radius:10px;
+ text-shadow:none;
+}
+.cards-grid .card .new-episode-badge{font-size:13px}
+.player-progress{color:#acd9f4;border-color:#285475;background:#0b2438}
+@media(max-width:1200px){
+ .brand .brand-logo{width:42px;height:42px}
+ .brand .brand-wordmark{font-size:21px}
+ .topbar{gap:14px}
+ .net-status{display:none}
+ .tv-home .resume-card{flex-basis:clamp(270px,31vw,380px);width:clamp(270px,31vw,380px)}
+}
+@media(max-width:800px){
+ .topbar{flex-wrap:wrap;gap:11px;padding:13px 22px}
+ .brand{width:auto}
+ nav{width:100%;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}
+ nav button{font-size:16px}
+ .tv-home .resume-card{flex-basis:290px;width:290px}
+ .tv-home .poster-card{flex-basis:150px;width:150px}
+ .tv-home .resume-title{font-size:21px}
+ .tv-home .rail{margin-bottom:20px}
+}

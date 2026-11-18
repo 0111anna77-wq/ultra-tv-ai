@@ -1,4 +1,4 @@
-/* Ultra TV AI for Android TV. Distinct 10-foot client, shared catalog with web. */
+/* UВидео TV for Android TV. Distinct 10-foot client, shared catalog with web. */
 (() => {
 'use strict';
 const $=s=>document.querySelector(s);
@@ -108,28 +108,69 @@ function notify(text){
   clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>el.classList.remove('show'),3800);
 }
 const category=x=>(x.genres||[]).map(g=>tags[g]||g).slice(0,2).join(' · ');
+// TV v0.17: only genuine, recently published LostFilm entries can earn a badge.
+function newEpisode(x){
+ if(!x||S.tracked[x.key]===false||!Array.isArray(S.releases))return null;
+ const known=norm(x.en),ru=norm(x.ru),now=Date.now();
+ const matches=S.releases.filter(e=>{
+   if(!e||!(known&&norm(e.seriesEn)===known||ru&&norm(e.seriesRu)===ru))return false;
+   const when=Date.parse(e.published||'');
+   return Number.isFinite(when)&&when<=now&&now-when<=14*86400000&&
+     Number.isInteger(Number(e.season))&&Number(e.season)>0&&
+     Number.isInteger(Number(e.episode))&&Number(e.episode)>0;
+ }).sort((a,b)=>(Number(b.season)*1000+Number(b.episode))-(Number(a.season)*1000+Number(a.episode)));
+ const latest=matches[0];
+ if(!latest)return null;
+ const p=getProgress(x.key);
+ const seen=p&&p.openedAt?(Number(p.season)||1)*1000+(Number(p.episode)||1):0;
+ const aired=Number(latest.season)*1000+Number(latest.episode);
+ // Don't call an already selected/played episode a new release.
+ return seen>=aired?null:latest;
+}
 const thumb=x=>{
-  const url=poster(x),label=progressLabel(x.key);
-  return '<div class="art" data-poster="'+esc(x.key)+'">'+
-    (url?'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async">':'<span class="no-art">▶</span>')+
-    (label?'<span class="pill">'+esc(label)+'</span>':'')+'</div>';
+ const url=poster(x),fresh=newEpisode(x);
+ return '<div class="art" data-poster="'+esc(x.key)+'">'+
+   (url?'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async">':'<span class="no-art">▶</span>')+
+   (fresh?'<span class="new-episode-badge">Новая серия</span>':'')+
+   '<span class="poster-name">'+esc(x.ru)+'</span></div>';
 };
-const card=x=>'<button class="card" data-act="detail" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'">'+
+const card=x=>'<button class="card poster-card" data-act="detail" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'" aria-label="'+esc(x.ru)+'">'+
   thumb(x)+'<span class="card-title">'+esc(x.ru)+'</span><small class="card-sub">'+esc(x.year)+' · '+esc(category(x))+
   (Number(x.rating||meta(x.key).rating)?' · ★ '+esc(x.rating||meta(x.key).rating):'')+'</small></button>';
-const rail=(title,xs,action)=>xs.length?'<section class="rail"><h2>'+esc(title)+'</h2><div class="strip">'+
-   xs.map(x=>action==='continue'?card(x).replace('data-act="detail"','data-act="continue"'):card(x)).join('')+
+function progressPercent(key){
+ const p=getProgress(key),duration=Number(p?.duration),seconds=Number(p?.seconds);
+ if(!p||p.completed||!Number.isFinite(seconds)||!Number.isFinite(duration)||
+      duration<=0||seconds<0||seconds>duration+5)return 0;
+ return Math.max(0,Math.min(100,100*seconds/duration));
+}
+const resumeCard=x=>{
+ const p=getProgress(x.key),pct=progressPercent(x.key),url=poster(x);
+ const episode=p?episodeCode(p.season,p.episode):'';
+ return '<button class="card resume-card" data-act="continue" data-key="'+esc(x.key)+'" data-focus="show:'+esc(x.key)+'" aria-label="'+esc('Продолжить '+x.ru+(episode?' '+episode:''))+'">'+
+  '<span class="resume-art" data-poster="'+esc(x.key)+'">'+
+   (url?'<img src="'+esc(url)+'" alt="" loading="lazy" decoding="async">':'<span class="no-art">▶</span>')+
+   '<span class="resume-shade"></span>'+
+   '<span class="resume-copy"><strong class="resume-title">'+esc(x.ru)+'</strong>'+
+    (episode?'<small class="resume-episode">'+esc(episode)+'</small>':'')+
+   '</span><span class="resume-play" aria-hidden="true">▶</span>'+
+   '<span class="resume-track" aria-hidden="true"><span class="resume-fill" style="width:'+pct.toFixed(1)+'%"></span></span>'+
+   '</span></button>';
+};
+const rail=(title,xs,action)=>xs.length?
+ '<section class="rail'+(action==='continue'?' rail-resume':' rail-posters')+'"><h2>'+esc(title)+'</h2><div class="strip'+
+   (action==='continue'?' resume-strip':' poster-strip')+'">'+
+   xs.map(x=>action==='continue'?resumeCard(x):card(x)).join('')+
    '</div></section>':'';
 function home(){
  const data=latest();
  const history=Object.entries(S.progress).filter(([key,p])=>p&&Number(p.openedAt)>0&&item(key))
    .sort((a,b)=>Number(b[1].openedAt)-Number(a[1].openedAt))
    .slice(0,12).map(([key])=>item(key));
- return rail('▶ Продолжить просмотр',history,'continue')+
+ return '<div class="tv-home">'+rail('▶ Продолжить просмотр',history,'continue')+
    rail('Мои сериалы',data)+
    rail('Фантастика и фэнтези',data.filter(x=>x.genres.some(g=>['scifi','fantasy','super'].includes(g))))+
    rail('Криминал и триллеры',data.filter(x=>x.genres.some(g=>['crime','thriller'].includes(g))))+
-   rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))));
+   rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))))+'</div>';
 }
 function dateRu(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return value||'';
