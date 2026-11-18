@@ -390,3 +390,26 @@ main{padding:27px clamp(24px,3.45vw,56px) 72px}
  pointer-events:none;
 }
 .preview-hint[hidden]{display:none}
+
+/* Compact TV-remote-friendly My Series sort, aligned opposite its title. */
+.tv-home .my-series-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:0 7px 0 3px;margin:0 0 11px;
+}
+.tv-home .my-series-heading h2{margin:0}
+.tv-home .sort-cycle{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ flex:none;min-height:36px;padding:6px 12px;
+ background:#102236;border:1px solid #2b4b63;border-radius:9px;
+ color:#c5d8e9;font-size:15px;font-weight:500;line-height:1.3;
+ box-shadow:none;white-space:nowrap;
+}
+.tv-home .sort-cycle:focus,.tv-home .sort-cycle:focus-visible{
+ outline:2px solid #56b9df!important;outline-offset:2px!important;
+ box-shadow:none!important;background:#173c57;
+}
+.tv-home .sort-cycle span:first-child{font-size:19px;line-height:1}
+@media(max-width:690px){
+ .tv-home .sort-cycle{font-size:13px;padding:6px 9px;min-height:34px}
+ .tv-home .my-series-heading{gap:8px}
+}
