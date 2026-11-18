@@ -34,3 +34,9 @@
 - Android `assembleDebug --offline` — `BUILD SUCCESSFUL`. Node suite `design-v017.test.cjs`, `initem-progress.test.cjs` (16 checks), `progress-display.test.cjs` — все PASS.
 - **APK подписан тем же сертификатом**, что v0.20, SHA-256 сертификата `2aa8316ac1888806e45015b5728aa089e74c91439856cd1ade1264be97d56d47`, подпись v2/v3 valid. Подписанная сборка `D:\UltraTVTools\uvideo-tv-v021-work\UVideoTV_v021_signed.apk`, размер **612208 байт**, SHA256 **`c13589f6b9c0ea9ceff5a506435abe643c8032d8663c142dbe66757d977ddc31`**. Бэкап `D:\UltraTV_Safety\local-signed-versions\UVideoTV_v021_signed.apk`. ZIP: JS/CSS/HTML, graphic JPG и оригинальный логотип U побайтно совпадают с исходниками; logo совпал с v0.20.
 - На реальной приставке **0.21 пока НЕ проверено**, только предыдущая 0.20 по видео пользователя. Если подпись/сервер ещё не опубликованы, не выдавать обновление за доступное.
+
+
+## Выпуск 0.21 — состояние
+- Подписанный APK 0.21 опубликован в **GitHub `main`**: commit `ac5be803e76e4e1265d2ede680b924acfc14abf7`, assets `a.apk` и `tv-update.json` (versionCode 21); исходная отдельная ветка сохранена. Это не меняет веб-приложение.
+- Контрольный SHA256 APK: `c13589f6b9c0ea9ceff5a506435abe643c8032d8663c142dbe66757d977ddc31`; сертификат тот же, проверка ZIP встроенных файлов и logo PASS.
+- **Первая внешняя HTTP-проверка после push:** Cloudflare Pages ещё возвращал `versionCode=20`. Не объявлять новую версию доступной в приложении пока реальный сервер не вернёт 21 и `LIVE_APK_MATCH=True`. Это статус момента первой проверки, последующие проверки могут его изменить.
