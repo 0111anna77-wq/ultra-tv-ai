@@ -18,9 +18,9 @@ const meta=()=>({});
 const category=()=>'Драма';
 const episodeCode=(s,e)=>'S'+String(s||1).padStart(2,'0')+'E'+String(e||1).padStart(2,'0');
 const {newEpisode,progressPercent,resumeCard,thumb,home}=
- new Function('S','norm','getProgress','poster','meta','category','episodeCode','esc',
+ new Function('S','norm','getProgress','poster','resumeImage','meta','category','episodeCode','esc',
  source.slice(start,end)+';return {newEpisode,progressPercent,resumeCard,thumb,home}')(
- S,norm,getProgress,poster,meta,category,episodeCode,esc);
+ S,norm,getProgress,poster,poster,meta,category,episodeCode,esc);
 const show={key:'example',ru:'Сериал',en:'Example',genres:['drama'],year:2026};
 assert.equal(progressPercent('example'),25);
 const markup=resumeCard(show);
@@ -105,5 +105,47 @@ assert.doesNotMatch(lift,/\.detail(?:[ .:#>]|$)|\.player-screen(?:[ .:#>]|$)/,
 assert.doesNotMatch(lift,/filter:blur\(|backdrop-filter:/,
   'TV focus should not add GPU-heavy blur');
 console.log('PASS TV v0.17 mouse hover and D-pad focus lift, without touching details/player');
+
+
+// TVmaze offers genuine widescreen "background" assets, not upscaled posters.
+const landscapeStart=source.indexOf('function validLandscape(url){');
+const landscapeEnd=source.indexOf('const imdb=',landscapeStart);
+assert(landscapeStart>0&&landscapeEnd>landscapeStart);
+const {validLandscape,pickLandscape,resumeImage}=new Function('meta','poster',
+  source.slice(landscapeStart,landscapeEnd)+
+  ';return {validLandscape,pickLandscape,resumeImage};')(
+  key=>S.meta?.[key]||{},poster);
+const good='https://static.tvmaze.com/uploads/images/original_untouched/459/1149869.jpg';
+const better='https://static.tvmaze.com/uploads/images/original_untouched/461/1156125.jpg';
+assert.equal(validLandscape(good),true);
+assert.equal(validLandscape('javascript:alert(1)'),false);
+assert.equal(validLandscape('https://not-tvmaze.example/covers/a.jpg'),false);
+assert.equal(pickLandscape([{type:'poster',resolutions:{original:{url:good}}}]),'');
+assert.equal(pickLandscape([{type:'background',resolutions:{original:{url:good}}}]),good);
+assert.equal(pickLandscape([{type:'background',main:false,resolutions:{original:{url:good}}},
+  {type:'background',main:true,resolutions:{original:{url:better}}}]),better);
+assert.equal(pickLandscape(null),'');
+S.meta={};
+assert.equal(resumeImage({key:'example'}),poster({key:'example'}));
+S.meta.example={backdrop:good};
+assert.equal(resumeImage({key:'example'}),good);
+assert.match(css,/v0\.17 ambient screen/);
+assert.match(css,/background-image:[\s\S]*repeating-linear-gradient/);
+assert.match(css,/\.resume-art img\[data-landscape-key\]/);
+const ambient=css.slice(css.indexOf('v0.17 ambient screen'));
+assert.doesNotMatch(ambient,/filter:blur\(|backdrop-filter:|animation:/);
+const loaderStart=source.indexOf('const landscapeRequests=new Set();');
+const loaderEnd=source.indexOf('async function loadEpisodes(key){',loaderStart);
+assert(loaderStart>0&&loaderEnd>loaderStart);
+const loader=source.slice(loaderStart,loaderEnd);
+assert.match(loader,/sort\(\(a,b\)=>Number\(b\[1\]\.openedAt\)/);
+assert.match(loader,/\.slice\(0,12\)/);
+assert.match(loader,/backdropCheckedAt/);
+assert.match(loader,/https:\/\/api\.tvmaze\.com\/shows\//);
+assert.match(loader,/new Promise\(resolve=>setTimeout\(resolve,850\)\)/);
+assert.match(source,/loadPosters\(manual\)\.then\(loadResumeBackdrops\)/);
+assert.match(source,/root\.addEventListener\('error'/);
+assert.match(source,/if\(page==='home'\)loadResumeBackdrops\(\)/);
+console.log('PASS TV v0.17 landscape selection, cache wiring and static ambient background');
 
 console.log('PASS TV v0.17 UI: badge provenance, progress bars, no homepage clock, unchanged sections, low-cost render');
