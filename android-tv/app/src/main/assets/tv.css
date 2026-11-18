@@ -700,3 +700,76 @@ body{
  position:relative;
  z-index:1;
 }
+
+
+/* UВидео TV v0.18 — KION feedback.
+   My Series is deliberately more compact; Continue Watching is unchanged. */
+.tv-home .rail-my-series .poster-grid{
+ grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+ column-gap:clamp(10px,1vw,16px);
+ row-gap:16px;
+}
+.tv-home .rail-my-series .poster-grid .poster-card{
+ width:100%;min-width:0;max-width:none;
+}
+.tv-home .rail-my-series .poster-name{
+ font-size:clamp(14px,1.05vw,18px);
+ left:10px;right:9px;bottom:10px;
+}
+.tv-home .rail-my-series .new-episode-badge{
+ font-size:12px;padding:5px 7px;right:7px;top:7px;
+}
+/* The status label always exists in JavaScript, but an old <=1200px
+   media query hid it on Android TV WebView. Restore it responsively. */
+.topbar .net-status{
+ display:block;
+ color:#9dbad1;
+ font-size:clamp(11px,1.05vw,14px);
+ line-height:1.2;
+ text-align:right;
+ white-space:normal;
+ max-width:160px;
+}
+/* Televisions can report a CSS viewport smaller than their panel pixels. */
+@media(min-width:801px) and (max-width:1200px){
+ .topbar{
+  display:grid;
+  grid-template-columns:minmax(125px,1fr) auto minmax(116px,1fr);
+  align-items:center;
+  column-gap:8px;
+  padding:13px clamp(18px,2.5vw,30px);
+ }
+ .topbar .brand{justify-self:start}
+ .topbar nav{
+  justify-self:center;justify-content:center;
+  width:auto;min-width:0;flex:none;gap:0;
+ }
+ .topbar nav button{
+  font-size:clamp(14px,1.45vw,18px);
+  padding:9px clamp(7px,0.95vw,12px);
+ }
+ .topbar .net-status{
+  display:block;justify-self:end;
+  max-width:145px;font-size:12px;
+ }
+ .tv-home .rail-my-series .poster-grid{
+  grid-template-columns:repeat(auto-fill,minmax(127px,1fr));
+ }
+}
+@media(max-width:800px){
+ .topbar .brand{order:0}
+ .topbar .net-status{
+  order:1;display:block;
+  margin-left:auto;align-self:center;
+  font-size:12px;max-width:42%;
+ }
+ .topbar nav{order:2}
+ .tv-home .rail-my-series .poster-grid{
+  grid-template-columns:repeat(auto-fill,minmax(125px,1fr));
+ }
+}
+@media(max-width:490px){
+ .tv-home .rail-my-series .poster-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
