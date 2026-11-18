@@ -162,15 +162,18 @@ const rail=(title,xs,action)=>xs.length?
    xs.map(x=>action==='continue'?resumeCard(x):card(x)).join('')+
    '</div></section>':'';
 function home(){
+ // Keep the TV home personal: Continue Watching and one My Series rail.
+ // Genre rails can be user-configured in settings in a future release.
  const data=latest();
- const history=Object.entries(S.progress).filter(([key,p])=>p&&Number(p.openedAt)>0&&item(key))
+ const selected=new Set(data.map(x=>x.key));
+ const history=Object.entries(S.progress).filter(([key,p])=>p&&Number(p.openedAt)>0&&selected.has(key))
    .sort((a,b)=>Number(b[1].openedAt)-Number(a[1].openedAt))
    .slice(0,12).map(([key])=>item(key));
  return '<div class="tv-home">'+rail('▶ Продолжить просмотр',history,'continue')+
-   rail('Мои сериалы',data)+
-   rail('Фантастика и фэнтези',data.filter(x=>x.genres.some(g=>['scifi','fantasy','super'].includes(g))))+
-   rail('Криминал и триллеры',data.filter(x=>x.genres.some(g=>['crime','thriller'].includes(g))))+
-   rail('Драмы и комедии',data.filter(x=>x.genres.some(g=>['drama','comedy'].includes(g))))+'</div>';
+   (data.length?rail('Мои сериалы',data):
+     '<section class="rail rail-posters"><h2>Мои сериалы</h2>'+
+     '<p class="empty">Здесь появятся сериалы, которые ты добавишь из раздела «Новинки» или поиска.</p></section>')+
+   '</div>';
 }
 function dateRu(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return value||'';
