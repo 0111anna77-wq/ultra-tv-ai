@@ -781,3 +781,56 @@ body{
   grid-template-columns:repeat(2,minmax(0,1fr));
  }
 }
+
+
+/* TV v0.18: keep network refresh state visible on the KION set-top box.
+   Make My Series truly compact; Continue Watching remains unchanged. */
+.tv-home .rail-my-series .poster-grid {
+ grid-template-columns:repeat(auto-fill, minmax(123px, 145px));
+ justify-content:start;
+ column-gap:13px;
+ row-gap:14px;
+}
+.tv-home .rail-my-series .poster-grid .poster-card { width:100%;max-width:145px }
+.tv-home .rail-my-series .poster-grid .poster-name {
+ font-size:clamp(13px,1vw,16px);left:9px;right:8px;bottom:10px;
+}
+.tv-home .rail-my-series .poster-grid .new-episode-badge {
+ font-size:12px;line-height:1.2;padding:5px 7px;top:7px;right:7px;
+}
+.topbar .net-status {
+ display:block!important;
+ visibility:visible!important;
+ color:#aac6db;font-size:clamp(11px,.83vw,14px);
+ line-height:1.25;text-align:right;
+ max-width:154px;white-space:normal;
+}
+@media(max-width:1200px){
+ .topbar {
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:13px 23px;
+ }
+ .topbar .brand{justify-self:start;width:auto}
+ .topbar nav{width:auto;min-width:0;justify-self:center;justify-content:center;gap:0}
+ .topbar nav button{font-size:clamp(13px,1.5vw,18px);padding:10px clamp(5px,.78vw,12px)}
+ .topbar .net-status{justify-self:end;font-size:clamp(10px,1.04vw,13px)}
+}
+@media(max-width:850px){
+ .topbar {
+  grid-template-columns:auto minmax(0,1fr);
+  grid-template-rows:auto auto;
+  row-gap:6px;padding:11px 17px;
+ }
+ .topbar .brand{grid-column:1;grid-row:1}
+ .topbar .net-status{grid-column:2;grid-row:1}
+ .topbar nav{grid-column:1 / -1;grid-row:2;justify-self:stretch;width:100%;overflow-x:auto}
+ .topbar nav button{font-size:clamp(12px,2vw,17px);padding:8px 10px}
+ .tv-home .rail-my-series .poster-grid{grid-template-columns:repeat(auto-fill,minmax(110px,137px));gap:11px}
+ .tv-home .rail-my-series .poster-grid .poster-card{max-width:137px}
+}
+@media(max-width:490px) {
+ .tv-home .rail-my-series .poster-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
