@@ -716,6 +716,18 @@ function buildFocusRows(){
     episodeRows.forEach((row,i)=>add('player:episode:'+i,row.buttons));
   }
 }
+function nearestHorizontalFocus(from,items){
+  if(!items?.length)return null;
+  const origin=from.getBoundingClientRect();
+  const centerX=(origin.left+origin.right)/2;
+  let choice=null,smallest=Infinity;
+  for(const candidate of items){
+    const bounds=candidate.getBoundingClientRect();
+    const distance=Math.abs((bounds.left+bounds.right)/2-centerX);
+    if(distance<smallest){choice=candidate;smallest=distance;}
+  }
+  return choice;
+}
 function moveFocus(from,key){
   const slot=focusSlots.get(from);
   if(!slot)return false;
@@ -726,12 +738,34 @@ function moveFocus(from,key){
   if(horizontal){
     const idx=slot.index+(key==='ArrowRight'?1:-1);
     const row=focusRows[rowIndex];
-    // End-of-rail means stop, not an unexpected jump to topbar/menu.
+    // Do not jump to another rail when reaching the end of a horizontal row.
     if(idx>=0&&idx<row.items.length)target=row.items[idx];
   }else{
-    const nextRow=rowIndex+(key==='ArrowDown'?1:-1);
-    const destination=focusRows[nextRow];
-    if(destination){
+    const up=key==='ArrowUp';
+    let destination=focusRows[rowIndex+(up?-1:1)];
+    const findRow=id=>focusRows.find(r=>r.id===id);
+    if(S.page==='home'&&slot.rowId.startsWith('home:')){
+      // The sort button is visually above the poster grid, not an
+      // intermediate stop between Continue Watching and My Series.
+      if(!up&&destination?.id==='home:sort'){
+        destination=findRow('home:grid:0')||destination;
+      }else if(up&&slot.rowId==='home:grid:0'&&destination?.id==='home:sort'){
+        const sort=destination.items[0];
+        const a=from.getBoundingClientRect();
+        const b=sort?.getBoundingClientRect();
+        // Deliberate access: Up from a poster directly below the button.
+        // Other columns go back to Continue Watching instead of
+        // making a full-screen diagonal jump to the sort control.
+        if(b&&Math.min(a.right,b.right)>Math.max(a.left,b.left)){
+          target=sort;
+        }else{
+          destination=findRow('home:rail:0');
+        }
+      }else if(slot.rowId==='home:sort'){
+        destination=findRow(up?'home:rail:0':'home:grid:0')||destination;
+      }
+      if(!target&&destination)target=nearestHorizontalFocus(from,destination.items);
+    }else if(destination){
       if(destination.id==='nav'){
         target=document.querySelector('#nav .nav-active')||destination.items[0];
       }else{
