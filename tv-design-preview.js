@@ -12,7 +12,7 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   page:'home',show:null,season:1,episode:1,source:0,search:'',loading:false,
   cursor:false,cx:.5,cy:.5,cursorFocus:null,
   added:store('tv-manual-added',[]),discover:store('tv-discover-cache',[]),
-  sourceChoice:store('tv-source-choice',{}),optionsOpen:false,directWatch:false,
+  sourceChoice:store('tv-source-choice',{}),seriesSort:store('tv-series-sort','episodes'),optionsOpen:false,directWatch:false,
   scheduleLoading:false,scheduleDone:0,scheduleMode:'mine',
   progress:store('tv-progress-v1',{}),progressDraft:{},
   ruSummaries:store('tv-summary-ru-cache',{}),initemLastWrite:0,initemAdPlaying:false};
@@ -161,19 +161,56 @@ const rail=(title,xs,action)=>xs.length?
    (action==='continue'?' resume-strip':' poster-strip')+'">'+
    xs.map(x=>action==='continue'?resumeCard(x):card(x)).join('')+
    '</div></section>':'';
+const seriesSortModes=[
+ {id:'episodes',text:'Новые серии'},
+ {id:'recent',text:'Смотрел недавно'},
+ {id:'newest',text:'Новые сериалы'}
+];
+function sortMySeries(data,mode=S.seriesSort){
+ const releaseDate=new Map();
+ if(mode==='episodes'){
+  const names=new Map();
+  for(const x of data){
+   if(x.en)names.set(norm(x.en),x.key);
+   if(x.ru)names.set(norm(x.ru),x.key);
+  }
+  for(const e of S.releases||[]){
+   const key=names.get(norm(e.seriesEn))||names.get(norm(e.seriesRu));
+   if(!key)continue;
+   const t=Date.parse(e.published||'');
+   if(Number.isFinite(t)&&t>Date.now()-365*86400000&&t<=Date.now()){
+    releaseDate.set(key,Math.max(releaseDate.get(key)||0,t));
+   }
+  }
+ }
+ const ranked=data.map((x,i)=>{
+   const rank=mode==='recent'?Number(getProgress(x.key)?.openedAt)||0:
+     mode==='newest'?Number(x.year)||0:releaseDate.get(x.key)||0;
+   return {x,i,rank};
+ });
+ return ranked.sort((a,b)=>b.rank-a.rank||a.i-b.i).map(v=>v.x);
+}
+function mySeriesRail(data){
+ const active=seriesSortModes.find(x=>x.id===S.seriesSort)||seriesSortModes[0];
+ const header='<div class="my-series-heading"><h2>Мои сериалы</h2>'+
+  '<button class="sort-cycle" data-act="sort-cycle" data-focus="my-series-sort"'+
+  ' title="Порядок: '+esc(active.text)+'. Нажмите для переключения"'+
+  ' aria-label="Сортировать мои сериалы: '+esc(active.text)+'. Нажмите для переключения">'+
+  '<span aria-hidden="true">⇅</span><span>'+esc(active.text)+'</span></button></div>';
+ return '<section class="rail rail-posters rail-my-series">'+header+
+  (data.length?'<div class="strip poster-strip">'+sortMySeries(data).map(card).join('')+'</div>':
+   '<p class="empty">Здесь появятся сериалы, которые ты добавишь из раздела «Новинки» или поиска.</p>')+
+  '</section>';
+}
 function home(){
- // Keep the TV home personal: Continue Watching and one My Series rail.
- // Genre rails can be user-configured in settings in a future release.
+ // Keep the TV home personal: only playback progress and one chosen-series rail.
  const data=latest();
  const selected=new Set(data.map(x=>x.key));
  const history=Object.entries(S.progress).filter(([key,p])=>p&&Number(p.openedAt)>0&&selected.has(key))
    .sort((a,b)=>Number(b[1].openedAt)-Number(a[1].openedAt))
    .slice(0,12).map(([key])=>item(key));
  return '<div class="tv-home">'+rail('▶ Продолжить просмотр',history,'continue')+
-   (data.length?rail('Мои сериалы',data):
-     '<section class="rail rail-posters"><h2>Мои сериалы</h2>'+
-     '<p class="empty">Здесь появятся сериалы, которые ты добавишь из раздела «Новинки» или поиска.</p></section>')+
-   '</div>';
+   mySeriesRail(data)+'</div>';
 }
 function dateRu(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return value||'';
@@ -592,6 +629,7 @@ function buildFocusRows(){
   add('nav',[...document.querySelectorAll('#nav button')]);
   if(S.page==='home'){
     [...root.querySelectorAll('.rail')].forEach((rail,i)=>{
+      if(rail.classList.contains('rail-my-series'))add('home:sort',rail.querySelectorAll('.sort-cycle'));
       add('home:rail:'+i,rail.querySelectorAll('.strip .card'));
     });
   }else if(S.page==='catalog'){
@@ -682,6 +720,14 @@ document.addEventListener('click',e=>{
  const b=e.target.closest('[data-nav],[data-act]');if(!b)return;
  if(b.dataset.nav){navigate(b.dataset.nav);return;}
  const act=b.dataset.act,key=b.dataset.key||S.show;
+ if(act==='sort-cycle'){
+   const index=seriesSortModes.findIndex(x=>x.id===S.seriesSort);
+   S.seriesSort=seriesSortModes[(index+1)%seriesSortModes.length].id;
+   save('tv-series-sort',S.seriesSort);
+   focusKey='my-series-sort';render();
+   document.querySelector('[data-focus="my-series-sort"]')?.focus({preventScroll:true});
+   return;
+ }
  if(act==='detail')openShow(key);
  if(act==='continue')watch(key);
  if(act==='play')watch(key);
