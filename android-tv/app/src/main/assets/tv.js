@@ -34,6 +34,27 @@ root.addEventListener('error',event=>{
 },true);
 let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
+const lastContentFocus=new Map();
+let resumeWheelKey=null;
+function updateResumeWheel(animate=false){
+ if(S.page!=='home')return;
+ const strip=root.querySelector('.resume-strip');
+ if(!strip)return;
+ const cards=[...strip.querySelectorAll('.resume-card')];
+ if(!cards.length)return;
+ let index=cards.findIndex(x=>x.dataset.key===resumeWheelKey);
+ if(index<0)index=0;
+ const selected=cards[index];resumeWheelKey=selected.dataset.key;
+ for(const card of cards)card.classList.toggle('wheel-current',card===selected);
+ // offsetLeft uses strip as the positioned container. Allow half-card side
+ // gutters to center first and last shows without fake/duplicated titles.
+ const target=Math.max(0,selected.offsetLeft+selected.offsetWidth/2-strip.clientWidth/2);
+ if(animate&&typeof strip.scrollTo==='function'){
+   try{strip.scrollTo({left:target,behavior:'smooth'})}
+   catch(e){strip.scrollLeft=target}
+ }else strip.scrollLeft=target;
+}
+
 const items=()=>{
  const byKey=new Map();
  for(const x of [...S.shows,...S.added])if(x&&x.key&&x.ru)byKey.set(x.key,x);
@@ -125,7 +146,7 @@ function navigate(page,key){
   focusKey=null;focusMemory.clear(); render();
   window.scrollTo(0,0);
   const selector=page==='player'?'[data-act="cursor"]':page==='detail'?'[data-act="play"]':
-    page==='search'?'[data-focus="search-field"]':'#nav .nav-active';
+    '#nav .nav-active';
   const first=$(selector)||$('#content button');
   if(first)first.focus({preventScroll:true});
   if(page==='catalog')setTimeout(loadSchedule,80);
@@ -187,10 +208,12 @@ const resumeCard=x=>{
    '</span></button>';
 };
 const rail=(title,xs,action)=>xs.length?
- '<section class="rail'+(action==='continue'?' rail-resume':' rail-posters')+'"><h2>'+esc(title)+'</h2><div class="strip'+
-   (action==='continue'?' resume-strip':' poster-strip')+'">'+
-   xs.map(x=>action==='continue'?resumeCard(x):card(x)).join('')+
-   '</div></section>':'';
+ '<section class="rail'+(action==='continue'?' rail-resume':' rail-posters')+'"'+
+ (action==='continue'?' aria-label="'+esc(title)+'"':'')+'>'+
+ (action==='continue'?'':'<h2>'+esc(title)+'</h2>')+
+ '<div class="strip'+(action==='continue'?' resume-strip wheel-strip':' poster-strip')+'">'+
+ xs.map(x=>action==='continue'?resumeCard(x):card(x)).join('')+
+ '</div></section>':'';
 const seriesSortModes=[
  {id:'episodes',text:'Новые серии'},
  {id:'recent',text:'Смотрел недавно'},
@@ -308,8 +331,9 @@ function newShows(){
 }
 function searchUI(){
  return '<h1 class="section-title">Поиск по каталогу</h1><p class="hint">Выдели строку стрелками, нажми OK — только тогда откроется клавиатура.</p>'+
+ '<div class="search-shell"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.7" cy="10.7" r="6.5"/><path d="m16 16 5 5"/></svg>'+
  '<input id="tv-search" class="field" data-focus="search-field" type="text" readonly autocomplete="off"'+
- ' placeholder="Название сериала…" value="'+esc(S.search)+'">'+
+ ' placeholder="Название сериала…" value="'+esc(S.search)+'"></div>'+
  '<div class="search-results cards-grid" id="search-results">'+searchMatches()+'</div>';
 }
 function searchMatches(){
@@ -451,6 +475,7 @@ function render(){
  const prev=focusKey;
  root.innerHTML=html;
  buildFocusRows();
+ if(S.page==='home')updateResumeWheel(false);
  let target=null;
  if(oldSlot){
    const row=focusRows.find(r=>r.id===oldSlot.rowId);
@@ -740,64 +765,89 @@ function nearestFocusY(from,items){
   }
   return result;
 }
+function currentNavButton(){
+  const section=S.page==='detail'||S.page==='player'?'catalog':S.page;
+  return document.querySelector('#nav button[data-nav="'+section+'"]')||
+    document.querySelector('#nav button.nav-active');
+}
+function focusRowFirstContent(){
+  return focusRows.find(row=>row.id!=='nav');
+}
 function moveFocus(from,key){
   const slot=focusSlots.get(from);
   if(!slot)return false;
   const rowIndex=focusRows.findIndex(r=>r.id===slot.rowId);
   if(rowIndex<0)return false;
-  const row=focusRows[rowIndex],isNav=slot.rowId==='nav';
+  const row=focusRows[rowIndex];
   const findRow=id=>focusRows.find(r=>r.id===id);
-  let target=null;
+  const isNav=slot.rowId==='nav';
+  let target=null,goTop=false;
   if(isNav){
-    // Sidebar is VERTICAL. Up/Down never enter the content.
     if(key==='ArrowUp'||key==='ArrowDown'){
-      const next=slot.index+(key==='ArrowDown'?1:-1);
-      target=row.items[next]||null;
+      const index=slot.index+(key==='ArrowDown'?1:-1);
+      target=row.items[index]||null;
     }else if(key==='ArrowRight'){
-      const contentRows=focusRows.filter(r=>r.id!=='nav');
-      if(contentRows.length){
-        // Default to the first content rail on Home; use last focus when possible.
-        const chosen=contentRows.find(r=>r.id==='home:rail:0')||contentRows[0];
-        const remembered=focusMemory.get(chosen.id);
-        target=chosen.items[Math.min(remembered??0,chosen.items.length-1)]||null;
+      if(S.page==='home'){
+        const strip=findRow('home:rail:0');
+        target=strip?.items.find(x=>x.dataset.key===resumeWheelKey)||strip?.items[0]||null;
+      }
+      const remembered=target?null:lastContentFocus.get(S.page);
+      if(remembered){
+        const candidate=[...root.querySelectorAll('[data-focus]')]
+          .find(e=>e.dataset.focus===remembered);
+        if(candidate&&focusSlots.has(candidate))target=candidate;
+      }
+      if(!target){
+        const first=findRow('home:rail:0')||focusRowFirstContent();
+        if(first)target=first.items[0]||null;
       }
     }
   }else if(key==='ArrowLeft'||key==='ArrowRight'){
-    const next=slot.index+(key==='ArrowRight'?1:-1);
-    if(next>=0&&next<row.items.length){
-      target=row.items[next];
-    }else if(key==='ArrowLeft'&&slot.index===0){
-      // The only route into the sidebar: Left at the first card/control.
-      target=nearestFocusY(from,findRow('nav')?.items);
+    const idx=slot.index+(key==='ArrowRight'?1:-1);
+    if(idx>=0&&idx<row.items.length)target=row.items[idx];
+    else if(key==='ArrowLeft'&&slot.index===0&&slot.rowId!=='home:rail:0'){
+      target=currentNavButton();
+      if(target&&from.dataset.focus)lastContentFocus.set(S.page,from.dataset.focus);
     }
   }else{
     const up=key==='ArrowUp';
-    let next=focusRows[rowIndex+(up?-1:1)];
+    let destination=focusRows[rowIndex+(up?-1:1)];
     if(S.page==='home'){
-      if(!up&&next?.id==='home:sort'){
-        // From Continue Watching go straight to posters, skipping sort.
-        next=findRow('home:grid:0')||next;
-      }else if(up&&slot.rowId==='home:grid:0'&&next?.id==='home:sort'){
-        const sort=next.items[0];
+      if(up&&slot.rowId==='home:rail:0'){
+        target=currentNavButton();
+      }else if(!up&&destination?.id==='home:sort'){
+        destination=findRow('home:grid:0')||destination;
+      }else if(up&&slot.rowId==='home:grid:0'&&destination?.id==='home:sort'){
+        const sort=destination.items[0];
         const a=from.getBoundingClientRect(),b=sort?.getBoundingClientRect();
-        // Sort can only be reached from a tile physically underneath it.
         if(b&&Math.min(a.right,b.right)>Math.max(a.left,b.left)){
           target=sort;
         }else{
-          next=findRow('home:rail:0');
+          destination=findRow('home:rail:0')||null;
         }
       }
-      if(up&&slot.rowId==='home:rail:0')next=null;
     }
-    if(!target&&next&&next.id!=='nav'){
-      target=nearestFocusX(from,next.items);
+    if(!target&&destination&&destination.id!=='nav'){
+      target=nearestFocusX(from,destination.items);
+      if(up&&destination.id===focusRowFirstContent()?.id)goTop=true;
+    }else if(!target&&up){
+      window.scrollTo(0,0);
+      return true;
     }
   }
   if(!target)return false;
   focusMemory.set(slot.rowId,slot.index);
-  const nextSlot=focusSlots.get(target);
-  if(nextSlot)focusMemory.set(nextSlot.rowId,nextSlot.index);
+  const next=focusSlots.get(target);
+  if(next)focusMemory.set(next.rowId,next.index);
+  if(next&&next.rowId==='nav'&&!isNav&&from.dataset.focus){
+    lastContentFocus.set(S.page,from.dataset.focus);
+  }
+  if(target.classList.contains('resume-card')){
+    resumeWheelKey=target.dataset.key;
+    updateResumeWheel(true);
+  }
   target.focus({preventScroll:true});
+  if(goTop){window.scrollTo(0,0);return true;}
   bringFocusedIntoView(target);
   return true;
 }
@@ -812,8 +862,7 @@ function bringFocusedIntoView(el){
     else if(a.right>b.right-10)strip.scrollLeft+=a.right-b.right+18;
   }
   const r=el.getBoundingClientRect();
-  const nav=document.querySelector('.topbar');
-  const safeTop=Math.max(16,nav?.getBoundingClientRect().bottom||0)+20;
+  const safeTop=36;
   const safeBottom=window.innerHeight-38;
   if(r.top<safeTop)window.scrollBy(0,r.top-safeTop);
   else if(r.bottom>safeBottom)window.scrollBy(0,r.bottom-safeBottom);
@@ -823,6 +872,10 @@ document.addEventListener('focusin',e=>{
   if(el?.dataset?.focus)focusKey=el.dataset.focus;
   const slot=focusSlots.get(el);
   if(slot)focusMemory.set(slot.rowId,slot.index);
+  if(el?.classList?.contains('resume-card')&&S.page==='home'&&resumeWheelKey!==el.dataset.key){
+    resumeWheelKey=el.dataset.key;
+    updateResumeWheel(false);
+  }
 },true);
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-nav],[data-act]');if(!b)return;
@@ -1120,6 +1173,9 @@ async function loadSchedule(){
  S.scheduleLoading=false;
  if(S.page==='catalog')render();
 }
+window.addEventListener('resize',()=>{
+ if(S.page==='home')updateResumeWheel(false);
+});
 window.UltraTVRemote={back:goBack,releaseCursor:stopCursor};
 render();refresh(false);
 setInterval(()=>{if(!document.hidden)refresh(false)},30*60*1000);

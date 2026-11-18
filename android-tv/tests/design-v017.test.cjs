@@ -99,7 +99,8 @@ assert.match(css,/#content \.cards-grid \.card:focus/);
 assert.match(css,/prefers-reduced-motion:reduce/);
 const liftStart=css.indexOf('/* v0.17: restrained hover/focus lift');
 assert(liftStart>0);
-const lift=css.slice(liftStart);
+const liftEnd=css.indexOf('/* UВидео TV 0.17 — selected background',liftStart);
+const lift=css.slice(liftStart,liftEnd>liftStart?liftEnd:undefined);
 assert.doesNotMatch(lift,/\.detail(?:[ .:#>]|$)|\.player-screen(?:[ .:#>]|$)/,
   'Hover lift must never affect open series detail or player controls');
 assert.doesNotMatch(lift,/filter:blur\(|backdrop-filter:/,

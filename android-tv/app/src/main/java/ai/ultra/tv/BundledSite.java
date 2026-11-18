@@ -38,6 +38,7 @@ final class BundledSite {
             case "/tv.css": asset = "tv.css"; mime = "text/css"; break;
             case "/uvideo-tv-logo.png": asset = "uvideo-tv-logo.png"; mime = "image/png"; break;
             case "/tv-bg-space-v017.jpg": asset = "uvideo-tv-space-bg.jpg"; mime = "image/jpeg"; break;
+            case "/tv-bg-graphite-v020.jpg": asset = "tv-bg-graphite-v020.jpg"; mime = "image/jpeg"; break;
             case "/tv-catalog.json": asset = "site/tv-catalog.json"; mime = "application/json"; break;
             case "/tv-discover.json": asset = "site/tv-discover.json"; mime = "application/json"; break;
             case "/tv-summaries-ru.json": asset = "site/tv-summaries-ru.json"; mime = "application/json"; break;
