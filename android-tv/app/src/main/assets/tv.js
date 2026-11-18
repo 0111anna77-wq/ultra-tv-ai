@@ -716,30 +716,81 @@ function buildFocusRows(){
     episodeRows.forEach((row,i)=>add('player:episode:'+i,row.buttons));
   }
 }
+function nearestFocusX(from,items){
+  if(!items?.length)return null;
+  const box=from.getBoundingClientRect();
+  const center=(box.left+box.right)/2;
+  let result=null,score=Infinity;
+  for(const el of items){
+    const r=el.getBoundingClientRect();
+    const distance=Math.abs((r.left+r.right)/2-center);
+    if(distance<score){result=el;score=distance;}
+  }
+  return result;
+}
+function nearestFocusY(from,items){
+  if(!items?.length)return null;
+  const box=from.getBoundingClientRect();
+  const center=(box.top+box.bottom)/2;
+  let result=null,score=Infinity;
+  for(const el of items){
+    const r=el.getBoundingClientRect();
+    const distance=Math.abs((r.top+r.bottom)/2-center);
+    if(distance<score){result=el;score=distance;}
+  }
+  return result;
+}
 function moveFocus(from,key){
   const slot=focusSlots.get(from);
   if(!slot)return false;
   const rowIndex=focusRows.findIndex(r=>r.id===slot.rowId);
   if(rowIndex<0)return false;
-  const horizontal=key==='ArrowLeft'||key==='ArrowRight';
+  const row=focusRows[rowIndex],isNav=slot.rowId==='nav';
+  const findRow=id=>focusRows.find(r=>r.id===id);
   let target=null;
-  if(horizontal){
-    const idx=slot.index+(key==='ArrowRight'?1:-1);
-    const row=focusRows[rowIndex];
-    // End-of-rail means stop, not an unexpected jump to topbar/menu.
-    if(idx>=0&&idx<row.items.length)target=row.items[idx];
-  }else{
-    const nextRow=rowIndex+(key==='ArrowDown'?1:-1);
-    const destination=focusRows[nextRow];
-    if(destination){
-      if(destination.id==='nav'){
-        target=document.querySelector('#nav .nav-active')||destination.items[0];
-      }else{
-        const remembered=focusMemory.get(destination.id);
-        let desired=remembered==null?slot.index:remembered;
-        if(slot.rowId==='nav'&&remembered==null)desired=0;
-        target=destination.items[Math.min(desired,destination.items.length-1)];
+  if(isNav){
+    // Sidebar is VERTICAL. Up/Down never enter the content.
+    if(key==='ArrowUp'||key==='ArrowDown'){
+      const next=slot.index+(key==='ArrowDown'?1:-1);
+      target=row.items[next]||null;
+    }else if(key==='ArrowRight'){
+      const contentRows=focusRows.filter(r=>r.id!=='nav');
+      if(contentRows.length){
+        // Default to the first content rail on Home; use last focus when possible.
+        const chosen=contentRows.find(r=>r.id==='home:rail:0')||contentRows[0];
+        const remembered=focusMemory.get(chosen.id);
+        target=chosen.items[Math.min(remembered??0,chosen.items.length-1)]||null;
       }
+    }
+  }else if(key==='ArrowLeft'||key==='ArrowRight'){
+    const next=slot.index+(key==='ArrowRight'?1:-1);
+    if(next>=0&&next<row.items.length){
+      target=row.items[next];
+    }else if(key==='ArrowLeft'&&slot.index===0){
+      // The only route into the sidebar: Left at the first card/control.
+      target=nearestFocusY(from,findRow('nav')?.items);
+    }
+  }else{
+    const up=key==='ArrowUp';
+    let next=focusRows[rowIndex+(up?-1:1)];
+    if(S.page==='home'){
+      if(!up&&next?.id==='home:sort'){
+        // From Continue Watching go straight to posters, skipping sort.
+        next=findRow('home:grid:0')||next;
+      }else if(up&&slot.rowId==='home:grid:0'&&next?.id==='home:sort'){
+        const sort=next.items[0];
+        const a=from.getBoundingClientRect(),b=sort?.getBoundingClientRect();
+        // Sort can only be reached from a tile physically underneath it.
+        if(b&&Math.min(a.right,b.right)>Math.max(a.left,b.left)){
+          target=sort;
+        }else{
+          next=findRow('home:rail:0');
+        }
+      }
+      if(up&&slot.rowId==='home:rail:0')next=null;
+    }
+    if(!target&&next&&next.id!=='nav'){
+      target=nearestFocusX(from,next.items);
     }
   }
   if(!target)return false;
@@ -751,14 +802,13 @@ function moveFocus(from,key){
   return true;
 }
 function bringFocusedIntoView(el){
-  if(el.closest('#nav')){
-    if(window.scrollY>0)window.scrollTo(0,0);
-    return;
-  }
+  if(el.closest('#nav'))return;
   const strip=el.closest('.strip');
   if(strip&&!strip.classList.contains('poster-grid')){
     const a=el.getBoundingClientRect(),b=strip.getBoundingClientRect();
-    if(a.left<b.left+10)strip.scrollLeft+=a.left-b.left-18;
+    const sidebarRight=document.querySelector('.tv-sidebar')?.getBoundingClientRect().right||0;
+    const safeLeft=Math.max(b.left+10,sidebarRight+20);
+    if(a.left<safeLeft)strip.scrollLeft+=a.left-safeLeft-12;
     else if(a.right>b.right-10)strip.scrollLeft+=a.right-b.right+18;
   }
   const r=el.getBoundingClientRect();

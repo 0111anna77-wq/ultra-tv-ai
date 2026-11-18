@@ -773,3 +773,77 @@ body{
   grid-template-columns:repeat(2,minmax(0,1fr));
  }
 }
+
+/* v0.19: fixed icon-only navigation; no animation, blur or layout reflow. */
+:root{
+ --tv-sidebar-width:clamp(66px,6.8vw,90px);
+ --tv-left-space:clamp(25px,3.4vw,54px);
+ --tv-right-space:clamp(19px,3.2vw,50px);
+}
+.tv-sidebar{
+ position:fixed;inset:0 auto 0 0;z-index:50;
+ width:var(--tv-sidebar-width);
+ display:flex;flex-direction:column;align-items:center;
+ background:linear-gradient(90deg,rgba(6,13,26,.82),rgba(7,16,31,.61));
+ border-right:1px solid rgba(157,198,229,.12);
+ /* Avoid costly full-screen blur on Android TV GPUs. */
+}
+.tv-sidebar-logo{
+ margin:clamp(17px,2.4vw,33px) auto 30px;
+ width:clamp(41px,4.6vw,61px);height:clamp(41px,4.6vw,61px);
+}
+.tv-sidebar-logo img{display:block;width:100%;height:100%;object-fit:contain}
+#nav{
+ width:100%;display:flex;flex-direction:column;align-items:center;
+ flex:none;gap:clamp(12px,1.8vh,23px);
+}
+#nav button{
+ appearance:none;display:grid;place-items:center;flex:none;
+ width:clamp(48px,4.8vw,67px);height:clamp(47px,4.9vw,65px);
+ margin:0;padding:0;border:1px solid transparent;border-radius:14px;
+ background:transparent;color:#c0cddd;box-shadow:none;
+}
+#nav button svg{
+ width:clamp(26px,2.7vw,34px);height:clamp(26px,2.7vw,34px);
+ display:block;pointer-events:none;
+}
+#nav button.nav-active{background:rgba(35,85,128,.27);color:#fff;border-color:rgba(96,185,238,.22)}
+#nav button:focus,#nav button:focus-visible{
+ background:rgba(33,111,186,.52);
+ border:2px solid #48c5ff;outline:0!important;
+ box-shadow:0 0 0 2px #0b2440,0 0 17px rgba(38,150,236,.35)!important;
+}
+#network.net-status{
+ position:fixed;z-index:19;top:13px;right:var(--tv-right-space);
+ pointer-events:none;max-width:200px;
+ color:#9ec5da;font-size:clamp(12px,1vw,14px);
+ text-align:right;
+}
+main#content{
+ box-sizing:border-box;
+ margin-left:var(--tv-sidebar-width);
+ padding:clamp(44px,4.6vw,63px) var(--tv-right-space) 100px var(--tv-left-space);
+ min-width:0;
+}
+.tv-home .rail:not(.rail-my-series)>.strip{
+ /* The viewport bleeds to the TV edges: cards initially align with the
+    grid, but when scrolled they travel BEHIND the translucent sidebar. */
+ width:calc(100% + var(--tv-sidebar-width) + var(--tv-left-space) + var(--tv-right-space));
+ max-width:none;
+ margin-left:calc(-1 * (var(--tv-sidebar-width) + var(--tv-left-space)));
+ margin-right:calc(-1 * var(--tv-right-space));
+ padding-left:calc(var(--tv-sidebar-width) + var(--tv-left-space));
+ padding-right:0;
+ scroll-padding-left:calc(var(--tv-sidebar-width) + var(--tv-left-space));
+ overflow-x:auto;overflow-y:hidden;
+}
+.tv-home .rail-my-series .poster-grid{
+ /* Grid never bleeds: retain its own regular right/left gutter. */
+ width:100%;max-width:100%;overflow:visible;
+}
+@media(max-width:800px){
+ :root{--tv-sidebar-width:64px;--tv-left-space:23px;--tv-right-space:17px}
+ #nav button{width:51px;height:52px}
+ #network.net-status{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){#nav button{transition:none!important}}

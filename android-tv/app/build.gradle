@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 18
-        versionName '0.18-tv-layout-fix'
+        versionCode 19
+        versionName '0.19-tv-sidebar-focus'
     }
     buildTypes {
         release { minifyEnabled false }

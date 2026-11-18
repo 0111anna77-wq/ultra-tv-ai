@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#0a1019">
 <title>UВидео TV</title>
-<link rel="stylesheet" href="/tv.css?v=18">
+<link rel="stylesheet" href="/tv.css?v=19">
 </head>
 <body>
 <div id="app">
   <div class="tv-shell">
-    <header class="topbar">
-      <div class="brand"><img class="brand-logo" src="/uvideo-tv-logo.png" alt=""><span class="brand-wordmark">Видео <b>TV</b></span></div>
-      <nav id="nav" aria-label="Разделы">
-        <button data-nav="home" class="nav-active">Главная</button>
-        <button data-nav="catalog">Сериалы</button>
-        <button data-nav="new">Новинки</button>
-        <button data-nav="search">Поиск</button>
-        <button data-nav="settings">Настройки</button>
-      </nav>
-      <div id="network" class="net-status" role="status" aria-live="polite">● Каталог</div>
-    </header>
+<aside class="tv-sidebar" aria-label="Навигация Ultra TV">
+  <div class="tv-sidebar-logo"><img src="/uvideo-tv-logo.png" alt="U" /></div>
+  <nav id="nav" aria-label="Разделы">
+    <button data-nav="home" aria-label="Главная" title="Главная" class="nav-active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></button>
+    <button data-nav="catalog" aria-label="Сериалы" title="Сериалы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="15" height="14" rx="2"/><path d="M7 9h7M7 13h7M18 8h3v12a1 1 0 0 1-1 1H8"/></svg></button>
+    <button data-nav="new" aria-label="Новинки" title="Новинки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 2.25 7.75L22 12l-7.75 2.25L12 22l-2.25-7.75L2 12l7.75-2.25L12 2Z"/></svg></button>
+    <button data-nav="search" aria-label="Поиск" title="Поиск"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16.3 16.3 5.2 5.2"/></svg></button>
+    <button data-nav="settings" aria-label="Настройки" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4l.7 2.5 2.3 1 2.2-1.2 2.7 2.7-1.2 2.2 1 2.3L24 12v0l-2.3.5-1 2.3 1.2 2.2-2.7 2.7-2.2-1.2-2.3 1L14 22h-4l-.7-2.5-2.3-1-2.2 1.2-2.7-2.7 1.2-2.2-1-2.3L0 12l2.3-.5 1-2.3-1.2-2.2 2.7-2.7L7 5.5l2.3-1L10 2z" transform="translate(1.3 0) scale(.9)"/><circle cx="12" cy="12" r="3"/></svg></button>
+  </nav>
+</aside>
+    <div id="network" class="net-status" role="status" aria-live="polite">● Каталог</div>
     <main id="content" tabindex="-1"></main>
     <div id="toast" class="toast" aria-live="polite"></div>
   </div>
 </div>
-<script src="/tv.js?v=18" defer></script>
+<script src="/tv.js?v=19" defer></script>
 </body>
 </html>
