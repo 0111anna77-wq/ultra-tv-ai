@@ -419,19 +419,23 @@ function player(){
  episodeKeys.forEach(k=>{const m=k.match(/:S(\d+)E(\d+)$/);if(m&&Number(m[1])===S.season)eps.push(Number(m[2]))});
  const epNums=[...new Set(eps)].sort((a,b)=>a-b).slice(0,50);
  return '<div class="player-screen"><section class="player-main">'+
- '<div class="player-tools"><button class="secondary" data-act="back">← Назад</button>'+
- '<button class="primary" data-act="cursor" data-focus="player-cursor">⛶ Полный экран</button></div>'+
- '<h1>'+esc(x.ru)+' · просмотр</h1>'+
+ '<div class="player-heading"><h1>'+esc(x.ru)+' · просмотр</h1>'+
+ '<button class="player-fullscreen" data-act="cursor" data-focus="player-cursor" title="На весь экран">⛶ Полный экран</button></div>'+
  '<div id="tv-video-frame" class="player-frame" role="button" tabindex="0" data-act="frame" aria-label="Плеер. OK — просмотр на весь экран">'+sourceMedia(src)+'</div>'+
  '<p id="player-progress" class="player-progress" aria-live="off">'+esc(playerProgressLabel(S.show))+'</p>'+
  '<p class="player-help" id="player-help">«Полный экран» включает просмотр с управлением указателем. Стрелки — движение, OK — выбор. Курсор сам скрывается через 3 секунды и появляется при следующем движении.</p>'+
- '<div class="player-tools"><button class="action" data-act="reload">↻ Перезагрузить плеер</button></div>'+
+ '<div class="player-tools player-secondary-tools"><button class="action" data-act="reload">↻ Перезагрузить плеер</button></div>'+
  (src?'<p class="subtle">Источник: '+esc(src.name||'Видео')+'</p>':'<p class="banner">Для этого сериала пока нет источника. Данные обновляются через общий каталог.</p>')+
- '</section><aside class="player-side"><h2>Источники</h2>'+
- (sources.length?sources.map((s,i)=>'<button data-act="source" data-index="'+i+'"'+(i===S.source?' class="active"':'')+'>'+esc(s.name||s.platform||'Видео')+'</button>').join(''):
- '<p class="subtle">Плееров пока нет</p>')+
- '<h2>Сезоны</h2><div class="select-list">'+[...seasons].sort((a,b)=>a-b).map(n=>'<button data-act="season" data-season="'+n+'" class="'+(n===S.season?'selected':'')+'">'+n+'</button>').join('')+'</div>'+
- (epNums.length?'<h2>Серии</h2><div class="select-list">'+epNums.map(n=>'<button data-act="episode" data-episode="'+n+'" class="'+(n===S.episode?'selected':'')+'">'+n+'</button>').join('')+'</div>':'<p class="subtle">Сезон и серии также можно выбирать внутри Initem.</p>')+
+ '</section><aside class="player-side">'+
+ '<div class="player-side-section player-source-section"><h2>Источники</h2><div class="player-source-list">'+
+ (sources.length?sources.map((s,i)=>'<button data-act="source" data-index="'+i+'" data-focus="player-source:'+i+'" aria-pressed="'+(i===S.source)+'"'+
+  (i===S.source?' class="active"':'')+'>'+esc(s.name||s.platform||'Видео')+'</button>').join(''):
+  '<p class="subtle">Плееров пока нет</p>')+'</div></div>'+
+ '<div class="player-side-section player-season-section"><h2>Сезоны</h2><div class="player-season-list">'+
+ [...seasons].sort((a,b)=>a-b).map(n=>'<button data-act="season" data-season="'+n+'" data-focus="player-season:'+n+'" aria-label="Сезон '+n+'" aria-pressed="'+(n===S.season)+'" class="'+(n===S.season?'selected':'')+'">'+n+'</button>').join('')+'</div></div>'+
+ (epNums.length?'<div class="player-side-section player-episode-section"><h2>Серии</h2><div class="player-episode-grid">'+
+  epNums.map(n=>'<button data-act="episode" data-episode="'+n+'" data-focus="player-episode:'+n+'" aria-label="Серия '+n+'" aria-pressed="'+(n===S.episode)+'" class="'+(n===S.episode?'selected':'')+'">'+n+'</button>').join('')+
+  '</div></div>':'<p class="player-side-hint">Серии и озвучку также можно выбрать внутри плеера.</p>')+
  '</aside></div>';
 }
 function render(){
@@ -696,10 +700,20 @@ function buildFocusRows(){
   }else if(S.page==='settings'){
     [...root.querySelectorAll('.settings-box button')].forEach((el,i)=>add('settings:'+i,[el]));
   }else if(S.page==='player'){
-    add('player:toolbar',root.querySelectorAll('.player-main .player-tools:first-child button'));
+    add('player:toolbar',root.querySelectorAll('.player-main .player-heading [data-act="cursor"]'));
     add('player:video',root.querySelectorAll('.player-main [data-act="frame"]'));
     add('player:reload',root.querySelectorAll('.player-main [data-act="reload"]'));
-    [...root.querySelectorAll('.player-side button')].forEach((el,i)=>add('player:side:'+i,[el]));
+    [...root.querySelectorAll('.player-source-list button')].forEach((el,i)=>add('player:source:'+i,[el]));
+    add('player:seasons',root.querySelectorAll('.player-season-list button'));
+    const episodes=[...root.querySelectorAll('.player-episode-grid button')];
+    const episodeRows=[];
+    for(const el of episodes){
+      const top=el.getBoundingClientRect().top;
+      const last=episodeRows[episodeRows.length-1];
+      if(last&&Math.abs(last.top-top)<5)last.buttons.push(el);
+      else episodeRows.push({top,buttons:[el]});
+    }
+    episodeRows.forEach((row,i)=>add('player:episode:'+i,row.buttons));
   }
 }
 function moveFocus(from,key){
