@@ -549,15 +549,18 @@ main{padding:27px clamp(24px,3.45vw,56px) 72px}
 }
 
 
-/* v0.17 ambient screen v2: visible on TV, still quiet behind content.
-   Pure static gradients: no bitmap, SVG, blur, external requests or animation. */
+/* UВидео TV 0.17 — selected background 3: one continuous space illustration.
+   JPG 1672×941 / ~24 KB; no tiling, blur, animations or extra JS.
+   The image is attached to the viewport while content scrolls; the overlays
+   keep text and poster cards legible without hiding the chosen artwork. */
 body{
- background-color:#071322;
+ background-color:#06101d;
  background-image:
-  radial-gradient(ellipse 66% 45% at 86% 30%,rgba(47,121,171,.29) 0%,rgba(30,83,129,.13) 50%,transparent 80%),
-  radial-gradient(ellipse 60% 43% at 5% 80%,rgba(28,93,144,.23) 0%,rgba(22,74,118,.09) 50%,transparent 82%),
-  linear-gradient(118deg,transparent 30%,rgba(61,125,177,.055) 44%,rgba(62,134,185,.10) 52%,transparent 68%),
-  repeating-linear-gradient(110deg,transparent 0px,transparent 156px,rgba(88,148,196,.025) 156px,rgba(88,148,196,.025) 157px,transparent 157px,transparent 300px),
-  linear-gradient(180deg,#0a1a2c 0%,#081625 52%,#07111e 100%);
+   linear-gradient(180deg,rgba(4,11,21,.16) 0%,rgba(4,11,21,.27) 46%,rgba(4,11,21,.53) 100%),
+   url('/tv-bg-space-v017.jpg');
+ background-position:center center;
+ background-size:cover;
+ background-repeat:no-repeat;
+ background-attachment:fixed;
 }
 .tv-home .resume-art img[data-landscape-key]{object-position:center center}
