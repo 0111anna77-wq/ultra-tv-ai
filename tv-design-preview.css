@@ -442,3 +442,108 @@ main{padding:27px clamp(24px,3.45vw,56px) 72px}
    gap:12px;
  }
 }
+
+
+/* v0.17: restrained hover/focus lift for browsing, not for show details or playback.
+   Pointer hover is only enabled on true mouse/trackpad devices. D-pad uses focus.
+   GPU-friendly transform, one quiet edge instead of stacked focus rectangles. */
+#nav button,
+.tv-home .card,
+#content .cards-grid .card,
+.tv-home .sort-cycle,
+#content .schedule-filters button,
+#content .schedule-entry,
+#content .settings-box button {
+  transform:scale(1);
+  transition:transform 125ms ease-out, background-color 125ms ease-out !important;
+  transform-origin:center center;
+}
+#nav button:focus,#nav button:focus-visible,
+.tv-home .sort-cycle:focus,.tv-home .sort-cycle:focus-visible,
+#content .schedule-filters button:focus,#content .schedule-filters button:focus-visible,
+#content .schedule-entry:focus,#content .schedule-entry:focus-visible,
+#content .settings-box button:focus,#content .settings-box button:focus-visible {
+  outline:none!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+  z-index:2;
+}
+#nav button:focus,#nav button:focus-visible {
+  background:#1e4a6e;
+  transform:scale(1.035);
+}
+#nav button.nav-active:focus,#nav button.nav-active:focus-visible {
+  background:#1c5985;
+}
+.tv-home .resume-card:focus,.tv-home .resume-card:focus-visible,
+.tv-home .poster-card:focus,.tv-home .poster-card:focus-visible,
+#content .cards-grid .card:focus,#content .cards-grid .card:focus-visible {
+  transform:scale(1.034);
+  outline:none!important;
+  box-shadow:none!important;
+  z-index:5;
+  position:relative;
+}
+.tv-home .resume-card:focus,.tv-home .resume-card:focus-visible {transform:scale(1.025)}
+.tv-home .resume-card:focus .resume-art,.tv-home .resume-card:focus-visible .resume-art,
+.tv-home .poster-card:focus .art,.tv-home .poster-card:focus-visible .art,
+#content .cards-grid .card:focus .art,#content .cards-grid .card:focus-visible .art {
+  outline:none!important;
+  box-shadow:none!important;
+  border-color:#7aafcf;
+  transition:none!important;
+}
+.tv-home .sort-cycle:focus,.tv-home .sort-cycle:focus-visible {
+  transform:scale(1.025);
+  background:#1b3f59;
+  border-color:#4d819d;
+}
+#content .schedule-entry:focus,#content .schedule-entry:focus-visible,
+#content .settings-box button:focus,#content .settings-box button:focus-visible,
+#content .schedule-filters button:focus,#content .schedule-filters button:focus-visible {
+  transform:scale(1.015);
+  background-color:#1c3f59;
+}
+@media (hover:hover) and (pointer:fine) {
+  #nav button:hover {
+    transform:scale(1.035);
+    background:#1e4a6e;
+  }
+  #nav button.nav-active:hover {background:#1c5985}
+  .tv-home .poster-card:hover,
+  #content .cards-grid .card:hover {
+    transform:scale(1.034);
+    z-index:5;
+    position:relative;
+  }
+  .tv-home .resume-card:hover {
+    transform:scale(1.025);
+    z-index:5;
+    position:relative;
+  }
+  .tv-home .poster-card:hover .art,
+  .tv-home .resume-card:hover .resume-art,
+  #content .cards-grid .card:hover .art {
+    border-color:#7aafcf;
+    outline:none!important;
+    box-shadow:none!important;
+  }
+  .tv-home .sort-cycle:hover {
+    transform:scale(1.025);
+    border-color:#4d819d;
+    background:#1b3f59;
+  }
+  #content .schedule-entry:hover,
+  #content .settings-box button:hover,
+  #content .schedule-filters button:hover {
+    transform:scale(1.015);
+    background-color:#1c3f59;
+  }
+}
+/* Stay in bounds in the horizontally scrolled Continue Watching rail. */
+.tv-home .rail-resume .resume-strip {padding-top:12px;padding-bottom:22px}
+@media(prefers-reduced-motion:reduce) {
+  #nav button,.tv-home .card,#content .cards-grid .card,
+  .tv-home .sort-cycle,#content .schedule-filters button,
+  #content .schedule-entry,#content .settings-box button {transition:none!important}
+}
