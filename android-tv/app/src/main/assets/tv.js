@@ -198,7 +198,7 @@ function mySeriesRail(data){
   ' aria-label="Сортировать мои сериалы: '+esc(active.text)+'. Нажмите для переключения">'+
   '<span aria-hidden="true">⇅</span><span>'+esc(active.text)+'</span></button></div>';
  return '<section class="rail rail-posters rail-my-series">'+header+
-  (data.length?'<div class="strip poster-strip">'+sortMySeries(data).map(card).join('')+'</div>':
+  (data.length?'<div class="strip poster-strip poster-grid">'+sortMySeries(data).map(card).join('')+'</div>':
    '<p class="empty">Здесь появятся сериалы, которые ты добавишь из раздела «Новинки» или поиска.</p>')+
   '</section>';
 }
@@ -629,8 +629,22 @@ function buildFocusRows(){
   add('nav',[...document.querySelectorAll('#nav button')]);
   if(S.page==='home'){
     [...root.querySelectorAll('.rail')].forEach((rail,i)=>{
-      if(rail.classList.contains('rail-my-series'))add('home:sort',rail.querySelectorAll('.sort-cycle'));
-      add('home:rail:'+i,rail.querySelectorAll('.strip .card'));
+      if(rail.classList.contains('rail-my-series')){
+        add('home:sort',rail.querySelectorAll('.sort-cycle'));
+        // Grid rows are independent D-pad rows: Up/Down retain the column.
+        const cards=[...rail.querySelectorAll('.poster-grid .card')];
+        const rows=[];
+        for(const card of cards){
+          const top=card.getBoundingClientRect().top;
+          const last=rows[rows.length-1];
+          if(last&&Math.abs(last.top-top)<5)last.cards.push(card);
+          else rows.push({top,cards:[card]});
+        }
+        rows.forEach((row,n)=>add('home:grid:'+n,row.cards));
+      }else{
+        // Continue Watching deliberately retains horizontal scrolling.
+        add('home:rail:'+i,rail.querySelectorAll('.strip .card'));
+      }
     });
   }else if(S.page==='catalog'){
     add('schedule:filters',root.querySelectorAll('.schedule-filters button'));
@@ -698,7 +712,7 @@ function bringFocusedIntoView(el){
     return;
   }
   const strip=el.closest('.strip');
-  if(strip){
+  if(strip&&!strip.classList.contains('poster-grid')){
     const a=el.getBoundingClientRect(),b=strip.getBoundingClientRect();
     if(a.left<b.left+10)strip.scrollLeft+=a.left-b.left-18;
     else if(a.right>b.right-10)strip.scrollLeft+=a.right-b.right+18;
