@@ -690,3 +690,13 @@ body{
  .player-main .player-fullscreen{font-size:13px;padding:7px 9px}
  .player-side .player-episode-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
+
+
+/* v0.17 logo spacing: optical lockup between the real U icon and wordmark.
+   The image remains untouched; text overlaps only its dark outer edge. */
+.topbar .brand{gap:0}
+.topbar .brand .brand-wordmark{
+ margin-left:-6px;
+ position:relative;
+ z-index:1;
+}
