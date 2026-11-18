@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 16
-        versionName '0.16-uvideo-branding'
+        versionCode 17
+        versionName '0.17-tv-design'
     }
     buildTypes {
         release { minifyEnabled false }
