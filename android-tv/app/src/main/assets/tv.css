@@ -405,3 +405,32 @@ main{padding:27px clamp(24px,3.45vw,56px) 72px}
  .tv-home .sort-cycle{font-size:13px;padding:6px 9px;min-height:34px}
  .tv-home .my-series-heading{gap:8px}
 }
+
+
+/* v0.17: My Series is a wrapping grid, not a side-scrolling carousel. */
+.tv-home .rail-my-series .poster-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+ column-gap:clamp(12px,1.25vw,23px);
+ row-gap:17px;
+ width:100%;max-width:100%;
+ overflow:visible;
+ scroll-behavior:auto;
+ padding:7px 5px 20px;
+}
+.tv-home .rail-my-series .poster-grid .poster-card{
+ width:100%;min-width:0;max-width:none;
+ flex-basis:auto;
+}
+@media(max-width:900px){
+ .tv-home .rail-my-series .poster-grid{
+   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+   gap:13px;
+ }
+}
+@media(max-width:490px){
+ .tv-home .rail-my-series .poster-grid{
+   grid-template-columns:repeat(2,minmax(0,1fr));
+   gap:12px;
+ }
+}
