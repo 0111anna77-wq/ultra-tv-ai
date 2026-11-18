@@ -18,9 +18,9 @@ const meta=()=>({});
 const category=()=>'Драма';
 const episodeCode=(s,e)=>'S'+String(s||1).padStart(2,'0')+'E'+String(e||1).padStart(2,'0');
 const {newEpisode,progressPercent,resumeCard,thumb,home}=
- new Function('S','norm','getProgress','poster','resumeImage','meta','category','episodeCode','esc',
+ new Function('S','norm','getProgress','poster','resumeImage','validLandscape','meta','category','episodeCode','esc',
  source.slice(start,end)+';return {newEpisode,progressPercent,resumeCard,thumb,home}')(
- S,norm,getProgress,poster,poster,meta,category,episodeCode,esc);
+ S,norm,getProgress,poster,poster,()=>false,meta,category,episodeCode,esc);
 const show={key:'example',ru:'Сериал',en:'Example',genres:['drama'],year:2026};
 assert.equal(progressPercent('example'),25);
 const markup=resumeCard(show);
