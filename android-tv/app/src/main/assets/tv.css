@@ -539,3 +539,17 @@ main{padding:27px clamp(24px,3.45vw,56px) 72px}
   .tv-home .sort-cycle,#content .schedule-filters button,
   #content .schedule-entry,#content .settings-box button {transition:none!important}
 }
+
+
+/* v0.17 ambient screen: very faint cool light and etched vertical rhythm.
+   Pure CSS, static; no image download, blur filter, backdrop or animation. */
+body{
+ background-color:#050d18;
+ background-image:
+  radial-gradient(ellipse 73% 48% at 83% -12%,rgba(40,91,132,.17),transparent 78%),
+  radial-gradient(ellipse 65% 58% at -19% 105%,rgba(29,80,119,.11),transparent 74%),
+  linear-gradient(115deg,transparent 28%,rgba(66,115,149,.023) 48%,transparent 64%),
+  repeating-linear-gradient(90deg,rgba(78,134,172,.011) 0px,rgba(78,134,172,.011) 1px,transparent 1px,transparent 128px),
+  linear-gradient(180deg,#081322,#06111e 52%,#050c17);
+}
+.tv-home .resume-art img[data-landscape-key]{object-position:center center}
