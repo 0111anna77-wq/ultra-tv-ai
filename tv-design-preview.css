@@ -1,0 +1,392 @@
+:root{color-scheme:dark;--bg:#091018;--panel:#141b25;--card:#151d27;--line:#2b3542;--text:#f6f5f3;--muted:#a9b3bd;--gold:#eac58d;--gold2:#f8dba9}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:auto}body{margin:0;font-family:Arial,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(ellipse at 80% -15%,#263247 0%,#121d29 30%,#091018 67%);min-height:100vh;font-size:20px}button,input{font:inherit}button{cursor:pointer}button:focus,button:focus-visible,input:focus,select:focus,.player-frame:focus{outline:4px solid var(--gold2)!important;outline-offset:5px!important;box-shadow:0 0 0 4px #edc99223;z-index:2;position:relative}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:34px;padding:23px 55px 20px;background:linear-gradient(180deg,#0b141feb 0%,#0b141fe8 75%,#101c26cf);border-bottom:1px solid #273440}
+.brand{display:flex;align-items:center;gap:4px;font-size:29px;letter-spacing:.05em;font-weight:900;white-space:nowrap}.brand span:not(.brand-icon){color:var(--gold)}.brand-icon{display:grid;place-items:center;width:38px;height:38px;margin-right:8px;border:2px solid var(--gold);border-radius:12px;font-size:19px;color:var(--gold)}.brand small{font-size:11px;align-self:flex-start;color:var(--muted);margin-left:3px}
+nav{display:flex;gap:10px;align-items:center;flex:1}nav button{border:0;color:#abb3c1;border-radius:12px;background:transparent;font-size:20px;padding:12px 19px;white-space:nowrap}nav button.nav-active{background:#29303b;color:#f5d5a0}nav button:focus{color:#fff;background:#414149}.net-status{font-size:14px;color:#afbdc8;white-space:nowrap}
+main{padding:25px 58px 120px;outline:none}h1,h2,p{margin-top:0}.eyebrow{color:#dfb77b;font-size:15px;letter-spacing:.14em;font-weight:700;text-transform:uppercase}.hero{position:relative;min-height:390px;display:flex;align-items:center;border-radius:25px;border:1px solid #4a4c48;overflow:hidden;background:linear-gradient(105deg,#2b2d34,#141e2a 75%);padding:48px 58px;margin-bottom:42px}.hero-art{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;opacity:.43;filter:blur(6px);transform:scale(1.06)}.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0b111aed 10%,#101723c4 52%,#131c1a24 100%)}.hero-inner{position:relative;z-index:1;width:min(850px,70%)}.hero h1{font-size:clamp(36px,4.6vw,70px);line-height:1.08;margin:15px 0 18px;letter-spacing:-.04em}.hero p{color:#d3d6d5;font-size:23px;line-height:1.4}.hero-actions,.actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.primary,.secondary,.action{border-radius:14px;padding:15px 25px;font-size:21px;font-weight:700;min-height:56px}.primary{border:1px solid #ffdb9e;color:#1b2027;background:var(--gold2)}.secondary,.action{border:1px solid #526076;color:#f0f0ee;background:#273240}.action{font-weight:500;font-size:18px}.subtle{font-size:16px;color:var(--muted)}.banner{border:1px solid #554832;border-radius:12px;background:#2a2925;color:#e9ce9b;padding:14px 22px;margin:14px 0}
+.rail{margin-bottom:44px}.rail h2,.section-title{font-size:29px;font-weight:750;margin:0 0 22px;letter-spacing:-.02em}.rail .strip{display:flex;gap:22px;padding:9px 9px 18px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;scroll-behavior:auto}.strip::-webkit-scrollbar{display:none}
+.card{padding:0 0 11px;border:0;border-radius:14px;background:transparent;color:#fff;text-align:left;flex:0 0 clamp(150px,14.1vw,245px);width:clamp(150px,14.1vw,245px);min-width:0;overflow:visible}.art{height:auto;aspect-ratio:2/3;border:1px solid #46525f;border-radius:14px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(145deg,#354355,#17212e);position:relative}.art img{width:100%;height:100%;object-fit:cover}.art .no-art{font-size:70px;color:#e7c38c}.card:focus .art{border-color:#ffdfa8;transform:none;transition:none}.card-title{display:block;font-size:19px;font-weight:700;margin:14px 5px 4px;line-height:1.25}.card-sub{display:block;font-size:14px;color:#aeb7c2;margin:0 5px}.card .pill{position:absolute;bottom:12px;left:12px;border-radius:8px;padding:5px 8px;font-size:13px;background:#1119;color:#f6dfaf}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:28px}.cards-grid .card{width:100%;flex:none}
+.detail{display:grid;grid-template-columns:minmax(240px,330px) minmax(0,1fr);gap:50px;align-items:start;padding:18px 0}.detail-art{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:21px;border:1px solid #545e6b;background:#202c3a}.detail h1{font-size:clamp(34px,4vw,65px);margin:16px 0}.detail h2{font-size:25px}.detail p{font-size:21px;line-height:1.45;color:#c6ccd1}.badge{display:inline-flex;border:1px solid #665034;border-radius:9px;padding:7px 12px;font-size:16px;color:#f4d3a2;margin:0 9px 12px 0;background:#322d28}
+.select-list{display:flex;gap:11px;flex-wrap:wrap;padding:10px 0 22px}.select-list button{background:#222d39;border:1px solid #465569;border-radius:10px;color:#dbe2e6;padding:10px 17px;font-size:17px;min-width:55px}.select-list button.selected{background:#75603b;color:#fff;border-color:#e8bf7c}
+.player-screen{display:grid;grid-template-columns:minmax(0,1fr) 305px;gap:28px;align-items:start}.player-main h1{font-size:30px;margin:8px 0 15px}.player-frame{width:100%;aspect-ratio:16/9;display:block;background:#03070b;border:2px solid #34404d;border-radius:18px;overflow:hidden;position:relative}.player-frame iframe{display:block;width:100%;height:100%;border:0;background:black}.player-help{font-size:17px;color:#c4cdd7;line-height:1.45;margin:19px 0}.player-tools{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0}.player-tools button{background:#2b3541;color:white;border:1px solid #58677a;border-radius:12px;font-size:19px;min-height:58px;padding:12px 17px}.player-tools button.feature{background:#463b2d;border-color:#b89864;color:#ffdaa5}.player-side{border:1px solid #2d3c4a;border-radius:18px;background:#151d27;padding:22px}.player-side h2{font-size:23px;margin:0 0 16px}.player-side button{display:block;width:100%;background:#25303d;color:white;border:1px solid #465466;border-radius:10px;text-align:left;font-size:17px;padding:14px;margin-bottom:11px;line-height:1.3}.player-side .active{border-color:#d4ae73;background:#534530}
+.field{background:#202d3a;border:2px solid #586675;border-radius:14px;color:white;min-height:64px;font-size:23px;padding:15px 19px;width:min(750px,100%);margin:0 0 20px}.field::placeholder{color:#a1b0bb}.hint{color:#d8c398;font-size:16px}.search-results{margin-top:30px}.settings-box{max-width:900px;background:#1a2430;border:1px solid #364553;border-radius:16px;padding:30px;line-height:1.55}.settings-box p{color:#c0c9d2}.line{height:1px;background:#354150;margin:26px 0}
+.empty{color:#bbc3ce;padding:35px;border:1px dashed #515b68;border-radius:15px;font-size:21px}.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:80;color:white;background:#263440;border:1px solid #d0aa73;border-radius:12px;padding:15px 24px;font-size:18px;opacity:0;transition:opacity .25s;pointer-events:none}.toast.show{opacity:1}
+@media(max-width:1050px){.topbar{padding:15px 25px;gap:16px}.brand{font-size:22px}nav{gap:2px}nav button{font-size:16px;padding:8px}main{padding:20px 28px}.player-screen{grid-template-columns:1fr}.player-side{display:flex;gap:12px;flex-wrap:wrap}.player-side h2{width:100%}.player-side button{width:auto;flex:1}.detail{grid-template-columns:220px 1fr;gap:23px}.card{flex-basis:175px}}
+@media(max-width:690px){.topbar{flex-wrap:wrap}.brand{width:100%}.net-status{display:none}main{padding:18px}.hero{min-height:290px;padding:25px}.hero-inner{width:95%}.hero h1{font-size:38px}.hero p{font-size:17px}.rail h2{font-size:23px}.card{flex-basis:165px}.detail{grid-template-columns:1fr}.detail-art{width:190px}.player-frame{border-radius:10px}.player-main h1{font-size:23px}}
+
+/* Android TV v0.6: no scale/blur animation while moving through poster rails. */
+.strip,.cards-grid{scroll-behavior:auto}
+.card:focus{transform:none}
+.art img{image-rendering:auto}
+
+/* v0.7: cheap, responsive poster grids on low-power KION hardware. */
+.hero-art{filter:none!important;transform:none!important;opacity:.17}
+.card:focus,.card:focus .art{transition:none!important;animation:none!important}
+.card .art img{object-fit:cover;image-rendering:auto}
+.strip,.cards-grid{scroll-behavior:auto!important}
+
+/* v0.8 video is genuinely full-bleed: no focus rectangle or blue border. */
+.player-frame,.player-frame:focus,.player-frame:focus-visible,
+.player-frame:fullscreen,.player-frame:-webkit-full-screen,
+.player-frame.tv-maximized,
+.player-frame:fullscreen iframe,.player-frame.tv-maximized iframe,
+#tv-player-iframe,#tv-player-iframe:focus,
+#tv-player-iframe:fullscreen {
+  border:0!important;
+  border-radius:0!important;
+  outline:none!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+}
+.player-frame:fullscreen,.player-frame:-webkit-full-screen,
+.player-frame.tv-maximized{
+  width:100vw!important;
+  height:100vh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  background:#000!important;
+  aspect-ratio:auto!important;
+  overflow:hidden!important;
+}
+.player-frame.tv-maximized{position:fixed!important;inset:0!important;z-index:1500!important;}
+.player-frame:fullscreen iframe,.player-frame:-webkit-full-screen iframe,.player-frame.tv-maximized iframe,
+.player-frame:fullscreen video,.player-frame.tv-maximized video{
+  width:100%!important;height:100%!important;border:0!important;outline:0!important;
+  object-fit:contain;
+}
+
+/* In the browsing screen, the video itself is a visible D-pad stop. */
+/* The focus cue must NOT appear in either HTML5 or CSS fullscreen. */
+.player-frame[tabindex]:focus:not(:fullscreen):not(.tv-maximized),
+.player-frame[tabindex]:focus-visible:not(:fullscreen):not(.tv-maximized) {
+  outline:4px solid var(--gold2)!important;
+  outline-offset:5px!important;
+  box-shadow:0 0 0 4px #edd19d24!important;
+}
+.player-frame[tabindex]:focus:not(:fullscreen):not(.tv-maximized)::after{
+  content:"OK — открыть управление видео";
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  background:#101925e8;color:#ffe0b0;padding:12px 17px;
+  border-radius:10px;font-size:18px;white-space:nowrap;pointer-events:none;
+}
+
+/* TV 0.11: compact 10-foot controls, useful calendar and discovery instead of
+   duplicate catalogue; readable without oversized labels or billboard. */
+main{padding-top:22px}
+.section-note{max-width:1250px;color:#bcc7d5;font-size:17px;line-height:1.38;margin:0 0 22px}
+.rail:first-child{margin-top:0}
+.detail{grid-template-columns:minmax(210px,285px) minmax(0,1fr);gap:32px}
+.detail-info{display:flex;flex-direction:column;align-items:flex-start;min-height:460px;width:100%}
+.detail-info>p{max-width:1050px}
+.detail-player-settings{margin-top:auto;align-self:flex-end;max-width:100%;width:min(520px,100%);display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.detail-player-settings>button{font-size:17px;padding:10px 19px;min-height:44px}
+.source-panel{width:100%;padding:18px;background:#182431;border:1px solid #445267;border-radius:14px}
+.source-panel h3{font-size:21px;margin:0 0 13px}
+.source-panel>button{display:block;width:100%;margin:7px 0;border-radius:10px;border:1px solid #57657a;background:#293547;color:#fff;padding:11px 16px;font-size:17px;text-align:left;min-height:42px}
+.source-panel>button.selected{background:#594c37;border-color:#eec994}
+.source-panel p{font-size:15px;line-height:1.4;color:#c5cdd8;margin:12px 0 0}
+.settings-box{max-width:1240px;padding:10px 24px 14px}
+.settings-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:25px;padding:16px 0;border-bottom:1px solid #35404b}
+.settings-row:last-of-type{border-bottom:0}
+.settings-row h2{font-size:21px;margin:0 0 5px}
+.settings-row p{font-size:16px;line-height:1.35;margin:0;color:#acbac8}
+.settings-row button{font-size:17px;padding:10px 17px;min-height:46px;max-width:370px}
+.settings-footer{font-size:14px!important;color:#9ba8b5!important;margin:16px 0 0!important}
+.schedule-filters{display:flex;gap:14px;margin:12px 0 24px}
+.schedule-filters button{padding:12px 21px;font-size:18px;background:#243141;color:#d8e1eb;border:1px solid #46576c;border-radius:12px}
+.schedule-filters button.selected{background:#584b39;color:#f6dcaf;border-color:#d7ad70}
+.schedule-progress{font-size:17px;color:#e1ba83;margin:10px 0}
+.schedule-subtitle{font-size:25px;margin:22px 0 13px}
+.schedule-list{display:flex;flex-direction:column;gap:7px;max-width:1350px}
+.schedule-entry{display:grid;grid-template-columns:170px minmax(0,1fr) 100px 120px;align-items:center;gap:20px;min-height:66px;padding:9px 22px;border:1px solid #3a4b5e;border-radius:12px;background:#1a2634;color:#e9eff2;text-align:left}
+.schedule-entry:nth-child(even){background:#19232f}
+.episode-day{font-size:19px;color:#edc791;font-weight:700}
+.episode-name strong{font-size:20px;display:block;line-height:1.3}
+.episode-name small{font-size:15px;display:block;line-height:1.35;color:#b7c4cf;margin-top:4px}
+.episode-code{font-size:16px;color:#dbe4ee;white-space:nowrap}
+.episode-source{font-size:14px;padding:7px 8px;border-radius:7px;border:1px solid #5b6270;color:#c8d3de;text-align:center}
+@media(max-width:940px){
+ .detail{grid-template-columns:200px 1fr;gap:22px}
+ .schedule-entry{grid-template-columns:128px minmax(0,1fr) 85px;gap:10px}
+ .episode-source{display:none}
+ .settings-row{grid-template-columns:1fr;gap:10px}
+ .detail-player-settings{width:100%}
+}
+
+/* v0.12: personal watch history, compact manual episode marker.
+   Only the native HTML video player exposes exact time; Initem does not. */
+.progress-panel{
+  width:100%;margin:18px 0 22px;padding:15px 20px;
+  background:linear-gradient(110deg,#1a2633,#141d28);
+  border:1px solid #3b4a5a;border-radius:14px;
+}
+.detail .progress-panel h2{font-size:21px;line-height:1.3;margin:0 0 6px}
+.detail .progress-panel p.progress-summary{font-size:16px;color:#e4c38d;margin:0 0 12px}
+.progress-picker{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.progress-picker span{font-size:16px;color:#d0d8e1;margin-right:3px}
+.progress-picker span:not(:first-child){margin-left:18px}
+.progress-picker b{min-width:24px;text-align:center;font-size:20px}
+.progress-picker button{
+  font-size:21px;font-weight:700;min-height:44px;min-width:48px;padding:7px 11px;
+  background:#273647;border:1px solid #566b7e;border-radius:10px;color:#fff
+}
+.progress-save{display:inline-block;margin:13px 0 0;padding:9px 15px;min-height:45px;font-size:16px}
+.detail .progress-panel .progress-explain{font-size:13px;line-height:1.42;color:#9facbc;margin:10px 0 0}
+
+/* v0.13 — fast and compact Android TV UI (1080p and KION 720p).
+   Poster cards intentionally render at 80% of the v0.12 width. */
+.rail{margin-bottom:26px}
+.rail h2{font-size:24px;margin-bottom:13px}
+.rail .strip{gap:16px;padding:6px 8px 13px}
+.card{flex-basis:clamp(120px,11.28vw,196px);width:clamp(120px,11.28vw,196px);border-radius:10px;padding-bottom:5px}
+.art{border-radius:11px}
+.card-title{font-size:16px;line-height:1.2;margin:9px 3px 4px}
+.card-sub{font-size:12px;line-height:1.3;margin:0 3px}
+.card .pill{font-size:11px;padding:4px 6px;left:6px;bottom:7px}
+.cards-grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:20px}
+.cards-grid .card{width:100%}
+main{padding:15px 42px 45px}
+.detail.detail-compact{
+ display:grid;grid-template-columns:minmax(150px,205px) minmax(0,1fr);
+ align-items:start;gap:25px;padding:5px 0;margin:0;max-width:1550px;
+}
+.detail-compact .detail-poster{width:100%;min-width:0}
+.detail-compact .detail-art{width:100%;max-width:205px;border-radius:13px;border:1px solid #495566}
+.detail-compact .detail-info{
+ display:flex;flex-direction:column;align-items:stretch;gap:7px;
+ min-height:0;width:100%;
+}
+.detail-compact .eyebrow{font-size:11px;letter-spacing:.12em;margin:0}
+.detail-compact h1{font-size:clamp(28px,2.6vw,40px);line-height:1.15;margin:0;letter-spacing:-.025em}
+.detail-compact .detail-metadata{font-size:15px;line-height:1.3;margin:0;color:#b9c5d0}
+.detail-compact .detail-genres{display:flex;flex-wrap:wrap;gap:6px}
+.detail-compact .detail-genres .badge{
+ font-size:12px;line-height:1.1;padding:5px 9px;margin:0;border-radius:7px;
+}
+.detail-compact .detail-description{
+ font-size:16px;line-height:1.35;color:#d4dae1;margin:0;
+ display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+ max-width:1100px;
+}
+.detail-compact .detail-commands{display:flex;align-items:center;flex-wrap:nowrap;gap:11px;margin:5px 0}
+.detail-compact .detail-commands .primary{
+ font-size:18px;min-height:48px;padding:10px 20px;white-space:nowrap;border-radius:11px;
+}
+.detail-compact .icon-button{
+ display:inline-grid;place-items:center;min-height:48px;width:57px;padding:0;
+ font-size:25px;line-height:1;border-radius:10px;white-space:nowrap;
+}
+.detail-compact .progress-panel{
+ display:flex;flex-wrap:wrap;align-items:center;gap:9px 15px;
+ width:100%;max-width:1150px;min-height:72px;margin:6px 0 0;
+ padding:11px 15px;border-radius:11px;background:#192635;border:1px solid #425367;
+}
+.detail-compact .progress-summary{
+ font-size:15px;font-weight:600;white-space:nowrap;color:#e9ce9b;
+}
+.detail-compact .progress-picker{display:flex;align-items:center;gap:7px;padding:0;flex-wrap:nowrap}
+.detail-compact .progress-picker span{font-size:15px;margin:0;color:#ccd7e1}
+.detail-compact .progress-picker span:not(:first-child){margin-left:9px}
+.detail-compact .progress-picker b{font-size:17px;min-width:17px}
+.detail-compact .progress-picker button{
+ min-height:38px;min-width:38px;padding:3px 8px;font-size:19px;border-radius:8px;
+}
+.detail-compact .progress-save{
+ min-height:39px;font-size:14px;padding:6px 12px;margin:0;border-radius:9px;white-space:nowrap;
+}
+.detail-compact .progress-explain{
+ width:100%;margin:0;color:#95a7bb;font-size:12px;line-height:1.2;
+}
+.detail-compact .source-panel{
+ max-width:700px;align-self:stretch;margin-top:5px;
+ padding:12px 15px;border-radius:11px
+}
+.detail-compact .source-panel h3{font-size:18px}
+.detail-compact .source-panel button{min-height:37px;font-size:15px;padding:8px 10px}
+@media(max-width:930px){
+ main{padding:12px 25px 40px}
+ .detail.detail-compact{grid-template-columns:145px minmax(0,1fr);gap:17px}
+ .detail-compact .detail-description{-webkit-line-clamp:2}
+ .detail-compact .detail-commands .primary{font-size:16px;min-height:44px}
+ .detail-compact .icon-button{width:46px;min-height:44px}
+ .detail-compact .progress-panel{gap:6px 10px;padding:8px 10px}
+}
+
+/* Compact, live watch-time display, outside the external iframe. */
+.player-progress{font-size:15px;line-height:1.35;color:#e9ce9b;background:#192635;border:1px solid #425367;border-radius:9px;padding:8px 12px;margin:9px 0 0}
+
+/* UВидео TV v0.17 — TV-first skin. No blur filters, transitions, or extra image requests. */
+:root{
+ --bg:#050d18; --panel:#0e1b2a; --card:#0e1b2a; --line:#24405a;
+ --text:#f3f7ff; --muted:#a6b7c9; --gold:#20baff; --gold2:#54d5ff;
+}
+html{background:#050d18}
+body{
+ background:radial-gradient(ellipse at 83% -6%,#103355 0%,#07172a 36%,#050d18 72%);
+ color:#f3f7ff;
+}
+.topbar{
+ gap:clamp(16px,2.6vw,44px);
+ min-height:86px;
+ padding:16px clamp(20px,3.5vw,56px);
+ background:linear-gradient(180deg,#06101df2,#061322f0);
+ border-bottom:1px solid #1a2e43;
+}
+.brand{gap:12px;font-size:26px;letter-spacing:-.03em;flex:none}
+.brand .brand-logo{
+ width:49px;height:49px;display:block;flex:none;object-fit:contain;
+ border-radius:12px;
+}
+.brand .brand-wordmark{color:#f5f8ff!important;font-weight:800;font-size:clamp(20px,1.75vw,29px)}
+.brand .brand-wordmark b{color:#35caff;font-weight:800}
+nav{gap:3px;justify-content:center;min-width:0}
+nav button{
+ color:#c3d1e0;font-size:clamp(15px,1.3vw,20px);
+ padding:11px clamp(10px,1.2vw,20px);border-radius:15px;
+}
+nav button.nav-active{
+ background:linear-gradient(180deg,#175381,#0d2949);
+ border:1px solid #247cbb;color:#fff;
+ box-shadow:inset 0 0 0 1px #22567f;
+}
+nav button:focus{background:#1d5077;color:#fff}
+.net-status{font-size:12px;color:#7d9ab3}
+main{padding:27px clamp(24px,3.45vw,56px) 72px}
+.eyebrow{color:#79badf}
+.primary{background:#0e87c5;border-color:#36b6ef;color:#fff}
+.secondary,.action{background:#152c41;border-color:#315370}
+.badge{border-color:#285d81;color:#9bdcf9;background:#0d2a43}
+.select-list button.selected{background:#144e72;border-color:#39bafa}
+.toast{border-color:#3ba2d3;background:#122c42}
+.card:focus,.card:focus-visible{
+ outline:none!important;box-shadow:none!important;
+}
+.tv-home .rail{margin-bottom:28px}
+.tv-home .rail h2{
+ font-size:clamp(23px,1.75vw,30px);
+ letter-spacing:-.025em;color:#f5f7fb;margin:0 0 11px 3px;
+}
+.tv-home .rail .strip{
+ gap:clamp(12px,1.25vw,23px);
+ padding:7px 5px 20px;
+ overflow-x:auto;overflow-y:hidden;
+}
+.tv-home .card{
+ width:auto;min-width:0;
+ padding:0;border:0;
+ background:transparent;
+ color:#fff;text-align:left;
+ border-radius:15px;
+ flex-shrink:0;
+}
+.tv-home .resume-card{
+ flex-basis:clamp(290px,27vw,465px);
+ width:clamp(290px,27vw,465px);
+}
+.tv-home .resume-art{
+ display:block;position:relative;
+ width:100%;aspect-ratio:16/9;overflow:hidden;
+ border-radius:15px;border:1px solid #2c4155;
+ background:linear-gradient(120deg,#1d3852,#081625 78%);
+}
+.tv-home .resume-art img{
+ display:block;width:100%;height:100%;
+ object-fit:cover;object-position:center 26%;
+}
+.tv-home .resume-shade{
+ position:absolute;inset:0;
+ background:linear-gradient(180deg,transparent 27%,#06101e7a 59%,#040e1bed 100%);
+ pointer-events:none;
+}
+.tv-home .resume-copy{
+ position:absolute;left:18px;right:74px;bottom:31px;
+ z-index:1;display:flex;flex-direction:column;gap:3px;
+ text-shadow:0 2px 7px #000d;pointer-events:none;
+}
+.tv-home .resume-title{
+ font-size:clamp(21px,1.6vw,28px);line-height:1.1;
+ overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+}
+.tv-home .resume-episode{font-size:16px;color:#e2edfa}
+.tv-home .resume-play{
+ display:grid;place-items:center;position:absolute;right:16px;bottom:37px;z-index:1;
+ width:44px;height:44px;border-radius:50%;border:2px solid #b9e6fc;
+ color:#fff;background:#0c2434b7;font-size:20px;padding-left:3px;
+ pointer-events:none;
+}
+.tv-home .resume-track{
+ position:absolute;left:18px;right:18px;bottom:15px;height:7px;
+ overflow:hidden;border-radius:6px;background:#60748b80;z-index:1;pointer-events:none;
+}
+.tv-home .resume-fill{
+ display:block;height:100%;border-radius:6px;
+ background:linear-gradient(90deg,#0098e9,#33cdff);
+}
+.tv-home .resume-card:focus .resume-art,.tv-home .resume-card:focus-visible .resume-art{
+ border-color:#9be8ff;outline:2px solid #60cffe;outline-offset:2px;
+ box-shadow:0 0 14px #0098ee8c;
+}
+.tv-home .poster-card{
+ flex-basis:clamp(143px,12.5vw,210px);
+ width:clamp(143px,12.5vw,210px);
+}
+.tv-home .poster-card .art{
+ position:relative;display:block;
+ width:100%;aspect-ratio:2/3;
+ border:1px solid #274158;
+ border-radius:15px;overflow:hidden;
+ background:linear-gradient(160deg,#20415e,#091725);
+}
+.tv-home .poster-card .art::after{
+ content:"";position:absolute;inset:45% 0 0;
+ background:linear-gradient(transparent,#030c18ec);pointer-events:none;
+}
+.tv-home .poster-card .art img{width:100%;height:100%;object-fit:cover}
+.tv-home .poster-name{
+ position:absolute;bottom:13px;left:12px;right:10px;
+ z-index:2;font-size:clamp(16px,1.2vw,21px);font-weight:700;line-height:1.15;
+ text-shadow:0 2px 6px #000c;
+ overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+}
+.tv-home .poster-card .card-title,.tv-home .poster-card .card-sub{display:none}
+.tv-home .poster-card:focus .art,.tv-home .poster-card:focus-visible .art{
+ outline:2px solid #67d5ff;outline-offset:2px;
+ border-color:#7ddcff;box-shadow:0 0 10px #007acb80;
+}
+.new-episode-badge{
+ position:absolute;right:9px;top:9px;z-index:3;
+ color:#fff!important;background:#086fce;
+ font-weight:700;font-size:14px;line-height:1.2;
+ padding:6px 9px;border-radius:10px;
+ text-shadow:none;
+}
+.cards-grid .card .new-episode-badge{font-size:13px}
+.player-progress{color:#acd9f4;border-color:#285475;background:#0b2438}
+@media(max-width:1200px){
+ .brand .brand-logo{width:42px;height:42px}
+ .brand .brand-wordmark{font-size:21px}
+ .topbar{gap:14px}
+ .net-status{display:none}
+ .tv-home .resume-card{flex-basis:clamp(270px,31vw,380px);width:clamp(270px,31vw,380px)}
+}
+@media(max-width:800px){
+ .topbar{flex-wrap:wrap;gap:11px;padding:13px 22px}
+ .brand{width:auto}
+ nav{width:100%;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}
+ nav button{font-size:16px}
+ .tv-home .resume-card{flex-basis:290px;width:290px}
+ .tv-home .poster-card{flex-basis:150px;width:150px}
+ .tv-home .resume-title{font-size:21px}
+ .tv-home .rail{margin-bottom:20px}
+}
+
+.preview-hint{
+ position:fixed;right:20px;bottom:16px;z-index:60;
+ color:#e0eff9;background:#0c2940e8;border:1px solid #326685;
+ border-radius:12px;font:13px Arial,sans-serif;padding:9px 13px;
+ pointer-events:none;
+}
+.preview-hint[hidden]{display:none}
