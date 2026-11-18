@@ -549,15 +549,15 @@ main{padding:27px clamp(24px,3.45vw,56px) 72px}
 }
 
 
-/* v0.17 ambient screen: very faint cool light and etched vertical rhythm.
-   Pure CSS, static; no image download, blur filter, backdrop or animation. */
+/* v0.17 ambient screen v2: visible on TV, still quiet behind content.
+   Pure static gradients: no bitmap, SVG, blur, external requests or animation. */
 body{
- background-color:#050d18;
+ background-color:#071322;
  background-image:
-  radial-gradient(ellipse 73% 48% at 83% -12%,rgba(40,91,132,.17),transparent 78%),
-  radial-gradient(ellipse 65% 58% at -19% 105%,rgba(29,80,119,.11),transparent 74%),
-  linear-gradient(115deg,transparent 28%,rgba(66,115,149,.023) 48%,transparent 64%),
-  repeating-linear-gradient(90deg,rgba(78,134,172,.011) 0px,rgba(78,134,172,.011) 1px,transparent 1px,transparent 128px),
-  linear-gradient(180deg,#081322,#06111e 52%,#050c17);
+  radial-gradient(ellipse 66% 45% at 86% 30%,rgba(47,121,171,.29) 0%,rgba(30,83,129,.13) 50%,transparent 80%),
+  radial-gradient(ellipse 60% 43% at 5% 80%,rgba(28,93,144,.23) 0%,rgba(22,74,118,.09) 50%,transparent 82%),
+  linear-gradient(118deg,transparent 30%,rgba(61,125,177,.055) 44%,rgba(62,134,185,.10) 52%,transparent 68%),
+  repeating-linear-gradient(110deg,transparent 0px,transparent 156px,rgba(88,148,196,.025) 156px,rgba(88,148,196,.025) 157px,transparent 157px,transparent 300px),
+  linear-gradient(180deg,#0a1a2c 0%,#081625 52%,#07111e 100%);
 }
 .tv-home .resume-art img[data-landscape-key]{object-position:center center}
