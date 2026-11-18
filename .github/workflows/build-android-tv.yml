@@ -1,4 +1,4 @@
-name: Build Ultra TV Android TV APK (preview)
+name: Build UVideo TV Android TV APK (preview)
 
 on:
   push:
@@ -113,7 +113,7 @@ jobs:
       - name: Upload APK for install on Android TV 11
         uses: actions/upload-artifact@v4
         with:
-          name: ultra-tv-ai-android-tv-development-v015
+          name: uvideo-tv-android-tv-development-v016
           path: android-tv/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
@@ -121,8 +121,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="tv-v0.15-unsigned-development"
-          FILE="ultra-tv-v0.15-UNSIGNED-DEBUG-DO-NOT-INSTALL.apk"
+          TAG="tv-v0.16-unsigned-development"
+          FILE="uvideo-tv-v0.16-UNSIGNED-DEBUG-DO-NOT-INSTALL.apk"
           cp android-tv/app/build/outputs/apk/debug/app-debug.apk "$FILE"
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --target "$GITHUB_SHA" --prerelease \

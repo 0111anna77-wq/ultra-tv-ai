@@ -123,3 +123,9 @@ still requires device validation; do not claim a real-TV pass from CI alone.
 - Until a trusted external episode event is received, any timestamp is clearly marked as not confirming the episode. When Initem has not sent a valid timestamp, the interface explicitly says so. Displaying time does not imply that external Initem can seek to it automatically.
 - Home cards remain compact: unconfirmed first-episode state shows just `S01E01`, without extra seconds.
 - Regression: `node android-tv/tests/initem-progress.test.cjs` and `node android-tv/tests/progress-display.test.cjs`.
+
+### v0.16 — UВидео TV branding
+
+- Android label: `UВидео TV`, code 16 / `0.16-uvideo-branding`, with the same app ID `ai.ultra.tv` and stable signing key required for in-place updates.
+- New 512 px launcher PNG icon and 320×180 Android TV banner. Only Android resources and presentation changed; player, progress and bundled catalog behavior remains unchanged.
+- CI development APK is not an installable update: production must be signed with the existing private key and published separately with matching sha256 manifest.
