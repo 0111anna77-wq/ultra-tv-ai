@@ -86,4 +86,24 @@ assert.deepEqual(navTest,[['nav',1],['home:rail:0',2],['home:sort',1],
  ['home:grid:0',2],['home:grid:1',2],['home:grid:2',1]]);
 console.log('PASS v0.17 wrapped My Series layout and D-pad row navigation');
 
+
+// CSS-only browsing lift: hover for mouse, focus for TV remote, no new listeners.
+assert.match(css,/v0\.17: restrained hover\/focus lift/);
+assert.match(css,/@media \(hover:hover\) and \(pointer:fine\)/);
+assert.match(css,/\.tv-home \.poster-card:hover/);
+assert.match(css,/\.tv-home \.resume-card:hover/);
+assert.match(css,/#content \.cards-grid \.card:hover/);
+assert.match(css,/#nav button:hover/);
+assert.match(css,/#nav button:focus/);
+assert.match(css,/#content \.cards-grid \.card:focus/);
+assert.match(css,/prefers-reduced-motion:reduce/);
+const liftStart=css.indexOf('/* v0.17: restrained hover/focus lift');
+assert(liftStart>0);
+const lift=css.slice(liftStart);
+assert.doesNotMatch(lift,/\.detail(?:[ .:#>]|$)|\.player-screen(?:[ .:#>]|$)/,
+  'Hover lift must never affect open series detail or player controls');
+assert.doesNotMatch(lift,/filter:blur\(|backdrop-filter:/,
+  'TV focus should not add GPU-heavy blur');
+console.log('PASS TV v0.17 mouse hover and D-pad focus lift, without touching details/player');
+
 console.log('PASS TV v0.17 UI: badge provenance, progress bars, no homepage clock, unchanged sections, low-cost render');
