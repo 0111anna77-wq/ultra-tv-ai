@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-18T02:54:00Z",
+  "updatedAt": "2026-11-18T19:37:48Z",
   "entries": [
+    {
+      "id": "d987f4a96910f3581f97",
+      "title": "Город Бога: Борьба накаляется (City of God: The Fight Rages On). Эпизод 2. (S02E02)",
+      "seriesRu": "Город Бога: Борьба накаляется",
+      "seriesEn": "City of God: The Fight Rages On",
+      "season": 2,
+      "episode": 2,
+      "published": "2026-11-18T18:03:30Z",
+      "link": "https://www.lostfilm.download/mr/series/City_of_God_The_Fight_Rages_On/season_2/episode_2/"
+    },
     {
       "id": "ec78a16c6c315fcc34f4",
       "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Тайный огонь. (S03E03)",
