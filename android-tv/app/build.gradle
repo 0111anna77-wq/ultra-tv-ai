@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 20
-        versionName '0.20-tv-graphite-wheel'
+        versionCode 21
+        versionName '0.21-tv-purple-wheel-focus'
     }
     buildTypes {
         release { minifyEnabled false }

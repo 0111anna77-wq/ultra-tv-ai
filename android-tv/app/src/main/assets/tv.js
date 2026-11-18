@@ -1,6 +1,9 @@
 /* UВидео TV for Android TV. Distinct 10-foot client, shared catalog with web. */
 (() => {
 'use strict';
+// Android WebView / Chrome must not restore an old vertical offset on refresh.
+// Every freshly opened TV page starts with its header visible.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tags={super:'Супергерои',scifi:'Фантастика',fantasy:'Фэнтези',horror:'Мистика',thriller:'Триллеры',crime:'Криминал',action:'Боевики',drama:'Драмы',comedy:'Комедии',animation:'Анимация'};
@@ -39,20 +42,20 @@ let resumeWheelKey=null;
 function updateResumeWheel(animate=false){
  if(S.page!=='home')return;
  const strip=root.querySelector('.resume-strip');
- if(!strip)return;
- const cards=[...strip.querySelectorAll('.resume-card')];
+ const track=strip?.querySelector('.wheel-track');
+ if(!track)return;
+ const cards=[...track.querySelectorAll('.resume-card')];
  if(!cards.length)return;
- let index=cards.findIndex(x=>x.dataset.key===resumeWheelKey);
- if(index<0)index=0;
- const selected=cards[index];resumeWheelKey=selected.dataset.key;
- for(const card of cards)card.classList.toggle('wheel-current',card===selected);
- // offsetLeft uses strip as the positioned container. Allow half-card side
- // gutters to center first and last shows without fake/duplicated titles.
- const target=Math.max(0,selected.offsetLeft+selected.offsetWidth/2-strip.clientWidth/2);
- if(animate&&typeof strip.scrollTo==='function'){
-   try{strip.scrollTo({left:target,behavior:'smooth'})}
-   catch(e){strip.scrollLeft=target}
- }else strip.scrollLeft=target;
+ const next=cards.find(x=>x.dataset.key===resumeWheelKey)||cards[0];
+ resumeWheelKey=next.dataset.key;
+ for(const el of cards)el.classList.toggle('wheel-current',el===next);
+ // One transform, one source of truth. No horizontal native scrolling:
+ // former smooth scroll + bringFocusedIntoView both moved scrollLeft.
+ // offsetLeft is local to the positioned wheel-track, not the viewport.
+ const delta=strip.clientWidth/2-next.offsetLeft-next.offsetWidth/2;
+ track.style.transitionDuration=animate?'175ms':'0ms';
+ track.style.transform='translate3d('+Math.round(delta)+'px,0,0)';
+ if(strip.scrollLeft!==0)strip.scrollLeft=0;
 }
 
 const items=()=>{
@@ -212,7 +215,9 @@ const rail=(title,xs,action)=>xs.length?
  (action==='continue'?' aria-label="'+esc(title)+'"':'')+'>'+
  (action==='continue'?'':'<h2>'+esc(title)+'</h2>')+
  '<div class="strip'+(action==='continue'?' resume-strip wheel-strip':' poster-strip')+'">'+
+ (action==='continue'?'<div class="wheel-track">':'')+
  xs.map(x=>action==='continue'?resumeCard(x):card(x)).join('')+
+ (action==='continue'?'</div>':'')+
  '</div></section>':'';
 const seriesSortModes=[
  {id:'episodes',text:'Новые серии'},
@@ -853,8 +858,10 @@ function moveFocus(from,key){
 }
 function bringFocusedIntoView(el){
   if(el.closest('#nav'))return;
+  // The center wheel is moved solely by CSS translate3d; never use native
+  // scrollLeft to chase focus while its track is animating.
   const strip=el.closest('.strip');
-  if(strip&&!strip.classList.contains('poster-grid')){
+  if(strip&&!strip.classList.contains('poster-grid')&&!strip.classList.contains('wheel-strip')){
     const a=el.getBoundingClientRect(),b=strip.getBoundingClientRect();
     const sidebarRight=document.querySelector('.tv-sidebar')?.getBoundingClientRect().right||0;
     const safeLeft=Math.max(b.left+10,sidebarRight+20);

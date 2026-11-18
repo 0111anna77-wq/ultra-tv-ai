@@ -1001,3 +1001,179 @@ body{
 .tv-home .resume-art{background:linear-gradient(120deg,#35323b,#1b1922 78%)!important}
 #content .no-art{color:#8d8797}
 html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;display:none}
+
+/* Ultra TV 0.21 — graphite-plum feedback from physical KION screen.
+   Dramatic but cheap compositor transforms, no moving filters or blur. */
+:root {
+ --bg:#17121d;--panel:#231b2b;--card:#292132;--line:#483a51;
+ --text:#f5f0f7;--muted:#c2b8c8;--gold:#bda6cc;--gold2:#d6c2de;
+}
+html {background:#16111c}
+body {
+ background-color:#1c1624!important;
+ background-image:
+   radial-gradient(ellipse 105% 100% at 67% 36%,rgba(80,53,101,.52) 0%,rgba(38,27,52,.32) 46%,rgba(16,12,23,.77) 100%),
+   linear-gradient(180deg,rgba(38,27,48,.10),rgba(20,14,29,.47)),
+   url('/tv-bg-graphite-v020.jpg')!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+ background-size:cover!important;
+ background-attachment:fixed!important;
+}
+.tv-sidebar {
+ background:linear-gradient(90deg,rgba(15,11,23,.87),rgba(24,17,35,.67))!important;
+ border:0!important;
+}
+#nav button.nav-active{background:rgba(156,118,177,.19)!important}
+#nav button:focus,#nav button:focus-visible,
+#nav button.nav-active:focus,#nav button.nav-active:focus-visible{
+ background:rgba(160,119,190,.39)!important;
+}
+#content .settings-box,#content .settings-row,
+#content .schedule-entry,#content .player-side{
+ background-color:#211b2a!important;border-color:rgba(164,132,183,.12)!important;
+}
+#content .sort-cycle,#content .action,#content .settings-box button,
+#content .schedule-filters button{
+ background:#33283d!important;color:#f5eff9!important;
+ border:0!important;
+}
+#content .sort-cycle:focus,#content .action:focus,
+#content .settings-box button:focus,#content .schedule-filters button:focus {
+ background:#584264!important;
+}
+.search-shell{background:#302638!important;border-color:rgba(201,158,215,.08)!important}
+.search-shell:focus-within{background:#403148!important;border-color:rgba(196,158,211,.33)!important}
+#content .cards-grid .art,.tv-home .poster-card .art{
+ background:linear-gradient(155deg,#43304d,#1e1828 78%)!important;
+}
+.tv-home .resume-art{background:linear-gradient(120deg,#473651,#1c1725 78%)!important}
+#content .new-episode-badge{
+ background:#5d426a!important;color:#f8f1fc!important;
+}
+
+/* Visual lifted shadow expands 35–55px past the tile.
+   This is one static radial gradient on a pseudo-element, not blur(). */
+#content .card::before{
+ inset:-48px -42px -49px!important;
+ border-radius:44px!important;
+ background:radial-gradient(ellipse 72% 74% at 50% 50%,
+    rgba(164,117,201,.72) 0%,
+    rgba(141,98,181,.56) 44%,
+    rgba(103,71,142,.29) 73%,
+    rgba(81,52,116,0) 100%)!important;
+ opacity:0!important;z-index:-1!important;pointer-events:none!important;
+}
+#content .poster-card:focus::before,
+#content .poster-card:focus-visible::before,
+#content .card:focus::before,
+#content .card:focus-visible::before{opacity:1!important}
+#content .card:focus,#content .card:focus-visible{
+ transform:scale(1.062)!important;z-index:8!important;
+ outline:0!important;border:0!important;box-shadow:none!important;
+}
+#content .card:hover:not(:focus)::before{opacity:.55!important}
+#content .card:hover:not(:focus){transform:scale(1.035)!important}
+#content .card .art,#content .card:focus .art,
+#content .card:focus-visible .art{border:0!important;outline:0!important}
+
+/* Replace competing CSS scroll + native WebView scrolling with a single
+   offscreen horizontal track and center-derived translate3d. */
+.tv-home .rail-resume{margin:0 0 7px!important}
+.tv-home .rail-resume .resume-strip{
+ --wheel-card-width:clamp(310px,32vw,500px);
+ display:block!important;position:relative!important;
+ box-sizing:border-box!important;
+ width:calc(100% + var(--tv-sidebar-width) + var(--tv-left-space) + var(--tv-right-space))!important;
+ margin-left:calc(-1 * (var(--tv-sidebar-width) + var(--tv-left-space)))!important;
+ padding:0!important;
+ min-height:clamp(310px,29vw,430px)!important;
+ overflow-x:hidden!important;overflow-y:hidden!important;
+ scroll-behavior:auto!important;
+}
+.tv-home .rail-resume .wheel-track{
+ position:relative!important;
+ display:flex!important;align-items:center!important;
+ width:max-content!important;
+ height:clamp(310px,29vw,430px)!important;
+ gap:0!important;
+ transform:translate3d(0,0,0);
+ transition:transform 175ms cubic-bezier(.21,.70,.32,1)!important;
+}
+.tv-home .rail-resume .resume-card{
+ width:var(--wheel-card-width)!important;
+ flex:0 0 var(--wheel-card-width)!important;
+ margin:0 clamp(-58px,-3.68vw,-33px) 0 0!important;
+ transform:scale(.73)!important;opacity:.70!important;z-index:2!important;
+ transform-origin:center center!important;
+ transition:transform 175ms ease-out,opacity 175ms ease-out!important;
+}
+.tv-home .rail-resume .resume-card.wheel-current,
+.tv-home .rail-resume .resume-card.wheel-current:focus,
+.tv-home .rail-resume .resume-card.wheel-current:focus-visible{
+ transform:scale(1.28)!important;
+ opacity:1!important;z-index:12!important;
+}
+.tv-home .rail-resume .resume-card.wheel-current::before{
+ inset:-40px -40px -45px!important;opacity:1!important;
+ background:radial-gradient(ellipse 75% 75% at center,
+  rgba(177,128,211,.67),rgba(135,98,180,.35) 55%,transparent 98%)!important;
+}
+.tv-home .rail-resume .resume-card:not(.wheel-current):focus::before{opacity:0!important}
+.tv-home .rail-resume .resume-card .resume-art{
+ border:0!important;outline:0!important;box-shadow:none!important;
+}
+.tv-home .rail-resume .resume-card .resume-track{background:rgba(183,148,202,.40)!important}
+.tv-home .rail-resume .resume-card .resume-fill{background:#b38ac8!important}
+@media(prefers-reduced-motion:reduce){
+ .tv-home .rail-resume .wheel-track,.tv-home .rail-resume .resume-card{
+  transition:none!important;
+ }
+}
+
+/* v0.21 finishing polish: fade halo before the pseudo-element boundaries
+   (no rectangular plate behind center), overlap side cards beneath center. */
+#content .card::before{
+ inset:-45px -56px!important;
+ border-radius:50%!important;
+ background:radial-gradient(ellipse 50% 50% at 50% 50%,
+  rgba(171,115,202,.79) 0%,
+  rgba(124,70,159,.55) 44%,
+  rgba(95,58,126,.24) 73%,
+  rgba(95,58,126,0) 100%)!important;
+}
+.tv-home .rail-resume .resume-card{
+ margin-right:clamp(-92px,-7.2vw,-53px)!important;
+}
+.tv-home .rail-resume .resume-card.wheel-current::before{
+ inset:-25px -74px!important;
+ border-radius:50%!important;
+ background:radial-gradient(ellipse 50% 50% at center,
+  rgba(174,114,209,.67) 0%,
+  rgba(137,80,173,.43) 45%,
+  rgba(99,58,133,.16) 74%,
+  rgba(99,58,133,0) 100%)!important;
+}
+
+/* v0.21 WebView stability: the focused wheel has the SAME scale as its
+   selected state; the more general #content .card:focus was overriding it. */
+#content .tv-home .rail-resume .resume-card.wheel-current,
+#content .tv-home .rail-resume .resume-card.wheel-current:focus,
+#content .tv-home .rail-resume .resume-card.wheel-current:focus-visible{
+ transform:scale(1.28)!important;opacity:1!important;z-index:12!important;
+}
+#content .tv-home .rail-resume .resume-card:not(.wheel-current){
+ transform:scale(.73)!important;opacity:.7!important;
+}
+
+/* Do not render a large invisible shadow for EVERY tile: such pseudo
+   elements contributed to scrollWidth by >50px even at opacity zero. */
+#content .card::before{content:none!important}
+#content .card:focus::before,#content .card:focus-visible::before,
+#content .card:hover::before,
+#content .tv-home .rail-resume .resume-card.wheel-current::before{
+ content:""!important;
+}
+/* Keep focus glows at the TV viewport edge without generating a page-wide
+   horizontal scrollbar. Does not affect full-bleed resume wheel. */
+html,body{overflow-x:clip!important}
