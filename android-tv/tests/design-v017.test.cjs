@@ -52,4 +52,38 @@ assert.match(css,/\.new-episode-badge/);
 assert.doesNotMatch(source.slice(start,end),/fetch\(/,'No new network calls in UI');
 assert.doesNotMatch(source.slice(start,end),/\bfilter:\s*blur/,'No blur GPU cost');
 assert.doesNotMatch(source.slice(source.indexOf('function home(){'),end),/Новые серии(?!.*?Новая серия)/,'No separate new-episodes rail');
+
+// My Series must wrap into actual vertical rows while Continue stays a carousel.
+assert.match(source, /strip poster-strip poster-grid/);
+assert.match(css, /\.rail-my-series \.poster-grid\s*\{[\s\S]*?display:grid/);
+assert.match(css, /grid-template-columns:repeat\(auto-fill/);
+assert.match(css, /\.rail-my-series \.poster-grid\s*\{[\s\S]*?overflow:visible/);
+assert.match(source, /Continue Watching deliberately retains horizontal scrolling/);
+assert.match(source, /strip&&!strip\.classList\.contains\('poster-grid'\)/);
+// Fake DOM rails demonstrate focus rows are registered separately for the grid.
+const focusStart=source.indexOf('function buildFocusRows(){');
+const focusEnd=source.indexOf('function moveFocus(from,key){',focusStart);
+assert(focusStart>=0&&focusEnd>focusStart);
+const mk=(top)=>({offsetWidth:200,offsetHeight:300,disabled:false,
+  getBoundingClientRect:()=>({top})});
+const nav=mk(0), resumeCards=[mk(100),mk(100)], sort=mk(450);
+const gridCards=[mk(520),mk(520),mk(830),mk(830),mk(1140)];
+const resumeRail={
+  classList:{contains:()=>false},
+  querySelectorAll:s=>s==='.strip .card'?resumeCards:[]
+};
+const myRail={
+  classList:{contains:s=>s==='rail-my-series'},
+  querySelectorAll:s=>s==='.sort-cycle'?[sort]:s==='.poster-grid .card'?gridCards:[]
+};
+const fakeRoot={querySelectorAll:s=>s==='.rail'?[resumeRail,myRail]:[]};
+const fakeDocument={querySelectorAll:s=>s==='#nav button'?[nav]:[]};
+const navTest=new Function('root','document',
+ 'const S={page:"home"}; let focusRows=[],focusSlots=new WeakMap();'+
+ source.slice(focusStart,focusEnd)+
+ ';buildFocusRows();return focusRows.map(x=>[x.id,x.items.length]);')(fakeRoot,fakeDocument);
+assert.deepEqual(navTest,[['nav',1],['home:rail:0',2],['home:sort',1],
+ ['home:grid:0',2],['home:grid:1',2],['home:grid:2',1]]);
+console.log('PASS v0.17 wrapped My Series layout and D-pad row navigation');
+
 console.log('PASS TV v0.17 UI: badge provenance, progress bars, no homepage clock, unchanged sections, low-cost render');
