@@ -1,8 +1,48 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-17T03:11:11Z",
+  "updatedAt": "2026-11-18T02:54:00Z",
   "entries": [
+    {
+      "id": "ec78a16c6c315fcc34f4",
+      "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Тайный огонь. (S03E03)",
+      "seriesRu": "Властелин колец: Кольца власти",
+      "seriesEn": "The Lord of the Rings: The Rings of Power",
+      "season": 3,
+      "episode": 3,
+      "published": "2026-11-17T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lord_of_the_Rings__The_Rings_of_Power/season_3/episode_3/"
+    },
+    {
+      "id": "a7766b42df6df3ba0ccd",
+      "title": "Маршалы (Marshals). Строптивые. (S02E06)",
+      "seriesRu": "Маршалы",
+      "seriesEn": "Marshals",
+      "season": 2,
+      "episode": 6,
+      "published": "2026-11-17T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Marshals/season_2/episode_6/"
+    },
+    {
+      "id": "96a147fa44703ebef549",
+      "title": "Остров сокровищ (Treasure Island). Принцесса де Авейру. (S01E06)",
+      "seriesRu": "Остров сокровищ",
+      "seriesEn": "Treasure Island",
+      "season": 1,
+      "episode": 6,
+      "published": "2026-11-17T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Treasure_Island/season_1/episode_6/"
+    },
+    {
+      "id": "3241ec483f964b4d24f6",
+      "title": "Институт (Institute). Убежище. (S02E02)",
+      "seriesRu": "Институт",
+      "seriesEn": "Institute",
+      "season": 2,
+      "episode": 2,
+      "published": "2026-11-17T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Institute/season_2/episode_2/"
+    },
     {
       "id": "ae9664485968fa9a12ca",
       "title": "12 12 12 (12 12 12). Хочу вернуть свой нимб. (S01E02)",
