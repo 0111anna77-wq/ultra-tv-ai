@@ -148,4 +148,44 @@ assert.match(source,/root\.addEventListener\('error'/);
 assert.match(source,/if\(page==='home'\)loadResumeBackdrops\(\)/);
 console.log('PASS TV v0.17 landscape selection, cache wiring and static ambient background');
 
+
+// v0.17 approved show-view player layout: fullscreen remains above the video,
+// aligned opposite the heading; source/season/episode selectors remain functional.
+const playerStart=source.indexOf('function player(){');
+const playerEnd=source.indexOf('function render(){',playerStart);
+assert(playerStart>0&&playerEnd>playerStart);
+const showForPlayer={key:'example',ru:'Пример сериала',en:'Example',genres:[],year:2026};
+const playerMeta={episodes:[
+ {season:1,number:1},{season:1,number:2},{season:1,number:3},
+ {season:1,number:4},{season:1,number:5},{season:2,number:1}
+]};
+const playerState={
+ show:'example',season:1,episode:2,source:0,
+ opts:{episodes:{}}
+};
+const playerScreen=new Function('S','item','meta','availableSources',
+ 'sourceMedia','esc','playerProgressLabel','catalog',
+ source.slice(playerStart,playerEnd)+';return player();')(
+ playerState,()=>showForPlayer,()=>playerMeta,
+ ()=>[{name:'Initem · сезоны и озвучки',url:'https://api.initem.ws/embed/imdb/tt123456'}],
+ ()=>'<iframe id="test-video"></iframe>',esc,()=>'',()=>'<div>catalog</div>');
+assert.match(playerScreen,/<div class="player-heading"><h1>Пример сериала · просмотр<\/h1>/);
+assert.match(playerScreen,/<button class="player-fullscreen" data-act="cursor"/);
+assert.doesNotMatch(playerScreen,/data-act="back"/);
+assert.match(playerScreen,/class="player-source-list"/);
+assert.match(playerScreen,/class="player-season-list"/);
+assert.match(playerScreen,/class="player-episode-grid"/);
+assert.match(playerScreen,/data-act="episode" data-episode="5"/);
+assert.match(playerScreen,/data-act="season" data-season="2"/);
+assert.match(playerScreen,/data-act="frame"/);
+assert.match(css,/\.player-side \.player-episode-grid button\s*\{[^}]*aspect-ratio:1\/1/s);
+assert.match(css,/\.player-main \.player-heading h1/);
+assert.match(css,/\.player-main \.player-fullscreen/);
+assert.match(html,/<span class="brand-wordmark">Видео <b>TV<\/b><\/span>/);
+assert.doesNotMatch(html,/<span class="brand-wordmark">UВидео/);
+assert.match(source,/add\('player:toolbar',root.querySelectorAll\('\.player-main \.player-heading/);
+assert.match(source,/add\('player:seasons',root.querySelectorAll\('\.player-season-list button'/);
+assert.match(source,/episodeRows\.forEach\(\(row,i\)=>add\('player:episode:'/);
+console.log('PASS TV v0.17 compact player, fullscreen header, episodes and logo');
+
 console.log('PASS TV v0.17 UI: badge provenance, progress bars, no homepage clock, unchanged sections, low-cost render');
