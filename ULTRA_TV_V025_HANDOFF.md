@@ -24,3 +24,22 @@
 
 ## Статус
 Созданы отдельная ветка и локальная копия. Работа с PNG ещё не завершена. Записывать SHA, коммиты и реальную HTTP-проверку сюда после.
+
+
+## Реализация 0.25: завершено и проверено
+
+- Актуальная база: **0.24**, а не 0.22. В `D:\UltraTVTools\uvideo-tv-v025-work\source\android-tv` скопированы исходники 0.24, не теряя исправления 0.23/0.24.
+- Два оригинальных загруженных пользователем PNG найдены на Windows в реальной перенесённой папке загрузок `D:\movedfolders`. Папка `D:\UltraTVTools\uvideo-tv-v025-work\brand-originals` хранит **побайтные копии оригиналов**.
+- `res/drawable/uvideo_tv_icon.png`: исходная квадратная иконка U 1254×1254 уменьшена до 512×512 (FFmpeg Lanczos, rgba), SHA256 `d99c6d600c05370bcf8575bbe0131a4dfe7b186fde5d34a7356a86e6cd47e524` (220182 байт).
+- `res/drawable/uvideo_tv_banner.png`: пользовательский горизонтальный баннер 1678×937 уменьшен по пропорциям и вложен в 640×360 RGBA, SHA256 `3660253cfeafb9c037121a45afda9650dd0e2ac35e2030672796bd2cc05ab6e1` (192065 байт).
+- `assets/uvideo-tv-logo.png`: копия **квадратной** иконки для левой панели. `tv.html` обновлён только путь изображения до `/uvideo-tv-logo.png?v=25` для сброса кеша.
+- Manifest не менялся: `android:icon="@drawable/uvideo_tv_icon"` и `android:banner="@drawable/uvideo_tv_banner"`. Вывод Android `aapt dump badging` подтверждает package `ai.ultra.tv`, versionCode **25**, новый `application-icon` и `application banner`.
+- `tv.js`, `tv.css` и `tv-bg-graphite-v020.jpg` **побайтно идентичны версии 0.24**: все функции, плеер, карусель, новая сортировка и яркость фокуса сохранились.
+- В исходной ветке `feature/ultra-tv-v025-purple-brand-assets` сохранены все пять изменённых файлов: commit **`6fa4fedc957110ce301e12da95e2506a98adc358`**.
+- Chrome/CDP тест интерфейса `D:\UltraTVTools\uvideo-tv-v025-work\check-ui-v025.cjs` прошёл `CHECKS PASS_ALL` (на самом деле HTTP порт локального preview — **9258**, CDP — **9259**; выполнен на правильной рабочей копии). Снимок `preview-home-v025.png` подтвердил новый фиолетовый значок в левом меню; каталог/поиск/настройки/карусель и сортировка также PASS. Старые 3 Node regression теста PASS, включая 16 тестов Initem.
+- Android Gradle `:app:assembleDebug --offline` успешно. APK подписан прежним сертификатом (**v2/v3 VALID**), SHA256 сертификата `2aa8316ac1888806e45015b5728aa089e74c91439856cd1ade1264be97d56d47`.
+- Итоговая подписанная сборка `D:\UltraTVTools\uvideo-tv-v025-work\UVideoTV_v025_signed.apk`, **817008 байт**, SHA-256 **`09b23a1280009797e01f38674d8d26f3f29d85099a383e33371740fd43509cfc`**. ZIP проверка подтвердила, что все `assets/*` и оба `res/drawable/*.png` внутри APK побайтно совпадают с файлами исходников. Резервный APK `D:\UltraTV_Safety\local-signed-versions\UVideoTV_v025_signed.apk`.
+- **Опубликовано в GitHub `main`: commit `35b603766c023efda604dc2bb6e0dd03991db983`**, содержит подписанный `a.apk` и `tv-update.json` versionCode 25.
+- **Публичный Cloudflare Pages проверен фактически**: `https://ultra-tv-ai.pages.dev/tv-update.json` отдаёт 25, а скачанный `https://ultra-tv-ai.pages.dev/a.apk` имеет именно SHA256 `09b23a1280009797e01f38674d8d26f3f29d85099a383e33371740fd43509cfc`, `LIVE_MATCH=True`.
+- **На настоящей KION приставке пока ещё не проверено**. После установки поверх 0.24 (без удаления приложения) проверить маленькую квадратную иконку/логотип слева и горизонтальный баннер в лаунчере. Возможно потребуется обновить экран лаунчера или перезапустить приставку из-за кэша KION.
+- Оттенки у квадратного и горизонтального изображений специально **не выравнивали**, пользователь хочет сравнить их на реальном ТВ.
