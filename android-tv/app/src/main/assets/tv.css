@@ -1208,3 +1208,21 @@ body{
  z-index:9!important;
 }
 /* Don't modify the main centered resume wheel's scale or movement. */
+
+/* Ultra TV 0.26: fit existing original purple square logo to the full
+   width of the left column; suppress brightness slightly without changing
+   PNG files or adding expensive animated GPU filters. */
+.tv-sidebar-logo{
+ width:var(--tv-sidebar-width)!important;
+ height:var(--tv-sidebar-width)!important;
+ margin:0 auto clamp(12px,1.5vh,19px)!important;
+ padding:0!important;
+ flex:0 0 var(--tv-sidebar-width)!important;
+}
+.tv-sidebar-logo img{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ object-fit:contain!important;
+ filter:brightness(.89)!important;
+}
