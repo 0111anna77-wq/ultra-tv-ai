@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 26
-        versionName '0.26-tv-kion-banner-fill'
+        versionCode 27
+        versionName '0.27-tv-detail-cleanup'
     }
     buildTypes {
         release { minifyEnabled false }

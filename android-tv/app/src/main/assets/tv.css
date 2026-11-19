@@ -1226,3 +1226,261 @@ body{
  object-fit:contain!important;
  filter:brightness(.89)!important;
 }
+
+/* Ultra TV v0.27. Single elegant detail page; soft plum focus, no cyan borders.
+   Scoped to .detail-v027 to leave the actual fullscreen player untouched. */
+#content .detail-v027{
+ display:grid;
+ grid-template-columns:clamp(178px,17vw,245px) minmax(0,1fr);
+ gap:clamp(22px,2.4vw,36px);
+ align-items:start;
+ width:100%;max-width:1440px;margin:0 auto;
+ padding:clamp(14px,2vw,27px) 0 28px;
+}
+#content .detail-v027 .detail-poster{min-width:0;width:100%}
+#content .detail-v027 .detail-art{
+ display:block;width:100%;max-width:none;
+ border:0!important;outline:0!important;
+ border-radius:16px;background:#282532;
+ box-shadow:0 16px 35px rgba(6,5,9,.30);
+}
+#content .detail-v027 .detail-info{
+ min-width:0;width:100%;min-height:0;
+ display:flex;flex-direction:column;align-items:stretch;
+ gap:clamp(9px,1vw,14px);
+ padding-top:0;
+}
+#content .detail-v027 h1{
+ font-size:clamp(28px,2.9vw,43px);
+ line-height:1.13;margin:0;
+ font-weight:730;letter-spacing:-.025em;
+}
+#content .detail-v027 .detail-metadata{
+ font-size:clamp(13px,1.2vw,16px);
+ line-height:1.3;color:#c2bec8;margin:0;
+ overflow-wrap:anywhere;
+}
+#content .detail-v027 .detail-genres{gap:7px}
+#content .detail-v027 .badge{
+ display:inline-block;margin:0;padding:5px 10px;
+ color:#c6becd;background:rgba(61,55,71,.65);
+ border:0!important;border-radius:8px;
+ font-size:12px;line-height:1.25;font-weight:500;
+}
+#content .detail-v027 .detail-description{
+ display:block;-webkit-line-clamp:unset;overflow:visible;
+ font-size:clamp(15px,1.22vw,17px);
+ line-height:1.43;color:#d4cfda;
+ margin:0;max-width:920px;
+}
+#content .detail-v027 .detail-commands{
+ display:flex;align-items:center;gap:10px;
+ flex-wrap:wrap;margin:6px 0 0;min-width:0;
+}
+#content .detail-v027 .detail-commands button,
+#content .detail-v027 .watch-edit,
+#content .detail-v027 .progress-editor button,
+#content .detail-v027 .source-panel button{
+ border:0!important;outline:0!important;
+ box-shadow:none!important;cursor:pointer;
+ background:#34303b!important;color:#ebe5f0!important;
+ border-radius:10px!important;
+ transition:background-color 120ms ease-out,transform 120ms ease-out;
+}
+#content .detail-v027 .detail-commands .primary{
+ min-height:50px;max-width:100%;
+ padding:10px 22px;font-size:clamp(15px,1.4vw,19px);
+ font-weight:700;line-height:1.2;white-space:normal;
+ background:#6b557a!important;color:#f9f4fb!important;
+}
+#content .detail-v027 .detail-options-button{
+ min-height:48px;padding:10px 16px;
+ font-size:clamp(13px,1.15vw,16px);
+ white-space:normal;font-weight:550;
+}
+#content .detail-v027 .detail-commands .icon-button{
+ width:48px;min-height:48px;
+ padding:0;font-size:23px;
+}
+#content .detail-v027 button:focus,
+#content .detail-v027 button:focus-visible{
+ background:#7b6090!important;
+ color:#fff!important;
+ outline:0!important;
+ box-shadow:0 0 0 3px rgba(190,156,212,.30),
+            0 6px 21px rgba(49,34,60,.36)!important;
+ transform:scale(1.035);
+ position:relative;z-index:2;
+}
+#content .detail-v027 .watch-status{
+ width:100%;max-width:100%;
+ margin:3px 0 0;padding:14px 17px;
+ display:grid;grid-template-columns:minmax(0,1fr) auto;
+ gap:8px 14px;min-height:0;
+ background:rgba(35,32,42,.89)!important;
+ border:0!important;border-radius:14px!important;
+ box-shadow:none!important;box-sizing:border-box;
+}
+#content .detail-v027 .watch-current{min-width:0}
+#content .detail-v027 .watch-caption{
+ display:block;font-size:12px;line-height:1.25;
+ text-transform:uppercase;letter-spacing:.055em;
+ color:#aca0b6;margin-bottom:5px;font-weight:650;
+}
+#content .detail-v027 .watch-values{
+ display:flex;align-items:center;flex-wrap:wrap;
+ gap:4px 12px;min-width:0;
+ color:#f3eef8;font-size:clamp(16px,1.6vw,21px);line-height:1.3;
+}
+#content .detail-v027 .watch-episode{white-space:nowrap}
+#content .detail-v027 .watch-episode strong{font-weight:750}
+#content .detail-v027 .watch-divider{color:#887f92}
+#content .detail-v027 .watch-timestamp{
+ padding:3px 9px;border-radius:7px;
+ background:#3e3448;color:#dbc9ea;
+ font-size:clamp(13px,1.2vw,16px);white-space:nowrap;
+}
+#content .detail-v027 .watch-pending{font-size:15px;color:#d9d3dd}
+#content .detail-v027 .watch-state{
+ color:#a99eb2;font-size:12px;line-height:1.38;
+ display:block;margin:5px 0 0;overflow-wrap:anywhere;
+}
+#content .detail-v027 .watch-edit{
+ justify-self:end;align-self:center;
+ min-height:40px;min-width:92px;
+ padding:9px 13px;font-size:14px;white-space:nowrap;
+}
+#content .detail-v027 .progress-editor{
+ grid-column:1/-1;
+ padding-top:12px;margin-top:5px;
+ border-top:1px solid rgba(190,170,204,.15);
+ display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+ min-width:0;
+}
+#content .detail-v027 .progress-editor-label{
+ width:100%;font-size:12px;color:#aca0b6;
+}
+#content .detail-v027 .progress-picker{
+ display:flex;align-items:center;flex-wrap:wrap;
+ gap:6px 8px;min-width:0;
+}
+#content .detail-v027 .progress-picker span{
+ font-size:14px;color:#c8bfcf;margin:0;
+}
+#content .detail-v027 .progress-picker span:not(:first-child){margin-left:9px}
+#content .detail-v027 .progress-picker b{
+ min-width:20px;text-align:center;font-size:17px;color:#eee;
+}
+#content .detail-v027 .progress-picker button{
+ min-height:38px;min-width:37px;padding:0 10px;font-size:19px;
+}
+#content .detail-v027 .progress-save{
+ min-height:40px;white-space:nowrap;
+ padding:8px 13px;font-size:14px;margin:0;
+}
+#content .detail-v027 .detail-source-current{
+ margin:0 0 0 3px;color:#afa5bb;
+ font-size:13px;line-height:1.35;overflow-wrap:anywhere;
+}
+#content .detail-v027 .detail-source-panel{
+ width:100%;max-width:none;
+ margin:2px 0 0;padding:15px 17px;
+ background:rgba(35,32,42,.91);
+ border:0!important;border-radius:14px;
+ box-sizing:border-box;
+}
+#content .detail-v027 .detail-source-panel h3{
+ color:#e9e2ef;font-size:16px;margin:0 0 10px;
+}
+#content .detail-v027 .detail-source-buttons{
+ display:flex;flex-wrap:wrap;gap:8px;
+}
+#content .detail-v027 .detail-source-buttons button{
+ min-height:38px;max-width:100%;
+ font-size:14px;padding:9px 13px;line-height:1.3;
+ white-space:normal;overflow-wrap:anywhere;
+ text-align:left;
+}
+#content .detail-v027 .detail-source-buttons button.selected{
+ background:#554765!important;
+ color:#f9f2ff!important;
+}
+#content .detail-v027 .detail-audio-note,
+#content .detail-v027 .detail-source-empty{
+ color:#b8aebf;font-size:13px;
+ line-height:1.4;margin:12px 0 0;overflow-wrap:anywhere;
+}
+@media(max-width:900px){
+ #content .detail-v027{grid-template-columns:clamp(115px,21vw,170px) minmax(0,1fr);gap:16px}
+ #content .detail-v027 .detail-info{gap:8px}
+ #content .detail-v027 .detail-commands .primary{min-height:44px}
+ #content .detail-v027 .watch-status{padding:11px 12px}
+ #content .detail-v027 .watch-edit{min-width:80px;padding:7px 10px}
+}
+@media(max-width:550px){
+ #content .detail-v027{grid-template-columns:1fr}
+ #content .detail-v027 .detail-art{max-width:190px}
+ #content .detail-v027 .watch-status{grid-template-columns:1fr}
+ #content .detail-v027 .watch-edit{justify-self:start}
+}
+@media(prefers-reduced-motion:reduce){
+ #content .detail-v027 button{transition:none!important}
+}
+
+/* Ultra TV 0.27 finishing pass: read-only season, episode and time.
+   No large framed progress editor or extra source line. */
+#content .detail-v027 .detail-info > h1,
+#content .detail-v027 .detail-info > p,
+#content .detail-v027 .detail-info > .detail-genres,
+#content .detail-v027 .detail-info > .detail-commands,
+#content .detail-v027 .detail-info > .watch-status,
+#content .detail-v027 .detail-info > .detail-source-panel{
+ margin-left:0!important;
+}
+#content .detail-v027 .badge{color:#f5f1f7!important}
+#content .detail-v027 .watch-status{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ gap:5px!important;
+ min-height:0!important;
+ padding:4px 0 0!important;
+ margin:9px 0 0!important;
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+}
+#content .detail-v027 .watch-caption{
+ font-size:13px!important;
+ text-transform:none!important;
+ letter-spacing:0!important;
+ font-weight:580!important;
+ color:#bcb4c4!important;
+ margin:0!important;
+}
+#content .detail-v027 .watch-values{
+ display:flex!important;
+ align-items:baseline!important;
+ flex-wrap:nowrap!important;
+ gap:7px 12px!important;
+ font-size:clamp(15px,1.48vw,20px)!important;
+}
+#content .detail-v027 .watch-timestamp{
+ display:inline!important;
+ padding:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ font-size:inherit!important;
+ color:#eee5f5!important;
+ white-space:nowrap;
+}
+#content .detail-v027 .watch-values strong{font-weight:720!important}
+#content .detail-v027 .watch-state{
+ margin:0!important;
+ font-size:12px!important;
+ color:#a99fac!important;
+}
+@media(max-width:900px){
+ #content .detail-v027 .watch-values{flex-wrap:wrap!important}
+}
