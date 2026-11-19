@@ -23,3 +23,17 @@
 
 ## Статус
 Отдельная ветка и локальная рабочая копия созданы. Код новой версии пока не изменён. После выполнения дописать сюда проверенный результат, коммит, SHA и состояние публикации.
+
+
+## Реализация, тесты и релиз (проверено)
+- **Исходный код 0.23 сохранён в ветке**: commit `9c4315312e03f5c27d457ce98ad14a41a83fc7c3`. Изменены только `android-tv/app/src/main/assets/tv.js`, `tv.html` (cache bust v23) и `app/build.gradle` (versionCode 23), добавлен `devtools/check-ui-v023.cjs`. CSS, логотип, фоновая картинка и плеерные функции не тронуты. Программная проверка diff от v0.22: JS изменён только в 2 участках — удаление `<span class="resume-play"...>` и ветка `S.page==='home' && slot.rowId==='home:sort' && key==='ArrowLeft'`.
+- **Уточнение пользователя сохранено:** ← с кнопки `my-series-sort` переходит **на первую карточку в `home:grid:0`**, даже после смены сортировки. **→ ничего не делает** (поведение 0.22), **↑** на верхнюю карусель, **↓** на нижний ряд карточек (не менять). Для остальных пунктов навигация без изменений.
+- Все декоративные иконки Play удалены из верхней карусели `resumeCard()`. Карточка остаётся активной кнопкой `data-act="continue"`, по OK по-прежнему запускает просмотр; серия/прогресс не затронуты.
+- Chromium-CDP `D:\UltraTVTools\uvideo-tv-v023-work\check-ui-v023.cjs`: **CHECKS PASS_ALL** — содержит 5 новых проверок (значки Play отсутствуют, ←/→/↑/↓ от сортировки, первая карточка после изменения порядка); остальные проверки карусели 1,2,8 карточек, быстрые RIGHT/LEFT, размеров, подсветки, поиска, каталога и настроек также PASS.
+- Node legacy suite 3/3 PASS, Android Gradle assembleDebug --offline **BUILD SUCCESSFUL**, signed APK v2/v3 valid, signer SHA-256 `2aa8316ac1888806e45015b5728aa089e74c91439856cd1ade1264be97d56d47` тот же, что раньше.
+- Проверка ZIP ресурсов APK: tv.js, tv.css, tv.html, logo U, JPG совпадают с исходниками; **логотип и CSS побайтно совпадают с 0.22**. JS diff строго 35 строк с изменениями только в двух ожидаемых местах.
+- Подписанный APK: `D:\UltraTVTools\uvideo-tv-v023-work\UVideoTV_v023_signed.apk` — **612208 байт**, SHA256 `030f1cceadc2b6402fee3c6d03992a292c1dce70c93c585bddd87a4d88175c9b`.
+- Резерв: `D:\UltraTV_Safety\local-signed-versions\UVideoTV_v023_signed.apk`.
+- **Публикация GitHub `main`**: commit `7db2f2df61379bc716acadd5fefbd4421769f145` заменил `a.apk` и `tv-update.json` versionCode 23.
+- **Публичный Cloudflare Pages проверен:** `https://ultra-tv-ai.pages.dev/tv-update.json` действительно возвращает versionCode=23, а скачанный `https://ultra-tv-ai.pages.dev/a.apk` имеет SHA256 `030f1cceadc2b6402fee3c6d03992a292c1dce70c93c585bddd87a4d88175c9b`; **LIVE_MATCH=True**.
+- **На самой приставке тест 0.23 ещё не проведён** — пользователь проверит D-pad на KION после обновления поверх 0.22. Если заметит баг, работать с отдельной следующей версией, не ломая 0.23.
