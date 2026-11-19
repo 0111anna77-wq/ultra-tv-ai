@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-18T19:37:48Z",
+  "updatedAt": "2026-11-19T01:30:17Z",
   "entries": [
+    {
+      "id": "65b239e3f1cdde5c9be3",
+      "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Гундабад. (S03E04)",
+      "seriesRu": "Властелин колец: Кольца власти",
+      "seriesEn": "The Lord of the Rings: The Rings of Power",
+      "season": 3,
+      "episode": 4,
+      "published": "2026-11-18T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lord_of_the_Rings__The_Rings_of_Power/season_3/episode_4/"
+    },
     {
       "id": "d987f4a96910f3581f97",
       "title": "Город Бога: Борьба накаляется (City of God: The Fight Rages On). Эпизод 2. (S02E02)",
