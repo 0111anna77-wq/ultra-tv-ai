@@ -206,7 +206,7 @@ const resumeCard=x=>{
    '<span class="resume-shade"></span>'+
    '<span class="resume-copy"><strong class="resume-title">'+esc(x.ru)+'</strong>'+
     (episode?'<small class="resume-episode">'+esc(episode)+'</small>':'')+
-   '</span><span class="resume-play" aria-hidden="true">▶</span>'+
+   '</span>'+
    '<span class="resume-track" aria-hidden="true"><span class="resume-fill" style="width:'+pct.toFixed(1)+'%"></span></span>'+
    '</span></button>';
 };
@@ -808,11 +808,18 @@ function moveFocus(from,key){
       }
     }
   }else if(key==='ArrowLeft'||key==='ArrowRight'){
-    const idx=slot.index+(key==='ArrowRight'?1:-1);
-    if(idx>=0&&idx<row.items.length)target=row.items[idx];
-    else if(key==='ArrowLeft'&&slot.index===0&&slot.rowId!=='home:rail:0'){
-      target=currentNavButton();
-      if(target&&from.dataset.focus)lastContentFocus.set(S.page,from.dataset.focus);
+    // "New episodes" is a sorting control inside My Series, not a way out.
+    // LEFT returns to the first poster in the *currently sorted* first row.
+    // RIGHT retains its existing no-op behavior; UP/DOWN are unchanged.
+    if(S.page==='home'&&slot.rowId==='home:sort'&&key==='ArrowLeft'){
+      target=findRow('home:grid:0')?.items[0]||null;
+    }else{
+      const idx=slot.index+(key==='ArrowRight'?1:-1);
+      if(idx>=0&&idx<row.items.length)target=row.items[idx];
+      else if(key==='ArrowLeft'&&slot.index===0&&slot.rowId!=='home:rail:0'){
+        target=currentNavButton();
+        if(target&&from.dataset.focus)lastContentFocus.set(S.page,from.dataset.focus);
+      }
     }
   }else{
     const up=key==='ArrowUp';

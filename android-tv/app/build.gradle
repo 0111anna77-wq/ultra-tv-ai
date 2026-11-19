@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 22
-        versionName '0.22-tv-neutral-graphite'
+        versionCode 23
+        versionName '0.23-tv-sort-left-clean-wheel'
     }
     buildTypes {
         release { minifyEnabled false }
