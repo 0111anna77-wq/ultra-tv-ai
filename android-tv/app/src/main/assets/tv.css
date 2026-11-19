@@ -1177,3 +1177,34 @@ body {
 /* Keep focus glows at the TV viewport edge without generating a page-wide
    horizontal scrollbar. Does not affect full-bleed resume wheel. */
 html,body{overflow-x:clip!important}
+
+/* Ultra TV 0.22 — a calmer graphite-plum backdrop, retaining the same
+   purple focus halo. No extra images, no blur or animation layers. */
+html{background:#19191f!important}
+body{
+ background-color:#1c1b22!important;
+ background-image:
+  radial-gradient(ellipse 105% 100% at 67% 36%,
+   rgba(76,70,83,.32) 0%,
+   rgba(40,37,48,.39) 49%,
+   rgba(18,17,24,.75) 100%),
+  linear-gradient(180deg,
+   rgba(32,29,39,.10),
+   rgba(19,18,25,.47)),
+  url('/tv-bg-graphite-v020.jpg')!important;
+}
+/* A neutral sidebar lets focused lilac elements stand out by contrast. */
+.tv-sidebar{
+ background:linear-gradient(90deg,
+   rgba(16,16,21,.86),
+   rgba(26,24,32,.65))!important;
+}
+/* Increase ONLY the selected poster on the lower My Series home grid:
+   the existing halo remains exactly the same shade and intensity.
+   Higher specificity is needed to override the shared focus rule. */
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus,
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus-visible{
+ transform:scale(1.105)!important;
+ z-index:9!important;
+}
+/* Don't modify the main centered resume wheel's scale or movement. */
