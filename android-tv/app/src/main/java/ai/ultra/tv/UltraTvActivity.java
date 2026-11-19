@@ -39,6 +39,9 @@ public final class UltraTvActivity extends Activity {
     private AdBlockFilter adBlockFilter;
     private BundledSite bundledSite;
     private AppUpdateManager appUpdateManager;
+    private RemoteDebugServer remoteDebugServer;
+    private volatile String lastJsError = "";
+    private volatile String lastNetworkError = "";
     private TvPointerOverlay pointerOverlay;
     private boolean pointerMode;
     private boolean okHeld;
@@ -124,6 +127,16 @@ public final class UltraTvActivity extends Activity {
             }
 
             @Override
+            public void onReceivedError(WebView view, WebResourceRequest request,
+                                        android.webkit.WebResourceError error) {
+                if (remoteDebugServer != null && remoteDebugServer.isRunning()) {
+                    String host = request.getUrl() != null ? request.getUrl().getHost() : "";
+                    lastNetworkError = "WebView: " + error.getErrorCode() + " · " + host;
+                }
+                super.onReceivedError(view, request, error);
+            }
+
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 if (!request.isForMainFrame()) return false;
                 Uri uri = request.getUrl();
@@ -131,6 +144,9 @@ public final class UltraTvActivity extends Activity {
                     switch (uri.getHost() == null ? "" : uri.getHost()) {
                         case "settings":
                             runOnUiThread(() -> showFilterDialog());
+                            break;
+                        case "remote-debug":
+                            runOnUiThread(() -> showRemoteDebugDialog());
                             break;
                         case "app-update":
                             runOnUiThread(() -> appUpdateManager.check(true));
@@ -167,6 +183,15 @@ public final class UltraTvActivity extends Activity {
             }
         });
         webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(android.webkit.ConsoleMessage m) {
+                if (remoteDebugServer != null && remoteDebugServer.isRunning()
+                        && m.messageLevel() == android.webkit.ConsoleMessage.MessageLevel.ERROR) {
+                    String msg = m.message() == null ? "" : m.message();
+                    lastJsError = "JS " + m.lineNumber() + ": " + msg.substring(0, Math.min(140, msg.length()));
+                }
+                return super.onConsoleMessage(m);
+            }
             @Override
             public void onShowCustomView(View view, CustomViewCallback callback) {
                 if (fullscreenView != null) {
@@ -250,6 +275,76 @@ public final class UltraTvActivity extends Activity {
             webView.clearCache(true);
             webView.loadUrl(HOME);
         }
+    }
+
+    /** Remote diagnostics are opt-in, LAN-only, app-only, and expire in 15 minutes. */
+    private void showRemoteDebugDialog() {
+        if (remoteDebugServer == null) remoteDebugServer = new RemoteDebugServer(this, webView);
+        if (!remoteDebugServer.isRunning()) {
+            new AlertDialog.Builder(this)
+                .setTitle("Удалённая отладка Ultra TV")
+                .setMessage("Временно разрешить управление только Ultra TV по домашней Wi-Fi-сети?\n\n"
+                        + "Будут доступны: кнопки пульта, снимок интерфейса, текущая вкладка, ошибки JS и сети. "
+                        + "Другие приложения и настройки Android недоступны.\n\n"
+                        + "Сеанс отключится сам через 15 минут или при выходе из приложения. "
+                        + "Включайте только в доверенной домашней сети.")
+                .setPositiveButton("Включить на 15 минут", (dialog, which) -> {
+                    lastJsError = "";
+                    lastNetworkError = "";
+                    if (remoteDebugServer.start()) showRemoteDebugDialog();
+                    else new AlertDialog.Builder(this)
+                        .setTitle("Нет подключения")
+                        .setMessage("Не обнаружен локальный адрес Wi-Fi/Ethernet. "
+                                + "Проверьте подключение приставки к домашней сети.")
+                        .setPositiveButton("Закрыть", null).show();
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
+            return;
+        }
+        new AlertDialog.Builder(this)
+            .setTitle("Ultra TV · отладка включена")
+            .setMessage("Откройте на ПК в той же локальной сети:\n"
+                    + remoteDebugServer.getAddress()
+                    + "\n\nКод подключения: " + remoteDebugServer.getPin()
+                    + "\nОсталось примерно " + (remoteDebugServer.remainingSeconds() / 60 + 1)
+                    + " мин.\n\nНе пересылайте код посторонним. "
+                    + "Доступ действует только к приложению Ultra TV.")
+            .setPositiveButton("Закрыть", null)
+            .setNegativeButton("Отключить отладку", (dialog, which) -> remoteDebugServer.stop())
+            .show();
+    }
+
+    String getLastJsError() { return lastJsError; }
+    String getLastNetworkError() { return lastNetworkError; }
+    boolean isTvFullscreen() { return fullscreenView != null; }
+
+    void remoteAppKey(String key) {
+        if (!isDebugging() || webView == null) return;
+        if ("BACK".equals(key)) { onBackPressed(); return; }
+        if ("HOME".equals(key)) {
+            webView.evaluateJavascript("if(typeof navigate==='function')navigate('home');", null);
+            return;
+        }
+        int code;
+        switch (key) {
+            case "UP": code = KeyEvent.KEYCODE_DPAD_UP; break;
+            case "DOWN": code = KeyEvent.KEYCODE_DPAD_DOWN; break;
+            case "LEFT": code = KeyEvent.KEYCODE_DPAD_LEFT; break;
+            case "RIGHT": code = KeyEvent.KEYCODE_DPAD_RIGHT; break;
+            case "OK": code = KeyEvent.KEYCODE_DPAD_CENTER; break;
+            default: return;
+        }
+        long t = SystemClock.uptimeMillis();
+        dispatchKeyEvent(new KeyEvent(t, t, KeyEvent.ACTION_DOWN, code, 0));
+        dispatchKeyEvent(new KeyEvent(t, t + 35, KeyEvent.ACTION_UP, code, 0));
+    }
+    void remoteAppTap(float x, float y) {
+        if (!isDebugging() || webView == null) return;
+        touchWebView(x, y);
+    }
+    private boolean isDebugging() {
+        return remoteDebugServer != null && remoteDebugServer.isRunning();
     }
 
     /**
@@ -453,6 +548,12 @@ public final class UltraTvActivity extends Activity {
     }
 
     @Override
+    protected void onStop() {
+        if (remoteDebugServer != null) remoteDebugServer.stop();
+        super.onStop();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle out) {
         if (webView != null) webView.saveState(out);
         super.onSaveInstanceState(out);
@@ -463,6 +564,7 @@ public final class UltraTvActivity extends Activity {
         remoteHandler.removeCallbacks(openSettingsOnLongBack);
         remoteHandler.removeCallbacks(activatePointerOnLongOk);
         if (appUpdateManager != null) appUpdateManager.shutdown();
+        if (remoteDebugServer != null) remoteDebugServer.stop();
         if (webView != null) {
             container.removeView(webView);
             webView.destroy();

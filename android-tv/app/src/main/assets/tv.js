@@ -354,6 +354,8 @@ function settings(){
  '<button class="action" data-act="appupdate" data-focus="appupdate">⬇ Проверить обновление</button></div>'+
  '<div class="settings-row"><div><h2>Блокировщик рекламы</h2><p>Включить или выключить фильтр, посмотреть статистику блокировок.</p></div>'+
  '<button class="action" data-act="adsettings">⚙ AdBlock</button></div>'+
+ '<div class="settings-row"><div><h2>Удалённая отладка</h2><p>15 минут, только по локальной сети. Снимок экрана, кнопки пульта и ошибки.</p></div>'+
+ '<button class="action" data-act="remote-debug" data-focus="remote-debug">Подключить ПК</button></div>'+
  '<div class="settings-row"><div><h2>Управление</h2><p>Стрелки — выбор, OK — действие; удержание OK в видео — указатель. Назад — выйти из просмотра.</p></div></div>'+
  '<p class="settings-footer">Общий каталог синхронизируется с сайтом. Сохранённые на приставке добавления пока локальные.</p></section>';
 }
@@ -993,6 +995,7 @@ document.addEventListener('click',e=>{
  if(act==='cursor'||act==='frame'){S.cursor?stopCursor():startCursor();}
  if(act==='reload')refreshPlayer();
  if(act==='refresh')refresh(true);
+ if(act==='remote-debug')window.location.href='ultratv://remote-debug';
  if(act==='appupdate')window.location.href='ultratv://app-update';
  if(act==='adsettings')window.location.href='ultratv://settings';
 });
