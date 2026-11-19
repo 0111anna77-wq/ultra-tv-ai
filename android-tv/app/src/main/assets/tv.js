@@ -15,7 +15,7 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   page:'home',show:null,season:1,episode:1,source:0,search:'',loading:false,
   cursor:false,cx:.5,cy:.5,cursorFocus:null,
   added:store('tv-manual-added',[]),discover:store('tv-discover-cache',[]),
-  sourceChoice:store('tv-source-choice',{}),seriesSort:store('tv-series-sort','episodes'),optionsOpen:false,directWatch:false,
+  sourceChoice:store('tv-source-choice',{}),seriesSort:store('tv-series-sort','episodes'),optionsOpen:false,progressEditOpen:false,directWatch:false,
   scheduleLoading:false,scheduleDone:0,scheduleMode:'mine',
   progress:store('tv-progress-v1',{}),progressDraft:{},
   ruSummaries:store('tv-summary-ru-cache',{}),initemLastWrite:0,initemAdPlaying:false};
@@ -145,7 +145,7 @@ function changeProgressDraft(key,field,direction){
 }
 function navigate(page,key){
   if(S.cursor)stopCursor();
-  S.page=page; S.show=key||null;S.optionsOpen=false;
+  S.page=page; S.show=key||null;S.optionsOpen=false;S.progressEditOpen=false;
   focusKey=null;focusMemory.clear(); render();
   window.scrollTo(0,0);
   const selector=page==='player'?'[data-act="cursor"]':page==='detail'?'[data-act="play"]':
@@ -360,51 +360,70 @@ function settings(){
 
 function progressUI(x){
  const key=x.key,p=getProgress(key),v=progressDraft(key);
- const ep=episodeCode(p?.season,p?.episode);
- const summary=p?.kind==='initem'&&!p.confirmed&&Number(p.seconds)>0?
-   'Выбрано '+ep+' · время '+clock(p.seconds)+' (серия не подтверждена плеером)':
-   (p?.kind==='direct'||p?.kind==='initem')&&Number(p.seconds)>0?
-   'Сохранено '+ep+' · '+clock(p.seconds):
-   p?.confirmed?'Сохранено '+ep:
-   p?.openedAt?'Выбрано '+ep+' · время пока не получено':'Отметь серию';
- return '<div class="progress-panel" role="group" aria-label="Последняя просмотренная серия">'+
-  '<span class="progress-summary">'+esc(summary)+'</span>'+
-  '<div class="progress-picker">'+
-  '<span>Сезон</span><button data-act="progress-step" data-part="season" data-step="-1" aria-label="Предыдущий сезон">−</button><b>'+v.season+
-  '</b><button data-act="progress-step" data-part="season" data-step="1" aria-label="Следующий сезон">+</button>'+
-  '<span>Серия</span><button data-act="progress-step" data-part="episode" data-step="-1" aria-label="Предыдущая серия">−</button><b>'+v.episode+
-  '</b><button data-act="progress-step" data-part="episode" data-step="1" aria-label="Следующая серия">+</button></div>'+
-  '<button class="action progress-save" data-act="progress-save" aria-label="Запомнить выбранную серию">✓ Запомнить</button>'+
-  '<small class="progress-explain">'+
-   (p?.auto&&p?.kind==='initem'?'Серия и минута определены плеером автоматически. Перемотка на сохранённую минуту пока не подтверждена.':
-    'Initem сообщает выбранный эпизод и минуту, когда воспроизведение запущено.')+
-   '</small>'+
-  '</div>';
+ const hasEpisode=Boolean(p&&p.openedAt);
+ const season=Math.max(1,Number(p?.season)||1);
+ const episode=Math.max(1,Number(p?.episode)||1);
+ const seconds=Number(p?.seconds)||0,duration=Number(p?.duration)||0;
+ const hasTime=hasEpisode&&seconds>0&&Number.isFinite(seconds);
+ const state=!hasEpisode?'После первого просмотра определим автоматически':
+   p?.auto&&p?.kind==='initem'?'Определено плеером':
+   p?.confirmed&&!p?.auto?'Серия выбрана вручную':
+   'Последняя выбранная серия · уточним по плееру';
+ const values=hasEpisode?
+   '<span class="watch-episode">Сезон <strong>'+season+'</strong></span>'+
+   '<span class="watch-divider" aria-hidden="true">·</span>'+
+   '<span class="watch-episode">Серия <strong>'+episode+'</strong></span>'+
+   (hasTime?'<span class="watch-timestamp">'+esc(clock(seconds))+
+      (duration>0?' / '+esc(clock(duration)):'')+'</span>':''):
+   '<span class="watch-pending">Сезон и серия пока не определены</span>';
+ const editor=S.progressEditOpen?
+   '<div class="progress-editor" aria-label="Ручная корректировка серии">'+
+   '<span class="progress-editor-label">Изменить вручную</span>'+
+   '<div class="progress-picker">'+
+   '<span>Сезон</span><button data-act="progress-step" data-part="season" data-step="-1" aria-label="Предыдущий сезон">−</button><b>'+v.season+
+   '</b><button data-act="progress-step" data-part="season" data-step="1" aria-label="Следующий сезон">+</button>'+
+   '<span>Серия</span><button data-act="progress-step" data-part="episode" data-step="-1" aria-label="Предыдущая серия">−</button><b>'+v.episode+
+   '</b><button data-act="progress-step" data-part="episode" data-step="1" aria-label="Следующая серия">+</button></div>'+
+   '<button class="action progress-save" data-act="progress-save" data-focus="progress-save" aria-label="Запомнить выбранную серию">Сохранить</button>'+
+   '</div>':'';
+ return '<div class="progress-panel watch-status" role="group" aria-label="Последний просмотр">'+
+   '<div class="watch-current"><span class="watch-caption">Последний просмотр</span>'+
+   '<div class="watch-values">'+values+'</div>'+
+   '<small class="watch-state">'+esc(state)+'</small></div>'+
+   '<button class="watch-edit" data-act="progress-edit" data-focus="progress-edit" aria-expanded="'+S.progressEditOpen+'">'+
+   (S.progressEditOpen?'Скрыть':'Изменить')+'</button>'+
+   editor+'</div>';
 }
 function detail(){
  const x=item(S.show);if(!x)return catalog();
  const m=meta(x.key),img=poster(x),isOwned=isInCollection(x.key);
  const genres=(x.genres||[]).map(v=>'<span class="badge">'+esc(tags[v]||v)+'</span>').join('');
- const sources=availableSources(x),choice=Number(S.sourceChoice[x.key])||0;
+ const sources=availableSources(x),choice=Math.min(Math.max(0,Number(S.sourceChoice[x.key]??getProgress(x.key)?.source??0)||0),Math.max(0,sources.length-1));
+ const currentSource=sources[choice];
  const panel=S.optionsOpen?
-   '<div class="source-panel"><h3>Источники просмотра</h3>'+
-   (sources.length?sources.map((src,i)=>'<button data-act="preselect-source" data-index="'+i+'" data-focus="source:'+i+
-   '" class="'+(i===choice?'selected':'')+'">'+esc(src.name||src.platform||'Источник '+(i+1))+'</button>').join(''):
-   '<p>Дополнительных источников пока нет.</p>')+
-   '<p class="subtle">Озвучку можно выбрать в самом плеере.</p></div>':'';
+  '<div class="source-panel detail-source-panel"><h3>Источник воспроизведения</h3>'+
+  '<div class="detail-source-buttons">'+
+  (sources.length?sources.map((src,i)=>'<button data-act="preselect-source" data-index="'+i+'" data-focus="source:'+i+
+   '" class="'+(i===choice?'selected':'')+'" aria-pressed="'+(i===choice)+'">'+esc(src.name||src.platform||'Источник '+(i+1))+'</button>').join(''):
+  '<span class="detail-source-empty">Дополнительных источников нет.</span>')+'</div>'+
+  '<p class="detail-audio-note">Озвучку пока выбираем внутри самого плеера. Переключение звуковых дорожек отсюда ещё не подключено.</p></div>':'';
  const favLabel=isOwned?(S.tracked[x.key]===false?'Вернуть в каталог':'В моём каталоге'):'Добавить в мой каталог';
- return '<section class="detail detail-compact">'+
- '<div class="detail-poster">'+(img?'<img class="detail-art" src="'+esc(img)+'" alt="'+esc(x.ru)+'">':'<div class="detail-art"></div>')+'</div>'+
- '<div class="detail-info"><div class="eyebrow">Ultra TV · сериал</div><h1>'+esc(x.ru)+'</h1>'+
- '<p class="detail-metadata">'+esc(x.year)+(m.rating||x.rating?' · ★ '+esc(m.rating||x.rating):'')+' · '+esc(x.en)+'</p>'+
- '<div class="detail-genres">'+genres+'</div><p class="detail-description">'+esc(summaryRu(x))+'</p>'+
- '<div class="actions detail-commands"><button class="primary" data-act="play" data-focus="detail-play">'+
- (getProgress(x.key)?'▶ Продолжить просмотр':'▶ Смотреть')+'</button>'+
- '<button class="secondary icon-button" data-act="follow" aria-label="'+esc(favLabel)+'" title="'+esc(favLabel)+'">'+
- (isOwned&&S.tracked[x.key]!==false?'✓':'＋')+'▤</button>'+
- '<button class="action icon-button" data-act="player-options" data-focus="player-options" aria-label="Настройки плеера" title="Настройки плеера" aria-expanded="'+S.optionsOpen+'">⚙</button></div>'+
- progressUI(x)+
- panel+'</div></section>';
+ const playLabel=getProgress(x.key)?.openedAt?'Продолжить просмотр':'Смотреть';
+ return '<section class="detail detail-compact detail-v027">'+
+  '<div class="detail-poster">'+(img?'<img class="detail-art" src="'+esc(img)+'" alt="'+esc(x.ru)+'">':'<div class="detail-art"></div>')+'</div>'+
+  '<div class="detail-info"><h1>'+esc(x.ru)+'</h1>'+
+  '<p class="detail-metadata">'+esc(x.year)+(m.rating||x.rating?' · ★ '+esc(m.rating||x.rating):'')+' · '+esc(x.en)+'</p>'+
+  '<div class="detail-genres">'+genres+'</div>'+
+  '<p class="detail-description">'+esc(summaryRu(x))+'</p>'+
+  '<div class="actions detail-commands">'+
+   '<button class="primary" data-act="play" data-focus="detail-play">▶ '+playLabel+'</button>'+
+   '<button class="secondary icon-button" data-act="follow" aria-label="'+esc(favLabel)+'" title="'+esc(favLabel)+'">'+
+    (isOwned&&S.tracked[x.key]!==false?'✓':'＋')+'</button>'+
+   '<button class="action detail-options-button" data-act="player-options" data-focus="player-options" aria-label="Источник и озвучка" aria-expanded="'+S.optionsOpen+'">Источник и озвучка</button>'+
+  '</div>'+
+  progressUI(x)+
+  (currentSource?'<p class="detail-source-current">Источник: '+esc(currentSource.name||currentSource.platform||'Видео')+'</p>':'')+
+  panel+'</div></section>';
 }
 function availableSources(x){
  const sources=[],set=new Set();
@@ -470,7 +489,7 @@ function player(){
 function render(){
  const names=['home','catalog','new','search','settings'];
  document.querySelectorAll('#nav button').forEach(b=>{
-  const active=b.dataset.nav===S.page||(S.page==='detail'&&b.dataset.nav==='catalog')||(S.page==='player'&&b.dataset.nav==='catalog');
+  const active=b.dataset.nav===S.page||((S.page==='detail'||S.page==='player')&&b.dataset.nav==='home');
   b.classList.toggle('nav-active',active);
  });
  const html=S.page==='home'?home():S.page==='catalog'?catalog():S.page==='new'?newShows():
@@ -588,7 +607,14 @@ function record(key){
  S.recent=[{key,date:Date.now()},...S.recent.filter(x=>x.key!==key)].slice(0,12);
  save('tv-recent',S.recent);
 }
-function openShow(key){if(!item(key))return;navigate('detail',key);loadEpisodes(key);}
+function openShow(key){
+ if(!item(key))return;
+ const p=getProgress(key)||{};
+ S.season=Math.max(1,Number(p.season)||1);
+ S.episode=Math.max(1,Number(p.episode)||1);
+ S.source=Number(S.sourceChoice[key]??p.source??0)||0;
+ navigate('detail',key);loadEpisodes(key);
+}
 function watch(key){
  const x=item(key||S.show);if(!x)return;
  const previous=getProgress(x.key)||{};
@@ -615,7 +641,7 @@ function refreshPlayer(){
 function goBack(){
  if(S.cursor){stopCursor();return true;}
  if(S.page==='player'){S.directWatch=false;navigate('detail',S.show);return true;}
- if(S.page==='detail'){navigate('catalog');return true;}
+ if(S.page==='detail'){navigate('home');return true;}
  if(S.page!=='home'){navigate('home');return true;}
  return false;
 }
@@ -725,7 +751,8 @@ function buildFocusRows(){
     [...rows.values()].forEach((items,i)=>add(S.page+':grid:'+i,items));
   }else if(S.page==='detail'){
     add('detail:actions',root.querySelectorAll('.detail .detail-commands button'));
-    add('detail:progress',root.querySelectorAll('.detail .progress-picker button, .detail [data-act="progress-save"]'));
+     add('detail:status',root.querySelectorAll('.detail [data-act="progress-edit"]'));
+     add('detail:progress',root.querySelectorAll('.detail .progress-picker button, .detail [data-act="progress-save"]'));
     [...root.querySelectorAll('.detail [data-act="preselect-source"]')].forEach((b,i)=>add('detail:source:'+i,[b]));
   }else if(S.page==='settings'){
     [...root.querySelectorAll('.settings-box button')].forEach((el,i)=>add('settings:'+i,[el]));
@@ -771,7 +798,7 @@ function nearestFocusY(from,items){
   return result;
 }
 function currentNavButton(){
-  const section=S.page==='detail'||S.page==='player'?'catalog':S.page;
+  const section=S.page==='detail'||S.page==='player'?'home':S.page;
   return document.querySelector('#nav button[data-nav="'+section+'"]')||
     document.querySelector('#nav button.nav-active');
 }
@@ -906,6 +933,18 @@ document.addEventListener('click',e=>{
  if(act==='detail')openShow(key);
  if(act==='continue')watch(key);
  if(act==='play')watch(key);
+ if(act==='progress-edit'&&item(S.show)){
+   const opening=!S.progressEditOpen;
+   if(opening){
+     const p=getProgress(S.show);
+     S.progressDraft[S.show]={season:Math.max(1,Number(p?.season)||1),
+                              episode:Math.max(1,Number(p?.episode)||1)};
+     S.optionsOpen=false;
+   }
+   S.progressEditOpen=opening;
+   focusKey='progress-edit';render();
+   document.querySelector('[data-focus="progress-edit"]')?.focus({preventScroll:true});
+ }
  if(act==='progress-step'&&item(S.show)){
    const part=b.dataset.part==='season'?'season':'episode';
    const step=Number(b.dataset.step)===-1?-1:1;
@@ -919,8 +958,8 @@ document.addEventListener('click',e=>{
    setProgress(S.show,{season:draft.season,episode:draft.episode,
       confirmed:true,auto:false,completed:false,seconds:0,duration:0,mediaUrl:null,
       openedAt:Number(existing.openedAt)||Date.now()});
-   focusKey=null;render();
-   document.querySelector('[data-act="progress-save"]')?.focus({preventScroll:true});
+   S.progressEditOpen=false;focusKey='progress-edit';render();
+   document.querySelector('[data-focus="progress-edit"]')?.focus({preventScroll:true});
    notify('Сохранено: '+episodeCode(draft.season,draft.episode));
  }
  if(act==='back')goBack();
@@ -934,7 +973,9 @@ document.addEventListener('click',e=>{
  }
  if(act==='source'){S.source=Number(b.dataset.index)||0;S.sourceChoice[S.show]=S.source;save('tv-source-choice',S.sourceChoice);refreshPlayer();}
  if(act==='player-options'){
-   S.optionsOpen=!S.optionsOpen;focusKey='player-options';render();
+   S.optionsOpen=!S.optionsOpen;
+   if(S.optionsOpen)S.progressEditOpen=false;
+   focusKey='player-options';render();
    document.querySelector('[data-focus="player-options"]')?.focus({preventScroll:true});
  }
  if(act==='preselect-source'){
