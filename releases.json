@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-19T01:30:17Z",
+  "updatedAt": "2026-11-20T00:55:58Z",
   "entries": [
+    {
+      "id": "cc58267cddcecb94d97f",
+      "title": "Парижская полиция 1900 (Paris Police 1900). Третья серия. (S03E03)",
+      "seriesRu": "Парижская полиция 1900",
+      "seriesEn": "Paris Police 1900",
+      "season": 3,
+      "episode": 3,
+      "published": "2026-11-19T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Paris_Police_1900/season_3/episode_3/"
+    },
     {
       "id": "65b239e3f1cdde5c9be3",
       "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Гундабад. (S03E04)",
