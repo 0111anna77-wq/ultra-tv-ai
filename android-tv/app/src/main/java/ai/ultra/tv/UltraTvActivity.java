@@ -1,0 +1,659 @@
+package ai.ultra.tv;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.SystemClock;
+import android.view.MotionEvent;
+import android.view.inputmethod.InputMethodManager;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import java.io.ByteArrayInputStream;
+import android.widget.Toast;
+import android.widget.FrameLayout;
+
+/**
+ * Private Android TV client for the same Ultra TV website.
+ * The video iframe is still a separate website: this shell does NOT bypass
+ * its restrictions or expose the internal video clock.
+ */
+public final class UltraTvActivity extends Activity {
+    private static final String HOME = "https://ultra-tv-ai.pages.dev/tv.html";
+    private FrameLayout container;
+    private WebView webView;
+    private AdBlockFilter adBlockFilter;
+    private BundledSite bundledSite;
+    private AppUpdateManager appUpdateManager;
+    private RemoteDebugServer remoteDebugServer;
+    private ReverseDebugClient reverseDebugClient;
+    private volatile String lastJsError = "";
+    private volatile String lastNetworkError = "";
+    private TvPointerOverlay pointerOverlay;
+    private boolean pointerMode;
+    private boolean okHeld;
+    private boolean longOkTriggered;
+    private final Runnable activatePointerOnLongOk = () -> {
+        if (okHeld && !pointerMode && !isFinishing()) {
+            longOkTriggered = true;
+            showNativePointer(.5f, .5f);
+        }
+    };
+    private View fullscreenView;
+    private WebChromeClient.CustomViewCallback fullscreenCallback;
+    // Intercept long BACK before the WebView consumes directional/key events.
+    private final Handler remoteHandler = new Handler(Looper.getMainLooper());
+    private boolean backHeld = false;
+    private boolean longBackOpenedSettings = false;
+    private final Runnable openSettingsOnLongBack = () -> {
+        if (backHeld && !isFinishing()) {
+            longBackOpenedSettings = true;
+            if (fullscreenView != null) exitFullscreen();
+            showFilterDialog();
+        }
+    };
+ 
+    @SuppressLint("SetJavaScriptEnabled")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        container = new FrameLayout(this);
+        setContentView(container);
+        hideSystemBars();
+        adBlockFilter = new AdBlockFilter(this);
+        bundledSite = new BundledSite(this);
+        appUpdateManager = new AppUpdateManager(this);
+
+        webView = new WebView(this);
+        webView.setFocusable(true);
+        webView.setFocusableInTouchMode(true);
+        webView.setBackgroundColor(0xff0d1015);
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setMediaPlaybackRequiresUserGesture(true);
+        settings.setSupportMultipleWindows(false);
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setAllowFileAccess(false);
+        settings.setAllowContentAccess(false);
+        settings.setAllowFileAccessFromFileURLs(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            settings.setSafeBrowsingEnabled(true);
+        }
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                final Uri url = request.getUrl();
+                // A tiny same-origin image request bridges the first-party TV
+                // buttons to Android. This avoids unsafe JavaScript interfaces.
+                if (!request.isForMainFrame()
+                        && "https".equalsIgnoreCase(url.getScheme())
+                        && "ultra-tv-ai.pages.dev".equalsIgnoreCase(url.getHost())
+                        && "/_native/pointer".equals(url.getPath())) {
+                    final String mode = url.getQueryParameter("mode");
+                    float px = .5f, py = .5f;
+                    try {
+                        px = Float.parseFloat(url.getQueryParameter("x"));
+                        py = Float.parseFloat(url.getQueryParameter("y"));
+                    } catch (RuntimeException ignored) { }
+                    final float x = px, y = py;
+                    runOnUiThread(() -> {
+                        if ("on".equals(mode)) showNativePointer(x, y);
+                        else if ("off".equals(mode)) hideNativePointer(false);
+                    });
+                    return new WebResourceResponse("image/gif", "UTF-8",
+                            new ByteArrayInputStream(new byte[0]));
+                }
+                WebResourceResponse local = bundledSite.serve(url);
+                if (local != null) return local;
+                return adBlockFilter.maybeBlock(request.getUrl(), request.isForMainFrame());
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request,
+                                        android.webkit.WebResourceError error) {
+                if (remoteDebugServer != null && remoteDebugServer.isRunning()) {
+                    String host = request.getUrl() != null ? request.getUrl().getHost() : "";
+                    lastNetworkError = "WebView: " + error.getErrorCode() + " · " + host;
+                }
+                super.onReceivedError(view, request, error);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if (!request.isForMainFrame()) return false;
+                Uri uri = request.getUrl();
+                if ("ultratv".equals(uri.getScheme())) {
+                    switch (uri.getHost() == null ? "" : uri.getHost()) {
+                        case "settings":
+                            runOnUiThread(() -> showFilterDialog());
+                            break;
+                        case "remote-debug":
+                            runOnUiThread(() -> showDebugModeDialog());
+                            break;
+                        case "app-update":
+                            runOnUiThread(() -> appUpdateManager.check(true));
+                            break;
+                        case "keyboard":
+                            webView.postDelayed(() -> {
+                                InputMethodManager ime = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                if (ime != null) ime.showSoftInput(webView, InputMethodManager.SHOW_IMPLICIT);
+                            }, 90);
+                            break;
+                        case "tap":
+                            try {
+                                float x = Float.parseFloat(uri.getQueryParameter("x"));
+                                float y = Float.parseFloat(uri.getQueryParameter("y"));
+                                if (Float.isFinite(x) && Float.isFinite(y)
+                                        && x > 0 && y > 0 && x < 1 && y < 1) {
+                                    webView.post(() -> touchWebView(x, y));
+                                }
+                            } catch (RuntimeException ignored) { }
+                            break;
+                        default: break;
+                    }
+                    return true;
+                }
+                if ("https".equals(uri.getScheme()) && "ultra-tv-ai.pages.dev".equals(uri.getHost())) return false;
+                if ("https".equals(uri.getScheme())) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                    } catch (ActivityNotFoundException ignored) {
+                        // Stay in app if there is no external browser on the TV.
+                    }
+                }
+                return true;
+            }
+        });
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(android.webkit.ConsoleMessage m) {
+                if (remoteDebugServer != null && remoteDebugServer.isRunning()
+                        && m.messageLevel() == android.webkit.ConsoleMessage.MessageLevel.ERROR) {
+                    String msg = m.message() == null ? "" : m.message();
+                    lastJsError = "JS " + m.lineNumber() + ": " + msg.substring(0, Math.min(140, msg.length()));
+                }
+                return super.onConsoleMessage(m);
+            }
+            @Override
+            public void onShowCustomView(View view, CustomViewCallback callback) {
+                if (fullscreenView != null) {
+                    callback.onCustomViewHidden();
+                    return;
+                }
+                fullscreenView = view;
+                fullscreenCallback = callback;
+                container.addView(view, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                webView.setVisibility(View.GONE);
+                if (pointerOverlay != null) pointerOverlay.bringToFront();
+                hideSystemBars();
+            }
+            @Override
+            public void onHideCustomView() {
+                exitFullscreen();
+            }
+        });
+        container.addView(webView, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        pointerOverlay = new TvPointerOverlay(this);
+        pointerOverlay.setVisibility(View.GONE);
+        container.addView(pointerOverlay, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        Toast.makeText(this,
+                "Настройки: удерживайте «Назад». Указатель: удерживайте OK.",
+                Toast.LENGTH_LONG).show();
+        if (savedInstanceState == null || webView.restoreState(savedInstanceState) == null) {
+            webView.loadUrl(HOME);
+        }
+        webView.requestFocus();
+        // A quiet once-per-day version check, never an automatic installation.
+        webView.postDelayed(() -> {
+            if (!isFinishing() && appUpdateManager != null) appUpdateManager.checkOccasionally();
+        }, 6000);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (appUpdateManager != null) appUpdateManager.onResume();
+    }
+
+    private void showFilterDialog() {
+        boolean on = adBlockFilter.isEnabled();
+        String status = on ? "включён" : "выключен";
+        String last = adBlockFilter.getLastBlockedHost();
+        String message = "Фильтр " + status
+                + ".\nЗаблокировано запросов: " + adBlockFilter.getBlockedCount()
+                + " из " + adBlockFilter.getObservedRequests()
+                + ". Правил доменов: " + adBlockFilter.getDomainCount() + ".\n"
+                + (last.isEmpty() ? "" : "Последний заблокированный: " + last + "\n")
+                + "\nСторонние адреса, которые не заблокированы (не обязательно реклама):"
+                + "\n" + adBlockFilter.getUnblockedHostSummary()
+                + "\n\nЕсли реклама всё равно идёт, возможна загрузка с другого домена "
+                + "или внутри видеопотока — текущий фильтр блокирует лишь известные домены. "
+                + "Эту диагностику можно сфотографировать для уточнения правил. "
+                + "\n\nПереключение перезапустит страницу и прервёт видео.";
+        new AlertDialog.Builder(this)
+                .setTitle("Ultra TV · Фильтр рекламы")
+                .setMessage(message)
+                .setPositiveButton(on ? "Выключить фильтр" : "Включить фильтр", (dialog, which) -> {
+                    adBlockFilter.setEnabled(!on);
+                    restartAfterAdFilterChange();
+                })
+                .setNeutralButton("Обновить страницу", (dialog, which) -> {
+                    if (webView != null) webView.reload();
+                })
+                .setNegativeButton("Закрыть", null)
+                .show();
+    }
+
+    private void restartAfterAdFilterChange() {
+        if (fullscreenView != null) exitFullscreen();
+        hideNativePointer(true);
+        if (webView != null) {
+            webView.stopLoading();
+            // Initem often persists old iframe responses. On filter toggle,
+            // recheck networking with a clean page and clear network cache.
+            webView.clearCache(true);
+            webView.loadUrl(HOME);
+        }
+    }
+
+    /** Choose the direction. Reverse mode works when inbound TV connections are VPN-blocked. */
+    private void showDebugModeDialog() {
+        if (reverseDebugClient != null && reverseDebugClient.isEnabled()) {
+            new AlertDialog.Builder(this)
+                .setTitle("Ultra TV · соединение с ПК")
+                .setMessage(reverseDebugClient.getStatus()
+                        + "\nАдрес ПК: " + reverseDebugClient.getHost()
+                        + "\n\nСеанс не дольше 2 часов. Только интерфейс Ultra TV.")
+                .setPositiveButton("Закрыть", null)
+                .setNegativeButton("Отключить", (dialog, which) -> reverseDebugClient.stop())
+                .show();
+            return;
+        }
+        if (remoteDebugServer != null && remoteDebugServer.isRunning()) {
+            showRemoteDebugDialog();
+            return;
+        }
+        String last = reverseDebugClient == null ? "" : reverseDebugClient.getStatus();
+        new AlertDialog.Builder(this)
+            .setTitle("Удалённая отладка · 0.30 (2 часа)")
+            // Android AlertDialog cannot show .setMessage and .setItems together:
+            // the message hides the list (reproduced on KION in 0.29).
+            .setItems(new String[] {
+                    "Приставка → ПК (новый способ, через VPN)",
+                    "ПК → приставка (режим 0.28)"
+            }, (dialog, choice) -> {
+                if (choice == 0) showReverseDebugDialog();
+                else showRemoteDebugDialog();
+            })
+            .setNegativeButton("Отмена", null).show();
+    }
+
+    private void showReverseDebugDialog() {
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pad = (int)(18 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, 0, pad, 0);
+
+        android.widget.EditText host = new android.widget.EditText(this);
+        host.setSingleLine(true);
+        host.setHint("IP компьютера (например, 192.168.0.106)");
+        host.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        host.setText(getPreferences(MODE_PRIVATE).getString("last_pc_lan_ip", ""));
+        layout.addView(host);
+
+        android.widget.EditText code = new android.widget.EditText(this);
+        code.setSingleLine(true);
+        code.setHint("Шестизначный код из PowerShell");
+        code.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        code.setFilters(new android.text.InputFilter[] {
+                new android.text.InputFilter.LengthFilter(6)
+        });
+        layout.addView(code);
+
+        new AlertDialog.Builder(this)
+            .setTitle("Приставка → ПК · обратная отладка")
+            .setMessage("Сначала запустите на ПК relay.py. Введите IP компьютера"
+                    + " и временный код из окна PowerShell."
+                    + "\nИспользуется только домашняя сеть. Нет ADB или доступа к Android.")
+            .setView(layout)
+            .setPositiveButton("Подключиться", (dialog, which) -> {
+                if (remoteDebugServer != null) remoteDebugServer.stop();
+                if (remoteDebugServer == null)
+                    remoteDebugServer = new RemoteDebugServer(this, webView);
+                if (reverseDebugClient == null)
+                    reverseDebugClient = new ReverseDebugClient(this, remoteDebugServer);
+                String address = host.getText().toString().trim();
+                String pin = code.getText().toString().trim();
+                lastJsError = "";
+                lastNetworkError = "";
+                boolean launched = reverseDebugClient.start(address, pin);
+                if (launched) getPreferences(MODE_PRIVATE).edit()
+                        .putString("last_pc_lan_ip", address).apply();
+                Toast.makeText(this, launched ? "Соединение с ПК… Проверьте статус в настройках"
+                        : "Некорректный адрес или код", Toast.LENGTH_LONG).show();
+            })
+            .setNegativeButton("Отмена", null)
+            .show();
+    }
+
+    /** Remote diagnostics are opt-in, LAN-only, app-only, and expire in 2 hours. */
+    private void showRemoteDebugDialog() {
+        if (remoteDebugServer == null) remoteDebugServer = new RemoteDebugServer(this, webView);
+        if (!remoteDebugServer.isRunning()) {
+            new AlertDialog.Builder(this)
+                .setTitle("Удалённая отладка Ultra TV")
+                .setMessage("Временно разрешить управление только Ultra TV по домашней Wi-Fi-сети?\n\n"
+                        + "Будут доступны: кнопки пульта, снимок интерфейса, текущая вкладка, ошибки JS и сети. "
+                        + "Другие приложения и настройки Android недоступны.\n\n"
+                        + "Сеанс отключится сам через 2 часа или при выходе из приложения. "
+                        + "Включайте только в доверенной домашней сети.")
+                .setPositiveButton("Включить на 2 часа", (dialog, which) -> {
+                    lastJsError = "";
+                    lastNetworkError = "";
+                    if (remoteDebugServer.start()) showRemoteDebugDialog();
+                    else new AlertDialog.Builder(this)
+                        .setTitle("Нет подключения")
+                        .setMessage("Не обнаружен локальный адрес Wi-Fi/Ethernet. "
+                                + "Проверьте подключение приставки к домашней сети.")
+                        .setPositiveButton("Закрыть", null).show();
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
+            return;
+        }
+        new AlertDialog.Builder(this)
+            .setTitle("Ultra TV · отладка включена")
+            .setMessage("Откройте на ПК в той же локальной сети:\n"
+                    + remoteDebugServer.getAddress()
+                    + "\n\nКод подключения: " + remoteDebugServer.getPin()
+                    + "\nОсталось примерно " + (remoteDebugServer.remainingSeconds() / 60 + 1)
+                    + " мин.\n\nНе пересылайте код посторонним. "
+                    + "Доступ действует только к приложению Ultra TV.")
+            .setPositiveButton("Закрыть", null)
+            .setNegativeButton("Отключить отладку", (dialog, which) -> remoteDebugServer.stop())
+            .show();
+    }
+
+    String getLastJsError() { return lastJsError; }
+    String getLastNetworkError() { return lastNetworkError; }
+    boolean isTvFullscreen() { return fullscreenView != null; }
+
+    void remoteAppKey(String key) {
+        if (!isDebugging() || webView == null) return;
+        if ("BACK".equals(key)) { onBackPressed(); return; }
+        if ("HOME".equals(key)) {
+            webView.evaluateJavascript("if(typeof navigate==='function')navigate('home');", null);
+            return;
+        }
+        int code;
+        switch (key) {
+            case "UP": code = KeyEvent.KEYCODE_DPAD_UP; break;
+            case "DOWN": code = KeyEvent.KEYCODE_DPAD_DOWN; break;
+            case "LEFT": code = KeyEvent.KEYCODE_DPAD_LEFT; break;
+            case "RIGHT": code = KeyEvent.KEYCODE_DPAD_RIGHT; break;
+            case "OK": code = KeyEvent.KEYCODE_DPAD_CENTER; break;
+            default: return;
+        }
+        long t = SystemClock.uptimeMillis();
+        dispatchKeyEvent(new KeyEvent(t, t, KeyEvent.ACTION_DOWN, code, 0));
+        dispatchKeyEvent(new KeyEvent(t, t + 35, KeyEvent.ACTION_UP, code, 0));
+    }
+    void remoteAppTap(float x, float y) {
+        if (!isDebugging() || webView == null) return;
+        touchWebView(x, y);
+    }
+    private boolean isDebugging() {
+        return (remoteDebugServer != null && remoteDebugServer.isRunning())
+                || (reverseDebugClient != null && reverseDebugClient.isRunning());
+    }
+
+    /**
+     * Hardware remote shortcut: hold Back for 1.5 seconds to open native settings.
+     * This runs BEFORE dispatching to WebView and works even if D-pad focus is trapped
+     * inside the site, iframe or fullscreen player.
+     * Short Back preserves the normal player-close/navigation behavior.
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int key = event.getKeyCode();
+        if (pointerMode) {
+            if (key == KeyEvent.KEYCODE_BACK) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                    // Restore WebView before invoking the JavaScript return route.
+                    if (fullscreenView != null) exitFullscreen();
+                    hideNativePointer(true);
+                }
+                return true;
+            }
+            if (key == KeyEvent.KEYCODE_DPAD_UP || key == KeyEvent.KEYCODE_DPAD_DOWN
+                    || key == KeyEvent.KEYCODE_DPAD_LEFT || key == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN && pointerOverlay != null) {
+                    float step = event.getRepeatCount() > 2 ? .075f : .045f;
+                    float x = pointerOverlay.getRelativeX(), y = pointerOverlay.getRelativeY();
+                    if (key == KeyEvent.KEYCODE_DPAD_LEFT) x -= step;
+                    if (key == KeyEvent.KEYCODE_DPAD_RIGHT) x += step;
+                    if (key == KeyEvent.KEYCODE_DPAD_UP) y -= step;
+                    if (key == KeyEvent.KEYCODE_DPAD_DOWN) y += step;
+                    pointerOverlay.position(x, y);
+                }
+                return true;
+            }
+            if (key == KeyEvent.KEYCODE_DPAD_CENTER || key == KeyEvent.KEYCODE_ENTER) {
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    // Do not click on the release of the long OK which
+                    // entered pointer mode in the first place.
+                    if (!longOkTriggered) tapNativePointer();
+                    okHeld = false;
+                    longOkTriggered = false;
+                }
+                return true;
+            }
+        }
+        // Fallback: hold OK for 900ms to enter native cursor mode, even
+        // if the iframe has trapped keyboard focus. Normal short OK is
+        // forwarded to WebView/HTML5 fullscreen.
+        if (key == KeyEvent.KEYCODE_DPAD_CENTER || key == KeyEvent.KEYCODE_ENTER) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (event.getRepeatCount() == 0) {
+                    okHeld = true;
+                    longOkTriggered = false;
+                    remoteHandler.removeCallbacks(activatePointerOnLongOk);
+                    remoteHandler.postDelayed(activatePointerOnLongOk, 900L);
+                }
+                return true;
+            }
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                remoteHandler.removeCallbacks(activatePointerOnLongOk);
+                boolean normalClick = okHeld && !longOkTriggered && !event.isCanceled();
+                okHeld = false;
+                longOkTriggered = false;
+                if (normalClick) forwardOk(key);
+                return true;
+            }
+        }
+        if (key == KeyEvent.KEYCODE_MENU || key == KeyEvent.KEYCODE_SETTINGS) {
+            if (event.getAction() == KeyEvent.ACTION_UP) showFilterDialog();
+            return true;
+        }
+        if (key == KeyEvent.KEYCODE_BACK) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (event.getRepeatCount() == 0) {
+                    backHeld = true;
+                    longBackOpenedSettings = false;
+                    remoteHandler.removeCallbacks(openSettingsOnLongBack);
+                    remoteHandler.postDelayed(openSettingsOnLongBack, 1500L);
+                }
+                return true;
+            }
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                remoteHandler.removeCallbacks(openSettingsOnLongBack);
+                boolean normalBack = backHeld && !longBackOpenedSettings && !event.isCanceled();
+                backHeld = false;
+                longBackOpenedSettings = false;
+                if (normalBack) onBackPressed();
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    /** Native cursor remains visible above WebView and fullscreen custom views. */
+    private void showNativePointer(float x, float y) {
+        if (pointerOverlay == null) return;
+        pointerMode = true;
+        if (!Float.isFinite(x) || !Float.isFinite(y)) { x = .5f; y = .5f; }
+        pointerOverlay.position(x, y);
+        pointerOverlay.setVisibility(View.VISIBLE);
+        pointerOverlay.bringToFront();
+    }
+
+    private void hideNativePointer(boolean notifyWeb) {
+        if (!pointerMode) return;
+        pointerMode = false;
+        if (pointerOverlay != null) pointerOverlay.setVisibility(View.GONE);
+        if (notifyWeb && webView != null) {
+            webView.evaluateJavascript(
+                "if(window.UltraTVRemote&&window.UltraTVRemote.releaseCursor)" +
+                "window.UltraTVRemote.releaseCursor(true);", null);
+        }
+    }
+
+    private void forwardOk(int key) {
+        View target = fullscreenView != null ? fullscreenView : webView;
+        if (target == null) return;
+        long t = SystemClock.uptimeMillis();
+        target.dispatchKeyEvent(new KeyEvent(t, t, KeyEvent.ACTION_DOWN, key, 0));
+        target.dispatchKeyEvent(new KeyEvent(t, t + 22L, KeyEvent.ACTION_UP, key, 0));
+    }
+
+    private void tapNativePointer() {
+        if (pointerOverlay == null) return;
+        // After 3 seconds of inactivity the crosshair fades out.
+        // The first OK only reveals it: no invisible, accidental player clicks.
+        if (!pointerOverlay.isCursorVisible()) {
+            pointerOverlay.reveal();
+            return;
+        }
+        pointerOverlay.clicked();
+        touchWebView(pointerOverlay.getRelativeX(), pointerOverlay.getRelativeY());
+    }
+
+    /** Inject a real touch for third-party iframe controls; synthetic JS events
+     * cannot cross the iframe's origin boundary. Touches stay inside WebView. */
+    private void touchWebView(float normalizedX, float normalizedY) {
+        View target = fullscreenView != null ? fullscreenView : webView;
+        if (target == null || target.getWidth() <= 0 || target.getHeight() <= 0) return;
+        final float x = normalizedX * target.getWidth();
+        final float y = normalizedY * target.getHeight();
+        final long now = SystemClock.uptimeMillis();
+        MotionEvent down = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, x, y, 0);
+        target.dispatchTouchEvent(down);
+        down.recycle();
+        MotionEvent up = MotionEvent.obtain(now, now + 65L, MotionEvent.ACTION_UP, x, y, 0);
+        target.dispatchTouchEvent(up);
+        up.recycle();
+    }
+
+    private void hideSystemBars() {
+        getWindow().getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+    }
+
+    private void exitFullscreen() {
+        if (fullscreenView == null) return;
+        container.removeView(fullscreenView);
+        fullscreenView = null;
+        webView.setVisibility(View.VISIBLE);
+        if (fullscreenCallback != null) {
+            fullscreenCallback.onCustomViewHidden();
+            fullscreenCallback = null;
+        }
+        hideNativePointer(true);
+        hideSystemBars();
+        webView.requestFocus();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pointerMode) {
+            hideNativePointer(true);
+            return;
+        }
+        if (fullscreenView != null) {
+            exitFullscreen();
+            return;
+        }
+        if (webView == null) {
+            super.onBackPressed();
+            return;
+        }
+        // For the site's native modal, Back should close the player first.
+        // Cross-origin iframe internals are deliberately not accessed.
+        webView.evaluateJavascript(
+            "(function(){if(window.UltraTVRemote&&window.UltraTVRemote.back){" +
+            "return !!window.UltraTVRemote.back();}" +
+            "var x=document.querySelector('#player-root');" +
+            "if(x&&x.children.length&&window.UltraTVPlayer){" +
+            "window.UltraTVPlayer.close();return true;}return false;})()",
+            result -> {
+                if ("true".equals(result)) return;
+                if (webView != null && webView.canGoBack()) webView.goBack();
+                else UltraTvActivity.super.onBackPressed();
+            });
+    }
+
+    @Override
+    protected void onStop() {
+        if (remoteDebugServer != null) remoteDebugServer.stop();
+        if (reverseDebugClient != null) reverseDebugClient.stop();
+        super.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle out) {
+        if (webView != null) webView.saveState(out);
+        super.onSaveInstanceState(out);
+    }
+
+    @Override
+    protected void onDestroy() {
+        remoteHandler.removeCallbacks(openSettingsOnLongBack);
+        remoteHandler.removeCallbacks(activatePointerOnLongOk);
+        if (appUpdateManager != null) appUpdateManager.shutdown();
+        if (remoteDebugServer != null) remoteDebugServer.stop();
+        if (reverseDebugClient != null) reverseDebugClient.stop();
+        if (webView != null) {
+            container.removeView(webView);
+            webView.destroy();
+            webView = null;
+        }
+        super.onDestroy();
+    }
+}

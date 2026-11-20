@@ -1,0 +1,1596 @@
+:root{color-scheme:dark;--bg:#091018;--panel:#141b25;--card:#151d27;--line:#2b3542;--text:#f6f5f3;--muted:#a9b3bd;--gold:#eac58d;--gold2:#f8dba9}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:auto}body{margin:0;font-family:Arial,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(ellipse at 80% -15%,#263247 0%,#121d29 30%,#091018 67%);min-height:100vh;font-size:20px}button,input{font:inherit}button{cursor:pointer}button:focus,button:focus-visible,input:focus,select:focus,.player-frame:focus{outline:4px solid var(--gold2)!important;outline-offset:5px!important;box-shadow:0 0 0 4px #edc99223;z-index:2;position:relative}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:34px;padding:23px 55px 20px;background:linear-gradient(180deg,#0b141feb 0%,#0b141fe8 75%,#101c26cf);border-bottom:1px solid #273440}
+.brand{display:flex;align-items:center;gap:4px;font-size:29px;letter-spacing:.05em;font-weight:900;white-space:nowrap}.brand span:not(.brand-icon){color:var(--gold)}.brand-icon{display:grid;place-items:center;width:38px;height:38px;margin-right:8px;border:2px solid var(--gold);border-radius:12px;font-size:19px;color:var(--gold)}.brand small{font-size:11px;align-self:flex-start;color:var(--muted);margin-left:3px}
+nav{display:flex;gap:10px;align-items:center;flex:1}nav button{border:0;color:#abb3c1;border-radius:12px;background:transparent;font-size:20px;padding:12px 19px;white-space:nowrap}nav button.nav-active{background:#29303b;color:#f5d5a0}nav button:focus{color:#fff;background:#414149}.net-status{font-size:14px;color:#afbdc8;white-space:nowrap}
+main{padding:25px 58px 120px;outline:none}h1,h2,p{margin-top:0}.eyebrow{color:#dfb77b;font-size:15px;letter-spacing:.14em;font-weight:700;text-transform:uppercase}.hero{position:relative;min-height:390px;display:flex;align-items:center;border-radius:25px;border:1px solid #4a4c48;overflow:hidden;background:linear-gradient(105deg,#2b2d34,#141e2a 75%);padding:48px 58px;margin-bottom:42px}.hero-art{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;opacity:.43;filter:blur(6px);transform:scale(1.06)}.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0b111aed 10%,#101723c4 52%,#131c1a24 100%)}.hero-inner{position:relative;z-index:1;width:min(850px,70%)}.hero h1{font-size:clamp(36px,4.6vw,70px);line-height:1.08;margin:15px 0 18px;letter-spacing:-.04em}.hero p{color:#d3d6d5;font-size:23px;line-height:1.4}.hero-actions,.actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.primary,.secondary,.action{border-radius:14px;padding:15px 25px;font-size:21px;font-weight:700;min-height:56px}.primary{border:1px solid #ffdb9e;color:#1b2027;background:var(--gold2)}.secondary,.action{border:1px solid #526076;color:#f0f0ee;background:#273240}.action{font-weight:500;font-size:18px}.subtle{font-size:16px;color:var(--muted)}.banner{border:1px solid #554832;border-radius:12px;background:#2a2925;color:#e9ce9b;padding:14px 22px;margin:14px 0}
+.rail{margin-bottom:44px}.rail h2,.section-title{font-size:29px;font-weight:750;margin:0 0 22px;letter-spacing:-.02em}.rail .strip{display:flex;gap:22px;padding:9px 9px 18px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;scroll-behavior:auto}.strip::-webkit-scrollbar{display:none}
+.card{padding:0 0 11px;border:0;border-radius:14px;background:transparent;color:#fff;text-align:left;flex:0 0 clamp(150px,14.1vw,245px);width:clamp(150px,14.1vw,245px);min-width:0;overflow:visible}.art{height:auto;aspect-ratio:2/3;border:1px solid #46525f;border-radius:14px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(145deg,#354355,#17212e);position:relative}.art img{width:100%;height:100%;object-fit:cover}.art .no-art{font-size:70px;color:#e7c38c}.card:focus .art{border-color:#ffdfa8;transform:none;transition:none}.card-title{display:block;font-size:19px;font-weight:700;margin:14px 5px 4px;line-height:1.25}.card-sub{display:block;font-size:14px;color:#aeb7c2;margin:0 5px}.card .pill{position:absolute;bottom:12px;left:12px;border-radius:8px;padding:5px 8px;font-size:13px;background:#1119;color:#f6dfaf}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:28px}.cards-grid .card{width:100%;flex:none}
+.detail{display:grid;grid-template-columns:minmax(240px,330px) minmax(0,1fr);gap:50px;align-items:start;padding:18px 0}.detail-art{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:21px;border:1px solid #545e6b;background:#202c3a}.detail h1{font-size:clamp(34px,4vw,65px);margin:16px 0}.detail h2{font-size:25px}.detail p{font-size:21px;line-height:1.45;color:#c6ccd1}.badge{display:inline-flex;border:1px solid #665034;border-radius:9px;padding:7px 12px;font-size:16px;color:#f4d3a2;margin:0 9px 12px 0;background:#322d28}
+.select-list{display:flex;gap:11px;flex-wrap:wrap;padding:10px 0 22px}.select-list button{background:#222d39;border:1px solid #465569;border-radius:10px;color:#dbe2e6;padding:10px 17px;font-size:17px;min-width:55px}.select-list button.selected{background:#75603b;color:#fff;border-color:#e8bf7c}
+.player-screen{display:grid;grid-template-columns:minmax(0,1fr) 305px;gap:28px;align-items:start}.player-main h1{font-size:30px;margin:8px 0 15px}.player-frame{width:100%;aspect-ratio:16/9;display:block;background:#03070b;border:2px solid #34404d;border-radius:18px;overflow:hidden;position:relative}.player-frame iframe{display:block;width:100%;height:100%;border:0;background:black}.player-help{font-size:17px;color:#c4cdd7;line-height:1.45;margin:19px 0}.player-tools{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0}.player-tools button{background:#2b3541;color:white;border:1px solid #58677a;border-radius:12px;font-size:19px;min-height:58px;padding:12px 17px}.player-tools button.feature{background:#463b2d;border-color:#b89864;color:#ffdaa5}.player-side{border:1px solid #2d3c4a;border-radius:18px;background:#151d27;padding:22px}.player-side h2{font-size:23px;margin:0 0 16px}.player-side button{display:block;width:100%;background:#25303d;color:white;border:1px solid #465466;border-radius:10px;text-align:left;font-size:17px;padding:14px;margin-bottom:11px;line-height:1.3}.player-side .active{border-color:#d4ae73;background:#534530}
+.field{background:#202d3a;border:2px solid #586675;border-radius:14px;color:white;min-height:64px;font-size:23px;padding:15px 19px;width:min(750px,100%);margin:0 0 20px}.field::placeholder{color:#a1b0bb}.hint{color:#d8c398;font-size:16px}.search-results{margin-top:30px}.settings-box{max-width:900px;background:#1a2430;border:1px solid #364553;border-radius:16px;padding:30px;line-height:1.55}.settings-box p{color:#c0c9d2}.line{height:1px;background:#354150;margin:26px 0}
+.empty{color:#bbc3ce;padding:35px;border:1px dashed #515b68;border-radius:15px;font-size:21px}.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:80;color:white;background:#263440;border:1px solid #d0aa73;border-radius:12px;padding:15px 24px;font-size:18px;opacity:0;transition:opacity .25s;pointer-events:none}.toast.show{opacity:1}
+@media(max-width:1050px){.topbar{padding:15px 25px;gap:16px}.brand{font-size:22px}nav{gap:2px}nav button{font-size:16px;padding:8px}main{padding:20px 28px}.player-screen{grid-template-columns:1fr}.player-side{display:flex;gap:12px;flex-wrap:wrap}.player-side h2{width:100%}.player-side button{width:auto;flex:1}.detail{grid-template-columns:220px 1fr;gap:23px}.card{flex-basis:175px}}
+@media(max-width:690px){.topbar{flex-wrap:wrap}.brand{width:100%}.net-status{display:none}main{padding:18px}.hero{min-height:290px;padding:25px}.hero-inner{width:95%}.hero h1{font-size:38px}.hero p{font-size:17px}.rail h2{font-size:23px}.card{flex-basis:165px}.detail{grid-template-columns:1fr}.detail-art{width:190px}.player-frame{border-radius:10px}.player-main h1{font-size:23px}}
+
+/* Android TV v0.6: no scale/blur animation while moving through poster rails. */
+.strip,.cards-grid{scroll-behavior:auto}
+.card:focus{transform:none}
+.art img{image-rendering:auto}
+
+/* v0.7: cheap, responsive poster grids on low-power KION hardware. */
+.hero-art{filter:none!important;transform:none!important;opacity:.17}
+.card:focus,.card:focus .art{transition:none!important;animation:none!important}
+.card .art img{object-fit:cover;image-rendering:auto}
+.strip,.cards-grid{scroll-behavior:auto!important}
+
+/* v0.8 video is genuinely full-bleed: no focus rectangle or blue border. */
+.player-frame,.player-frame:focus,.player-frame:focus-visible,
+.player-frame:fullscreen,.player-frame:-webkit-full-screen,
+.player-frame.tv-maximized,
+.player-frame:fullscreen iframe,.player-frame.tv-maximized iframe,
+#tv-player-iframe,#tv-player-iframe:focus,
+#tv-player-iframe:fullscreen {
+  border:0!important;
+  border-radius:0!important;
+  outline:none!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+}
+.player-frame:fullscreen,.player-frame:-webkit-full-screen,
+.player-frame.tv-maximized{
+  width:100vw!important;
+  height:100vh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  background:#000!important;
+  aspect-ratio:auto!important;
+  overflow:hidden!important;
+}
+.player-frame.tv-maximized{position:fixed!important;inset:0!important;z-index:1500!important;}
+.player-frame:fullscreen iframe,.player-frame:-webkit-full-screen iframe,.player-frame.tv-maximized iframe,
+.player-frame:fullscreen video,.player-frame.tv-maximized video{
+  width:100%!important;height:100%!important;border:0!important;outline:0!important;
+  object-fit:contain;
+}
+
+/* In the browsing screen, the video itself is a visible D-pad stop. */
+/* The focus cue must NOT appear in either HTML5 or CSS fullscreen. */
+.player-frame[tabindex]:focus:not(:fullscreen):not(.tv-maximized),
+.player-frame[tabindex]:focus-visible:not(:fullscreen):not(.tv-maximized) {
+  outline:4px solid var(--gold2)!important;
+  outline-offset:5px!important;
+  box-shadow:0 0 0 4px #edd19d24!important;
+}
+.player-frame[tabindex]:focus:not(:fullscreen):not(.tv-maximized)::after{
+  content:"OK — открыть управление видео";
+  position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  background:#101925e8;color:#ffe0b0;padding:12px 17px;
+  border-radius:10px;font-size:18px;white-space:nowrap;pointer-events:none;
+}
+
+/* TV 0.11: compact 10-foot controls, useful calendar and discovery instead of
+   duplicate catalogue; readable without oversized labels or billboard. */
+main{padding-top:22px}
+.section-note{max-width:1250px;color:#bcc7d5;font-size:17px;line-height:1.38;margin:0 0 22px}
+.rail:first-child{margin-top:0}
+.detail{grid-template-columns:minmax(210px,285px) minmax(0,1fr);gap:32px}
+.detail-info{display:flex;flex-direction:column;align-items:flex-start;min-height:460px;width:100%}
+.detail-info>p{max-width:1050px}
+.detail-player-settings{margin-top:auto;align-self:flex-end;max-width:100%;width:min(520px,100%);display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.detail-player-settings>button{font-size:17px;padding:10px 19px;min-height:44px}
+.source-panel{width:100%;padding:18px;background:#182431;border:1px solid #445267;border-radius:14px}
+.source-panel h3{font-size:21px;margin:0 0 13px}
+.source-panel>button{display:block;width:100%;margin:7px 0;border-radius:10px;border:1px solid #57657a;background:#293547;color:#fff;padding:11px 16px;font-size:17px;text-align:left;min-height:42px}
+.source-panel>button.selected{background:#594c37;border-color:#eec994}
+.source-panel p{font-size:15px;line-height:1.4;color:#c5cdd8;margin:12px 0 0}
+.settings-box{max-width:1240px;padding:10px 24px 14px}
+.settings-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:25px;padding:16px 0;border-bottom:1px solid #35404b}
+.settings-row:last-of-type{border-bottom:0}
+.settings-row h2{font-size:21px;margin:0 0 5px}
+.settings-row p{font-size:16px;line-height:1.35;margin:0;color:#acbac8}
+.settings-row button{font-size:17px;padding:10px 17px;min-height:46px;max-width:370px}
+.settings-footer{font-size:14px!important;color:#9ba8b5!important;margin:16px 0 0!important}
+.schedule-filters{display:flex;gap:14px;margin:12px 0 24px}
+.schedule-filters button{padding:12px 21px;font-size:18px;background:#243141;color:#d8e1eb;border:1px solid #46576c;border-radius:12px}
+.schedule-filters button.selected{background:#584b39;color:#f6dcaf;border-color:#d7ad70}
+.schedule-progress{font-size:17px;color:#e1ba83;margin:10px 0}
+.schedule-subtitle{font-size:25px;margin:22px 0 13px}
+.schedule-list{display:flex;flex-direction:column;gap:7px;max-width:1350px}
+.schedule-entry{display:grid;grid-template-columns:170px minmax(0,1fr) 100px 120px;align-items:center;gap:20px;min-height:66px;padding:9px 22px;border:1px solid #3a4b5e;border-radius:12px;background:#1a2634;color:#e9eff2;text-align:left}
+.schedule-entry:nth-child(even){background:#19232f}
+.episode-day{font-size:19px;color:#edc791;font-weight:700}
+.episode-name strong{font-size:20px;display:block;line-height:1.3}
+.episode-name small{font-size:15px;display:block;line-height:1.35;color:#b7c4cf;margin-top:4px}
+.episode-code{font-size:16px;color:#dbe4ee;white-space:nowrap}
+.episode-source{font-size:14px;padding:7px 8px;border-radius:7px;border:1px solid #5b6270;color:#c8d3de;text-align:center}
+@media(max-width:940px){
+ .detail{grid-template-columns:200px 1fr;gap:22px}
+ .schedule-entry{grid-template-columns:128px minmax(0,1fr) 85px;gap:10px}
+ .episode-source{display:none}
+ .settings-row{grid-template-columns:1fr;gap:10px}
+ .detail-player-settings{width:100%}
+}
+
+/* v0.12: personal watch history, compact manual episode marker.
+   Only the native HTML video player exposes exact time; Initem does not. */
+.progress-panel{
+  width:100%;margin:18px 0 22px;padding:15px 20px;
+  background:linear-gradient(110deg,#1a2633,#141d28);
+  border:1px solid #3b4a5a;border-radius:14px;
+}
+.detail .progress-panel h2{font-size:21px;line-height:1.3;margin:0 0 6px}
+.detail .progress-panel p.progress-summary{font-size:16px;color:#e4c38d;margin:0 0 12px}
+.progress-picker{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.progress-picker span{font-size:16px;color:#d0d8e1;margin-right:3px}
+.progress-picker span:not(:first-child){margin-left:18px}
+.progress-picker b{min-width:24px;text-align:center;font-size:20px}
+.progress-picker button{
+  font-size:21px;font-weight:700;min-height:44px;min-width:48px;padding:7px 11px;
+  background:#273647;border:1px solid #566b7e;border-radius:10px;color:#fff
+}
+.progress-save{display:inline-block;margin:13px 0 0;padding:9px 15px;min-height:45px;font-size:16px}
+.detail .progress-panel .progress-explain{font-size:13px;line-height:1.42;color:#9facbc;margin:10px 0 0}
+
+/* v0.13 — fast and compact Android TV UI (1080p and KION 720p).
+   Poster cards intentionally render at 80% of the v0.12 width. */
+.rail{margin-bottom:26px}
+.rail h2{font-size:24px;margin-bottom:13px}
+.rail .strip{gap:16px;padding:6px 8px 13px}
+.card{flex-basis:clamp(120px,11.28vw,196px);width:clamp(120px,11.28vw,196px);border-radius:10px;padding-bottom:5px}
+.art{border-radius:11px}
+.card-title{font-size:16px;line-height:1.2;margin:9px 3px 4px}
+.card-sub{font-size:12px;line-height:1.3;margin:0 3px}
+.card .pill{font-size:11px;padding:4px 6px;left:6px;bottom:7px}
+.cards-grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:20px}
+.cards-grid .card{width:100%}
+main{padding:15px 42px 45px}
+.detail.detail-compact{
+ display:grid;grid-template-columns:minmax(150px,205px) minmax(0,1fr);
+ align-items:start;gap:25px;padding:5px 0;margin:0;max-width:1550px;
+}
+.detail-compact .detail-poster{width:100%;min-width:0}
+.detail-compact .detail-art{width:100%;max-width:205px;border-radius:13px;border:1px solid #495566}
+.detail-compact .detail-info{
+ display:flex;flex-direction:column;align-items:stretch;gap:7px;
+ min-height:0;width:100%;
+}
+.detail-compact .eyebrow{font-size:11px;letter-spacing:.12em;margin:0}
+.detail-compact h1{font-size:clamp(28px,2.6vw,40px);line-height:1.15;margin:0;letter-spacing:-.025em}
+.detail-compact .detail-metadata{font-size:15px;line-height:1.3;margin:0;color:#b9c5d0}
+.detail-compact .detail-genres{display:flex;flex-wrap:wrap;gap:6px}
+.detail-compact .detail-genres .badge{
+ font-size:12px;line-height:1.1;padding:5px 9px;margin:0;border-radius:7px;
+}
+.detail-compact .detail-description{
+ font-size:16px;line-height:1.35;color:#d4dae1;margin:0;
+ display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+ max-width:1100px;
+}
+.detail-compact .detail-commands{display:flex;align-items:center;flex-wrap:nowrap;gap:11px;margin:5px 0}
+.detail-compact .detail-commands .primary{
+ font-size:18px;min-height:48px;padding:10px 20px;white-space:nowrap;border-radius:11px;
+}
+.detail-compact .icon-button{
+ display:inline-grid;place-items:center;min-height:48px;width:57px;padding:0;
+ font-size:25px;line-height:1;border-radius:10px;white-space:nowrap;
+}
+.detail-compact .progress-panel{
+ display:flex;flex-wrap:wrap;align-items:center;gap:9px 15px;
+ width:100%;max-width:1150px;min-height:72px;margin:6px 0 0;
+ padding:11px 15px;border-radius:11px;background:#192635;border:1px solid #425367;
+}
+.detail-compact .progress-summary{
+ font-size:15px;font-weight:600;white-space:nowrap;color:#e9ce9b;
+}
+.detail-compact .progress-picker{display:flex;align-items:center;gap:7px;padding:0;flex-wrap:nowrap}
+.detail-compact .progress-picker span{font-size:15px;margin:0;color:#ccd7e1}
+.detail-compact .progress-picker span:not(:first-child){margin-left:9px}
+.detail-compact .progress-picker b{font-size:17px;min-width:17px}
+.detail-compact .progress-picker button{
+ min-height:38px;min-width:38px;padding:3px 8px;font-size:19px;border-radius:8px;
+}
+.detail-compact .progress-save{
+ min-height:39px;font-size:14px;padding:6px 12px;margin:0;border-radius:9px;white-space:nowrap;
+}
+.detail-compact .progress-explain{
+ width:100%;margin:0;color:#95a7bb;font-size:12px;line-height:1.2;
+}
+.detail-compact .source-panel{
+ max-width:700px;align-self:stretch;margin-top:5px;
+ padding:12px 15px;border-radius:11px
+}
+.detail-compact .source-panel h3{font-size:18px}
+.detail-compact .source-panel button{min-height:37px;font-size:15px;padding:8px 10px}
+@media(max-width:930px){
+ main{padding:12px 25px 40px}
+ .detail.detail-compact{grid-template-columns:145px minmax(0,1fr);gap:17px}
+ .detail-compact .detail-description{-webkit-line-clamp:2}
+ .detail-compact .detail-commands .primary{font-size:16px;min-height:44px}
+ .detail-compact .icon-button{width:46px;min-height:44px}
+ .detail-compact .progress-panel{gap:6px 10px;padding:8px 10px}
+}
+
+/* Compact, live watch-time display, outside the external iframe. */
+.player-progress{font-size:15px;line-height:1.35;color:#e9ce9b;background:#192635;border:1px solid #425367;border-radius:9px;padding:8px 12px;margin:9px 0 0}
+
+/* UВидео TV v0.17 — TV-first skin. No blur filters, transitions, or extra image requests. */
+:root{
+ --bg:#050d18; --panel:#0e1b2a; --card:#0e1b2a; --line:#24405a;
+ --text:#f3f7ff; --muted:#a6b7c9; --gold:#20baff; --gold2:#54d5ff;
+}
+html{background:#050d18}
+body{
+ background:radial-gradient(ellipse at 83% -6%,#103355 0%,#07172a 36%,#050d18 72%);
+ color:#f3f7ff;
+}
+.topbar{
+ gap:clamp(16px,2.6vw,44px);
+ min-height:86px;
+ padding:16px clamp(20px,3.5vw,56px);
+ background:linear-gradient(180deg,#06101df2,#061322f0);
+ border-bottom:1px solid #1a2e43;
+}
+.brand{gap:12px;font-size:26px;letter-spacing:-.03em;flex:none}
+.brand .brand-logo{
+ width:49px;height:49px;display:block;flex:none;object-fit:contain;
+ border-radius:12px;
+}
+.brand .brand-wordmark{color:#f5f8ff!important;font-weight:800;font-size:clamp(20px,1.75vw,29px)}
+.brand .brand-wordmark b{color:#35caff;font-weight:800}
+nav{gap:3px;justify-content:center;min-width:0}
+nav button{
+ color:#c3d1e0;font-size:clamp(15px,1.3vw,20px);
+ padding:11px clamp(10px,1.2vw,20px);border-radius:15px;
+}
+nav button.nav-active{
+ background:linear-gradient(180deg,#175381,#0d2949);
+ border:1px solid #247cbb;color:#fff;
+ box-shadow:inset 0 0 0 1px #22567f;
+}
+nav button:focus{background:#1d5077;color:#fff}
+.net-status{font-size:12px;color:#7d9ab3}
+main{padding:27px clamp(24px,3.45vw,56px) 72px}
+.eyebrow{color:#79badf}
+.primary{background:#0e87c5;border-color:#36b6ef;color:#fff}
+.secondary,.action{background:#152c41;border-color:#315370}
+.badge{border-color:#285d81;color:#9bdcf9;background:#0d2a43}
+.select-list button.selected{background:#144e72;border-color:#39bafa}
+.toast{border-color:#3ba2d3;background:#122c42}
+.card:focus,.card:focus-visible{
+ outline:none!important;box-shadow:none!important;
+}
+.tv-home .rail{margin-bottom:28px}
+.tv-home .rail h2{
+ font-size:clamp(23px,1.75vw,30px);
+ letter-spacing:-.025em;color:#f5f7fb;margin:0 0 11px 3px;
+}
+.tv-home .rail .strip{
+ gap:clamp(12px,1.25vw,23px);
+ padding:7px 5px 20px;
+ overflow-x:auto;overflow-y:hidden;
+}
+.tv-home .card{
+ width:auto;min-width:0;
+ padding:0;border:0;
+ background:transparent;
+ color:#fff;text-align:left;
+ border-radius:15px;
+ flex-shrink:0;
+}
+.tv-home .resume-card{
+ flex-basis:clamp(290px,27vw,465px);
+ width:clamp(290px,27vw,465px);
+}
+.tv-home .resume-art{
+ display:block;position:relative;
+ width:100%;aspect-ratio:16/9;overflow:hidden;
+ border-radius:15px;border:1px solid #2c4155;
+ background:linear-gradient(120deg,#1d3852,#081625 78%);
+}
+.tv-home .resume-art img{
+ display:block;width:100%;height:100%;
+ object-fit:cover;object-position:center 26%;
+}
+.tv-home .resume-shade{
+ position:absolute;inset:0;
+ background:linear-gradient(180deg,transparent 27%,#06101e7a 59%,#040e1bed 100%);
+ pointer-events:none;
+}
+.tv-home .resume-copy{
+ position:absolute;left:18px;right:74px;bottom:31px;
+ z-index:1;display:flex;flex-direction:column;gap:3px;
+ text-shadow:0 2px 7px #000d;pointer-events:none;
+}
+.tv-home .resume-title{
+ font-size:clamp(21px,1.6vw,28px);line-height:1.1;
+ overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+}
+.tv-home .resume-episode{font-size:16px;color:#e2edfa}
+.tv-home .resume-play{
+ display:grid;place-items:center;position:absolute;right:16px;bottom:37px;z-index:1;
+ width:44px;height:44px;border-radius:50%;border:2px solid #b9e6fc;
+ color:#fff;background:#0c2434b7;font-size:20px;padding-left:3px;
+ pointer-events:none;
+}
+.tv-home .resume-track{
+ position:absolute;left:18px;right:18px;bottom:15px;height:7px;
+ overflow:hidden;border-radius:6px;background:#60748b80;z-index:1;pointer-events:none;
+}
+.tv-home .resume-fill{
+ display:block;height:100%;border-radius:6px;
+ background:linear-gradient(90deg,#0098e9,#33cdff);
+}
+.tv-home .resume-card:focus .resume-art,.tv-home .resume-card:focus-visible .resume-art{
+ border-color:#9be8ff;outline:2px solid #60cffe;outline-offset:2px;
+ box-shadow:0 0 14px #0098ee8c;
+}
+.tv-home .poster-card{
+ flex-basis:clamp(143px,12.5vw,210px);
+ width:clamp(143px,12.5vw,210px);
+}
+.tv-home .poster-card .art{
+ position:relative;display:block;
+ width:100%;aspect-ratio:2/3;
+ border:1px solid #274158;
+ border-radius:15px;overflow:hidden;
+ background:linear-gradient(160deg,#20415e,#091725);
+}
+.tv-home .poster-card .art::after{
+ content:"";position:absolute;inset:45% 0 0;
+ background:linear-gradient(transparent,#030c18ec);pointer-events:none;
+}
+.tv-home .poster-card .art img{width:100%;height:100%;object-fit:cover}
+.tv-home .poster-name{
+ position:absolute;bottom:13px;left:12px;right:10px;
+ z-index:2;font-size:clamp(16px,1.2vw,21px);font-weight:700;line-height:1.15;
+ text-shadow:0 2px 6px #000c;
+ overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+}
+.tv-home .poster-card .card-title,.tv-home .poster-card .card-sub{display:none}
+.tv-home .poster-card:focus .art,.tv-home .poster-card:focus-visible .art{
+ outline:2px solid #67d5ff;outline-offset:2px;
+ border-color:#7ddcff;box-shadow:0 0 10px #007acb80;
+}
+.new-episode-badge{
+ position:absolute;right:9px;top:9px;z-index:3;
+ color:#fff!important;background:#086fce;
+ font-weight:700;font-size:14px;line-height:1.2;
+ padding:6px 9px;border-radius:10px;
+ text-shadow:none;
+}
+.cards-grid .card .new-episode-badge{font-size:13px}
+.player-progress{color:#acd9f4;border-color:#285475;background:#0b2438}
+@media(max-width:1200px){
+ .brand .brand-logo{width:42px;height:42px}
+ .brand .brand-wordmark{font-size:21px}
+ .topbar{gap:14px}
+ .net-status{display:none}
+ .tv-home .resume-card{flex-basis:clamp(270px,31vw,380px);width:clamp(270px,31vw,380px)}
+}
+@media(max-width:800px){
+ .topbar{flex-wrap:wrap;gap:11px;padding:13px 22px}
+ .brand{width:auto}
+ nav{width:100%;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}
+ nav button{font-size:16px}
+ .tv-home .resume-card{flex-basis:290px;width:290px}
+ .tv-home .poster-card{flex-basis:150px;width:150px}
+ .tv-home .resume-title{font-size:21px}
+ .tv-home .rail{margin-bottom:20px}
+}
+
+/* Compact TV-remote-friendly My Series sort, aligned opposite its title. */
+.tv-home .my-series-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:0 7px 0 3px;margin:0 0 11px;
+}
+.tv-home .my-series-heading h2{margin:0}
+.tv-home .sort-cycle{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ flex:none;min-height:36px;padding:6px 12px;
+ background:#102236;border:1px solid #2b4b63;border-radius:9px;
+ color:#c5d8e9;font-size:15px;font-weight:500;line-height:1.3;
+ box-shadow:none;white-space:nowrap;
+}
+.tv-home .sort-cycle:focus,.tv-home .sort-cycle:focus-visible{
+ outline:2px solid #56b9df!important;outline-offset:2px!important;
+ box-shadow:none!important;background:#173c57;
+}
+.tv-home .sort-cycle span:first-child{font-size:19px;line-height:1}
+@media(max-width:690px){
+ .tv-home .sort-cycle{font-size:13px;padding:6px 9px;min-height:34px}
+ .tv-home .my-series-heading{gap:8px}
+}
+
+
+/* v0.17: My Series is a wrapping grid, not a side-scrolling carousel. */
+.tv-home .rail-my-series .poster-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+ column-gap:clamp(12px,1.25vw,23px);
+ row-gap:17px;
+ width:100%;max-width:100%;
+ overflow:visible;
+ scroll-behavior:auto;
+ padding:7px 5px 20px;
+}
+.tv-home .rail-my-series .poster-grid .poster-card{
+ width:100%;min-width:0;max-width:none;
+ flex-basis:auto;
+}
+@media(max-width:900px){
+ .tv-home .rail-my-series .poster-grid{
+   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+   gap:13px;
+ }
+}
+@media(max-width:490px){
+ .tv-home .rail-my-series .poster-grid{
+   grid-template-columns:repeat(2,minmax(0,1fr));
+   gap:12px;
+ }
+}
+
+
+/* v0.17: restrained hover/focus lift for browsing, not for show details or playback.
+   Pointer hover is only enabled on true mouse/trackpad devices. D-pad uses focus.
+   GPU-friendly transform, one quiet edge instead of stacked focus rectangles. */
+#nav button,
+.tv-home .card,
+#content .cards-grid .card,
+.tv-home .sort-cycle,
+#content .schedule-filters button,
+#content .schedule-entry,
+#content .settings-box button {
+  transform:scale(1);
+  transition:transform 125ms ease-out, background-color 125ms ease-out !important;
+  transform-origin:center center;
+}
+#nav button:focus,#nav button:focus-visible,
+.tv-home .sort-cycle:focus,.tv-home .sort-cycle:focus-visible,
+#content .schedule-filters button:focus,#content .schedule-filters button:focus-visible,
+#content .schedule-entry:focus,#content .schedule-entry:focus-visible,
+#content .settings-box button:focus,#content .settings-box button:focus-visible {
+  outline:none!important;
+  outline-offset:0!important;
+  box-shadow:none!important;
+  z-index:2;
+}
+#nav button:focus,#nav button:focus-visible {
+  background:#1e4a6e;
+  transform:scale(1.035);
+}
+#nav button.nav-active:focus,#nav button.nav-active:focus-visible {
+  background:#1c5985;
+}
+.tv-home .resume-card:focus,.tv-home .resume-card:focus-visible,
+.tv-home .poster-card:focus,.tv-home .poster-card:focus-visible,
+#content .cards-grid .card:focus,#content .cards-grid .card:focus-visible {
+  transform:scale(1.034);
+  outline:none!important;
+  box-shadow:none!important;
+  z-index:5;
+  position:relative;
+}
+.tv-home .resume-card:focus,.tv-home .resume-card:focus-visible {transform:scale(1.025)}
+.tv-home .resume-card:focus .resume-art,.tv-home .resume-card:focus-visible .resume-art,
+.tv-home .poster-card:focus .art,.tv-home .poster-card:focus-visible .art,
+#content .cards-grid .card:focus .art,#content .cards-grid .card:focus-visible .art {
+  outline:none!important;
+  box-shadow:none!important;
+  border-color:#7aafcf;
+  transition:none!important;
+}
+.tv-home .sort-cycle:focus,.tv-home .sort-cycle:focus-visible {
+  transform:scale(1.025);
+  background:#1b3f59;
+  border-color:#4d819d;
+}
+#content .schedule-entry:focus,#content .schedule-entry:focus-visible,
+#content .settings-box button:focus,#content .settings-box button:focus-visible,
+#content .schedule-filters button:focus,#content .schedule-filters button:focus-visible {
+  transform:scale(1.015);
+  background-color:#1c3f59;
+}
+@media (hover:hover) and (pointer:fine) {
+  #nav button:hover {
+    transform:scale(1.035);
+    background:#1e4a6e;
+  }
+  #nav button.nav-active:hover {background:#1c5985}
+  .tv-home .poster-card:hover,
+  #content .cards-grid .card:hover {
+    transform:scale(1.034);
+    z-index:5;
+    position:relative;
+  }
+  .tv-home .resume-card:hover {
+    transform:scale(1.025);
+    z-index:5;
+    position:relative;
+  }
+  .tv-home .poster-card:hover .art,
+  .tv-home .resume-card:hover .resume-art,
+  #content .cards-grid .card:hover .art {
+    border-color:#7aafcf;
+    outline:none!important;
+    box-shadow:none!important;
+  }
+  .tv-home .sort-cycle:hover {
+    transform:scale(1.025);
+    border-color:#4d819d;
+    background:#1b3f59;
+  }
+  #content .schedule-entry:hover,
+  #content .settings-box button:hover,
+  #content .schedule-filters button:hover {
+    transform:scale(1.015);
+    background-color:#1c3f59;
+  }
+}
+/* Stay in bounds in the horizontally scrolled Continue Watching rail. */
+.tv-home .rail-resume .resume-strip {padding-top:12px;padding-bottom:22px}
+@media(prefers-reduced-motion:reduce) {
+  #nav button,.tv-home .card,#content .cards-grid .card,
+  .tv-home .sort-cycle,#content .schedule-filters button,
+  #content .schedule-entry,#content .settings-box button {transition:none!important}
+}
+
+
+/* UВидео TV 0.17 — selected background 3: one continuous space illustration.
+   JPG 1672×941 / ~24 KB; no tiling, blur, animations or extra JS.
+   The image is attached to the viewport while content scrolls; the overlays
+   keep text and poster cards legible without hiding the chosen artwork. */
+body{
+ background-color:#06101d;
+ background-image:
+   linear-gradient(180deg,rgba(4,11,21,.16) 0%,rgba(4,11,21,.27) 46%,rgba(4,11,21,.53) 100%),
+   url('/tv-bg-space-v017.jpg');
+ background-position:center center;
+ background-size:cover;
+ background-repeat:no-repeat;
+ background-attachment:fixed;
+}
+.tv-home .resume-art img[data-landscape-key]{object-position:center center}
+
+
+/* TV v0.17: aligned brand/menu and calm, compact player controls.
+   This changes only the TV shell, never the embedded video or show details. */
+@media(min-width:1101px){
+ .topbar{
+  display:grid;grid-template-columns:minmax(210px,1fr) auto minmax(100px,1fr);
+  align-items:center;column-gap:18px;
+ }
+ .topbar .brand{justify-self:start;align-self:center}
+ .topbar nav{justify-self:center;align-self:center;width:max-content;flex:none}
+ .topbar .net-status{justify-self:end;align-self:center}
+}
+.brand .brand-wordmark{letter-spacing:-.025em;white-space:nowrap}
+.player-screen{
+ grid-template-columns:minmax(0,1fr) clamp(295px,21vw,355px);
+ gap:clamp(18px,1.5vw,28px);align-items:start;
+}
+.player-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:20px;
+ min-height:54px;margin:0 0 13px;
+}
+.player-main .player-heading h1{
+ flex:1;min-width:0;margin:0;
+ font-size:clamp(21px,1.75vw,29px);font-weight:750;
+ line-height:1.2;letter-spacing:-.02em;
+}
+.player-main .player-fullscreen{
+ flex:none;width:auto;min-height:41px;margin:0;padding:8px 13px;
+ background:#102b40;color:#dcebf7;
+ border:1px solid #35546a;border-radius:9px;
+ font-size:15px;line-height:1.2;font-weight:600;
+ box-shadow:none;
+}
+.player-main .player-fullscreen:hover{background:#17405c;border-color:#5985a3}
+.player-main .player-fullscreen:focus,
+.player-main .player-fullscreen:focus-visible{
+ background:#1d4a68;border-color:#8ad0ed;
+ outline:none!important;outline-offset:0!important;box-shadow:none!important;
+}
+.player-main .player-frame{
+ border:1px solid #243b50;border-radius:13px;
+}
+.player-main .player-frame:focus,
+.player-main .player-frame:focus-visible{
+ border-color:#80c4df;outline:none!important;
+ box-shadow:none!important;
+}
+.player-side{
+ background:#0d1c2e;
+ border:1px solid #233f56;
+ border-radius:14px;
+ padding:17px 16px 20px;
+}
+.player-side-section + .player-side-section{margin-top:18px}
+.player-side-section h2{
+ font-size:18px;line-height:1.25;font-weight:700;
+ color:#ecf4fb;margin:0 0 9px;
+}
+.player-side .player-source-list{display:grid;gap:7px}
+.player-side .player-source-list button{
+ margin:0;padding:9px 11px;min-height:41px;
+ width:100%;font-size:14px;line-height:1.3;
+ background:#152a3c;color:#d6e4ee;
+ border:1px solid #2b485e;border-radius:9px;
+ white-space:normal;
+}
+.player-side .player-source-list button.active{
+ background:#124b70;border-color:#23779b;color:#f6fbff;
+}
+.player-side .player-season-list{display:flex;flex-wrap:wrap;gap:7px}
+.player-side .player-season-list button{
+ display:grid;place-items:center;flex:0 0 auto;
+ min-width:42px;min-height:39px;width:auto;
+ padding:6px 10px;margin:0;border-radius:8px;
+ background:#152a3c;border:1px solid #2b485e;
+ color:#d6e4ee;font-size:16px;text-align:center;
+}
+.player-side .player-season-list button.selected{
+ background:#16547a;border-color:#327ca0;color:#fff;
+}
+.player-side .player-episode-grid{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:8px;
+}
+.player-side .player-episode-grid button{
+ display:grid;place-items:center;
+ aspect-ratio:1/1;width:100%;height:auto;
+ min-height:0;padding:0;margin:0;
+ border:1px solid #2a455a;border-radius:9px;
+ background:#142a3c;color:#dce7f1;
+ text-align:center;font-size:17px;font-weight:600;
+}
+.player-side .player-episode-grid button.selected{
+ background:#175b83;border-color:#367fa4;color:#fff;
+}
+.player-side .player-source-list button:focus,
+.player-side .player-source-list button:focus-visible,
+.player-side .player-season-list button:focus,
+.player-side .player-season-list button:focus-visible,
+.player-side .player-episode-grid button:focus,
+.player-side .player-episode-grid button:focus-visible{
+ outline:none!important;outline-offset:0!important;
+ box-shadow:inset 0 0 0 1px #a3deef!important;
+ background-color:#235574;border-color:#92d2e8;
+ position:relative;z-index:1;
+}
+.player-side .player-source-list button:hover,
+.player-side .player-season-list button:hover,
+.player-side .player-episode-grid button:hover{
+ border-color:#5792af;
+ background-color:#1a3b52;
+}
+.player-side .player-side-hint{
+ color:#a0bad0;font-size:14px;line-height:1.35;margin:14px 0 0;
+}
+.player-main .player-secondary-tools{margin:11px 0}
+.player-main .player-secondary-tools button{
+ min-height:40px;padding:8px 12px;font-size:14px;
+ border-radius:8px;
+}
+.player-main .player-help{font-size:14px;margin:11px 0;line-height:1.4}
+.player-main .player-progress{font-size:14px}
+@media(max-width:930px){
+ .player-screen{grid-template-columns:minmax(0,1fr);gap:18px}
+ .player-side{max-width:none}
+ .player-side .player-episode-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(max-width:550px){
+ .player-heading{gap:8px}
+ .player-main .player-heading h1{font-size:20px}
+ .player-main .player-fullscreen{font-size:13px;padding:7px 9px}
+ .player-side .player-episode-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+
+/* v0.17 logo spacing: optical lockup between the real U icon and wordmark.
+   The image remains untouched; text overlaps only its dark outer edge. */
+.topbar .brand{gap:0}
+.topbar .brand .brand-wordmark{
+ margin-left:-6px;
+ position:relative;
+ z-index:1;
+}
+
+
+/* UВидео TV v0.18 — KION feedback.
+   My Series is deliberately more compact; Continue Watching is unchanged. */
+.tv-home .rail-my-series .poster-grid{
+ grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+ column-gap:clamp(10px,1vw,16px);
+ row-gap:16px;
+}
+.tv-home .rail-my-series .poster-grid .poster-card{
+ width:100%;min-width:0;max-width:none;
+}
+.tv-home .rail-my-series .poster-name{
+ font-size:clamp(14px,1.05vw,18px);
+ left:10px;right:9px;bottom:10px;
+}
+.tv-home .rail-my-series .new-episode-badge{
+ font-size:12px;padding:5px 7px;right:7px;top:7px;
+}
+/* The status label always exists in JavaScript, but an old <=1200px
+   media query hid it on Android TV WebView. Restore it responsively. */
+.topbar .net-status{
+ display:block;
+ color:#9dbad1;
+ font-size:clamp(11px,1.05vw,14px);
+ line-height:1.2;
+ text-align:right;
+ white-space:normal;
+ max-width:160px;
+}
+/* Televisions can report a CSS viewport smaller than their panel pixels. */
+@media(min-width:801px) and (max-width:1200px){
+ .topbar{
+  display:grid;
+  grid-template-columns:minmax(125px,1fr) auto minmax(116px,1fr);
+  align-items:center;
+  column-gap:8px;
+  padding:13px clamp(18px,2.5vw,30px);
+ }
+ .topbar .brand{justify-self:start}
+ .topbar nav{
+  justify-self:center;justify-content:center;
+  width:auto;min-width:0;flex:none;gap:0;
+ }
+ .topbar nav button{
+  font-size:clamp(14px,1.45vw,18px);
+  padding:9px clamp(7px,0.95vw,12px);
+ }
+ .topbar .net-status{
+  display:block;justify-self:end;
+  max-width:145px;font-size:12px;
+ }
+ .tv-home .rail-my-series .poster-grid{
+  grid-template-columns:repeat(auto-fill,minmax(127px,1fr));
+ }
+}
+@media(max-width:800px){
+ .topbar .brand{order:0}
+ .topbar .net-status{
+  order:1;display:block;
+  margin-left:auto;align-self:center;
+  font-size:12px;max-width:42%;
+ }
+ .topbar nav{order:2}
+ .tv-home .rail-my-series .poster-grid{
+  grid-template-columns:repeat(auto-fill,minmax(125px,1fr));
+ }
+}
+@media(max-width:490px){
+ .tv-home .rail-my-series .poster-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
+
+/* v0.19: fixed icon-only navigation; no animation, blur or layout reflow. */
+:root{
+ --tv-sidebar-width:clamp(66px,6.8vw,90px);
+ --tv-left-space:clamp(25px,3.4vw,54px);
+ --tv-right-space:clamp(19px,3.2vw,50px);
+}
+.tv-sidebar{
+ position:fixed;inset:0 auto 0 0;z-index:50;
+ width:var(--tv-sidebar-width);
+ display:flex;flex-direction:column;align-items:center;
+ background:linear-gradient(90deg,rgba(6,13,26,.82),rgba(7,16,31,.61));
+ border-right:1px solid rgba(157,198,229,.12);
+ /* Avoid costly full-screen blur on Android TV GPUs. */
+}
+.tv-sidebar-logo{
+ margin:clamp(17px,2.4vw,33px) auto 30px;
+ width:clamp(41px,4.6vw,61px);height:clamp(41px,4.6vw,61px);
+}
+.tv-sidebar-logo img{display:block;width:100%;height:100%;object-fit:contain}
+#nav{
+ width:100%;display:flex;flex-direction:column;align-items:center;
+ flex:none;gap:clamp(12px,1.8vh,23px);
+}
+#nav button{
+ appearance:none;display:grid;place-items:center;flex:none;
+ width:clamp(48px,4.8vw,67px);height:clamp(47px,4.9vw,65px);
+ margin:0;padding:0;border:1px solid transparent;border-radius:14px;
+ background:transparent;color:#c0cddd;box-shadow:none;
+}
+#nav button svg{
+ width:clamp(26px,2.7vw,34px);height:clamp(26px,2.7vw,34px);
+ display:block;pointer-events:none;
+}
+#nav button.nav-active{background:rgba(35,85,128,.27);color:#fff;border-color:rgba(96,185,238,.22)}
+#nav button:focus,#nav button:focus-visible{
+ background:rgba(33,111,186,.52);
+ border:2px solid #48c5ff;outline:0!important;
+ box-shadow:0 0 0 2px #0b2440,0 0 17px rgba(38,150,236,.35)!important;
+}
+#network.net-status{
+ position:fixed;z-index:19;top:13px;right:var(--tv-right-space);
+ pointer-events:none;max-width:200px;
+ color:#9ec5da;font-size:clamp(12px,1vw,14px);
+ text-align:right;
+}
+main#content{
+ box-sizing:border-box;
+ margin-left:var(--tv-sidebar-width);
+ padding:clamp(44px,4.6vw,63px) var(--tv-right-space) 100px var(--tv-left-space);
+ min-width:0;
+}
+.tv-home .rail:not(.rail-my-series)>.strip{
+ /* The viewport bleeds to the TV edges: cards initially align with the
+    grid, but when scrolled they travel BEHIND the translucent sidebar. */
+ width:calc(100% + var(--tv-sidebar-width) + var(--tv-left-space) + var(--tv-right-space));
+ max-width:none;
+ margin-left:calc(-1 * (var(--tv-sidebar-width) + var(--tv-left-space)));
+ margin-right:calc(-1 * var(--tv-right-space));
+ padding-left:calc(var(--tv-sidebar-width) + var(--tv-left-space));
+ padding-right:0;
+ scroll-padding-left:calc(var(--tv-sidebar-width) + var(--tv-left-space));
+ overflow-x:auto;overflow-y:hidden;
+}
+.tv-home .rail-my-series .poster-grid{
+ /* Grid never bleeds: retain its own regular right/left gutter. */
+ width:100%;max-width:100%;overflow:visible;
+}
+@media(max-width:800px){
+ :root{--tv-sidebar-width:64px;--tv-left-space:23px;--tv-right-space:17px}
+ #nav button{width:51px;height:52px}
+ #network.net-status{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){#nav button{transition:none!important}}
+
+/* Ultra TV 0.20 — graphite design: no cyan neon, no poster borders.
+   Existing poster art, real U-logo asset and playback pipeline stay unchanged. */
+:root{
+ --bg:#0d0c12;--panel:#17161d;--card:#17161e;--line:#36333d;
+ --text:#f5f3f7;--muted:#aaa5b1;--gold:#b9b3c2;--gold2:#ccc8d1;
+}
+html{background:#0d0c12}
+body{
+ background-color:#0d0c12;
+ background-image:linear-gradient(180deg,rgba(12,11,17,.30) 0%,rgba(12,11,17,.47) 50%,rgba(10,10,15,.80) 100%),url('/tv-bg-graphite-v020.jpg');
+ background-position:center center;background-size:cover;background-repeat:no-repeat;
+ background-attachment:fixed;color:#f5f3f7;
+}
+.tv-sidebar{
+ background:linear-gradient(90deg,rgba(9,9,14,.80),rgba(12,12,18,.59));
+ border:0!important;box-shadow:none!important;
+}
+#nav button,#nav button.nav-active{
+ border:0!important;outline:0!important;
+ background:transparent;color:#bebbc7;
+ box-shadow:none!important;transform:none!important;
+}
+#nav button.nav-active{color:#f5f2f8;background:rgba(156,151,168,.11)}
+#nav button:focus,#nav button:focus-visible,
+#nav button.nav-active:focus,#nav button.nav-active:focus-visible{
+ color:#fff!important;background:rgba(170,163,181,.25)!important;
+ border:0!important;outline:0!important;
+ box-shadow:none!important;transform:scale(1.06)!important;
+}
+#network.net-status{color:#bab6bf;opacity:.9}
+#content .card,.tv-home .card{
+ outline:0!important;box-shadow:none!important;
+ border:0!important;background:transparent;
+ position:relative;isolation:isolate;
+}
+#content .card .art,.tv-home .poster-card .art,.tv-home .resume-art,
+#content .card:focus .art,#content .card:focus-visible .art,
+.tv-home .poster-card:focus .art,.tv-home .poster-card:focus-visible .art,
+.tv-home .resume-card:focus .resume-art,.tv-home .resume-card:focus-visible .resume-art{
+ border:0!important;outline:0!important;
+ box-shadow:none!important;
+ background-color:#292630;
+}
+#content .card::before{
+ content:"";position:absolute;inset:-13px;
+ border-radius:25px;z-index:-1;opacity:0;pointer-events:none;
+ background:radial-gradient(ellipse 75% 65% at 50% 50%,rgba(179,176,190,.49) 0%,rgba(118,115,130,.26) 51%,rgba(88,84,98,0) 94%);
+}
+#content .card:focus,#content .card:focus-visible{
+ transform:scale(1.035)!important;
+ z-index:8!important;position:relative;
+ box-shadow:none!important;border:0!important;outline:0!important;
+}
+#content .card:focus::before,#content .card:focus-visible::before{opacity:1}
+@media(hover:hover) and (pointer:fine){
+ #content .card:hover{z-index:8;transform:scale(1.028)!important}
+ #content .card:hover::before{opacity:.66}
+}
+#content .cards-grid .poster-name{display:none!important}
+#content .cards-grid .card-title{display:block}
+#content .cards-grid .card-sub{color:#aaa5b0}
+#content .card:focus .art img,#content .card:focus-visible .art img{filter:brightness(1.04)}
+#content .new-episode-badge{background:#57505f!important;color:#faf9ff!important}
+#content .sort-cycle,#content .action,
+#content .schedule-filters button,#content .settings-box button{
+ border:0!important;outline:0!important;
+ background:#2b2932;color:#e4e1e7;box-shadow:none!important;
+}
+#content .sort-cycle:focus,#content .action:focus,
+#content .schedule-filters button:focus,#content .settings-box button:focus,
+#content .schedule-filters button:focus-visible,#content .settings-box button:focus-visible{
+ border:0!important;outline:0!important;
+ background:#514c58!important;box-shadow:none!important;
+}
+#content .settings-box,#content .settings-row,
+#content .schedule-entry,#content .detail .badge,
+#content .player-side{border-color:#38353d;background-color:#1a1921}
+#content .section-note,#content .hint{color:#c2bdc8}
+.search-shell{
+ position:relative;max-width:760px;width:100%;height:55px;margin:17px 0 17px;
+ border-radius:14px;background:rgba(35,33,43,.88);
+ display:flex;align-items:center;gap:12px;padding:0 18px;
+ border:1px solid rgba(197,189,205,.09);
+}
+.search-shell svg{width:24px;height:24px;flex:none;color:#a9a4b0}
+.search-shell:focus-within{background:#36323d;border-color:rgba(205,197,214,.40)}
+.search-shell #tv-search{
+ width:100%;height:100%;min-height:0!important;padding:0!important;margin:0;
+ border:0!important;outline:0!important;box-shadow:none!important;
+ font-size:clamp(17px,1.5vw,22px);color:#f3f0f5;background:transparent!important;
+}
+.search-shell #tv-search:focus{border:0!important;outline:0!important;box-shadow:none!important}
+#content .search-results{margin-top:23px}
+#content .empty{border-color:#49454e}
+#content .poster-card:focus .art,#content .poster-card:hover .art,
+#content .resume-card:focus .resume-art{filter:none}
+@media(prefers-reduced-motion:reduce){
+ #content .card,#content .card:focus,#nav button{transition:none!important}
+}
+
+/* v0.20: full-width, caption-free Continue Watching center-wheel. */
+.tv-home .rail-resume{margin:0 0 7px!important}
+.tv-home .rail-resume>h2{display:none!important}
+.tv-home .rail-resume .resume-strip{
+ --wheel-card-width:clamp(280px,27.8vw,455px);
+ display:flex;align-items:center;position:relative;
+ width:calc(100% + var(--tv-sidebar-width) + var(--tv-left-space) + var(--tv-right-space));
+ max-width:none;margin-left:calc(-1 * (var(--tv-sidebar-width) + var(--tv-left-space)));
+ box-sizing:border-box;
+ gap:clamp(10px,1.1vw,18px);
+ padding:58px calc((100vw - var(--wheel-card-width)) / 2) 55px!important;
+ overflow-x:auto;overflow-y:hidden;
+ scrollbar-width:none;
+ scroll-behavior:auto;
+ scroll-snap-type:none;
+}
+.tv-home .rail-resume .resume-strip::-webkit-scrollbar{display:none}
+.tv-home .rail-resume .resume-card{
+ width:var(--wheel-card-width)!important;
+ flex:0 0 var(--wheel-card-width)!important;
+ opacity:.72;transform:scale(.82)!important;z-index:1;
+ transform-origin:center center;
+ will-change:auto;
+ transition:transform 175ms ease-out,opacity 175ms ease-out!important;
+}
+.tv-home .rail-resume .resume-card.wheel-current{
+ opacity:1!important;transform:scale(1.20)!important;z-index:7;
+}
+.tv-home .rail-resume .resume-card:focus,
+.tv-home .rail-resume .resume-card:focus-visible{
+ outline:0!important;box-shadow:none!important;
+}
+.tv-home .rail-resume .resume-card::before{
+ inset:-15px;opacity:0;pointer-events:none;
+}
+.tv-home .rail-resume .resume-card.wheel-current::before{
+ opacity:1;background:radial-gradient(ellipse 70% 70% at 50% 50%,
+ rgba(187,183,196,.40) 0%,rgba(146,142,159,.23) 53%,transparent 92%);
+}
+.tv-home .rail-resume .resume-art{box-shadow:none!important}
+.tv-home .rail-resume .resume-copy{left:18px;bottom:30px}
+.tv-home .rail-resume .resume-track{height:4px;background:rgba(196,186,204,.30)}
+.tv-home .rail-resume .resume-fill{background:#bab5c4}
+@media(prefers-reduced-motion:reduce){
+ .tv-home .rail-resume .resume-card{transition:none!important}
+}
+/* v0.20: neutral graphite placeholder surfaces and invisible desktop scroll bars. */
+#content .cards-grid .art,.tv-home .poster-card .art{
+ background:linear-gradient(155deg,#302d37,#17161d 78%)!important;
+}
+.tv-home .resume-art{background:linear-gradient(120deg,#35323b,#1b1922 78%)!important}
+#content .no-art{color:#8d8797}
+html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;display:none}
+
+/* Ultra TV 0.21 — graphite-plum feedback from physical KION screen.
+   Dramatic but cheap compositor transforms, no moving filters or blur. */
+:root {
+ --bg:#17121d;--panel:#231b2b;--card:#292132;--line:#483a51;
+ --text:#f5f0f7;--muted:#c2b8c8;--gold:#bda6cc;--gold2:#d6c2de;
+}
+html {background:#16111c}
+body {
+ background-color:#1c1624!important;
+ background-image:
+   radial-gradient(ellipse 105% 100% at 67% 36%,rgba(80,53,101,.52) 0%,rgba(38,27,52,.32) 46%,rgba(16,12,23,.77) 100%),
+   linear-gradient(180deg,rgba(38,27,48,.10),rgba(20,14,29,.47)),
+   url('/tv-bg-graphite-v020.jpg')!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+ background-size:cover!important;
+ background-attachment:fixed!important;
+}
+.tv-sidebar {
+ background:linear-gradient(90deg,rgba(15,11,23,.87),rgba(24,17,35,.67))!important;
+ border:0!important;
+}
+#nav button.nav-active{background:rgba(156,118,177,.19)!important}
+#nav button:focus,#nav button:focus-visible,
+#nav button.nav-active:focus,#nav button.nav-active:focus-visible{
+ background:rgba(160,119,190,.39)!important;
+}
+#content .settings-box,#content .settings-row,
+#content .schedule-entry,#content .player-side{
+ background-color:#211b2a!important;border-color:rgba(164,132,183,.12)!important;
+}
+#content .sort-cycle,#content .action,#content .settings-box button,
+#content .schedule-filters button{
+ background:#33283d!important;color:#f5eff9!important;
+ border:0!important;
+}
+#content .sort-cycle:focus,#content .action:focus,
+#content .settings-box button:focus,#content .schedule-filters button:focus {
+ background:#584264!important;
+}
+.search-shell{background:#302638!important;border-color:rgba(201,158,215,.08)!important}
+.search-shell:focus-within{background:#403148!important;border-color:rgba(196,158,211,.33)!important}
+#content .cards-grid .art,.tv-home .poster-card .art{
+ background:linear-gradient(155deg,#43304d,#1e1828 78%)!important;
+}
+.tv-home .resume-art{background:linear-gradient(120deg,#473651,#1c1725 78%)!important}
+#content .new-episode-badge{
+ background:#5d426a!important;color:#f8f1fc!important;
+}
+
+/* Visual lifted shadow expands 35–55px past the tile.
+   This is one static radial gradient on a pseudo-element, not blur(). */
+#content .card::before{
+ inset:-48px -42px -49px!important;
+ border-radius:44px!important;
+ background:radial-gradient(ellipse 72% 74% at 50% 50%,
+    rgba(164,117,201,.72) 0%,
+    rgba(141,98,181,.56) 44%,
+    rgba(103,71,142,.29) 73%,
+    rgba(81,52,116,0) 100%)!important;
+ opacity:0!important;z-index:-1!important;pointer-events:none!important;
+}
+#content .poster-card:focus::before,
+#content .poster-card:focus-visible::before,
+#content .card:focus::before,
+#content .card:focus-visible::before{opacity:1!important}
+#content .card:focus,#content .card:focus-visible{
+ transform:scale(1.062)!important;z-index:8!important;
+ outline:0!important;border:0!important;box-shadow:none!important;
+}
+#content .card:hover:not(:focus)::before{opacity:.55!important}
+#content .card:hover:not(:focus){transform:scale(1.035)!important}
+#content .card .art,#content .card:focus .art,
+#content .card:focus-visible .art{border:0!important;outline:0!important}
+
+/* Replace competing CSS scroll + native WebView scrolling with a single
+   offscreen horizontal track and center-derived translate3d. */
+.tv-home .rail-resume{margin:0 0 7px!important}
+.tv-home .rail-resume .resume-strip{
+ --wheel-card-width:clamp(310px,32vw,500px);
+ display:block!important;position:relative!important;
+ box-sizing:border-box!important;
+ width:calc(100% + var(--tv-sidebar-width) + var(--tv-left-space) + var(--tv-right-space))!important;
+ margin-left:calc(-1 * (var(--tv-sidebar-width) + var(--tv-left-space)))!important;
+ padding:0!important;
+ min-height:clamp(310px,29vw,430px)!important;
+ overflow-x:hidden!important;overflow-y:hidden!important;
+ scroll-behavior:auto!important;
+}
+.tv-home .rail-resume .wheel-track{
+ position:relative!important;
+ display:flex!important;align-items:center!important;
+ width:max-content!important;
+ height:clamp(310px,29vw,430px)!important;
+ gap:0!important;
+ transform:translate3d(0,0,0);
+ transition:transform 175ms cubic-bezier(.21,.70,.32,1)!important;
+}
+.tv-home .rail-resume .resume-card{
+ width:var(--wheel-card-width)!important;
+ flex:0 0 var(--wheel-card-width)!important;
+ margin:0 clamp(-58px,-3.68vw,-33px) 0 0!important;
+ transform:scale(.73)!important;opacity:.70!important;z-index:2!important;
+ transform-origin:center center!important;
+ transition:transform 175ms ease-out,opacity 175ms ease-out!important;
+}
+.tv-home .rail-resume .resume-card.wheel-current,
+.tv-home .rail-resume .resume-card.wheel-current:focus,
+.tv-home .rail-resume .resume-card.wheel-current:focus-visible{
+ transform:scale(1.28)!important;
+ opacity:1!important;z-index:12!important;
+}
+.tv-home .rail-resume .resume-card.wheel-current::before{
+ inset:-40px -40px -45px!important;opacity:1!important;
+ background:radial-gradient(ellipse 75% 75% at center,
+  rgba(177,128,211,.67),rgba(135,98,180,.35) 55%,transparent 98%)!important;
+}
+.tv-home .rail-resume .resume-card:not(.wheel-current):focus::before{opacity:0!important}
+.tv-home .rail-resume .resume-card .resume-art{
+ border:0!important;outline:0!important;box-shadow:none!important;
+}
+.tv-home .rail-resume .resume-card .resume-track{background:rgba(183,148,202,.40)!important}
+.tv-home .rail-resume .resume-card .resume-fill{background:#b38ac8!important}
+@media(prefers-reduced-motion:reduce){
+ .tv-home .rail-resume .wheel-track,.tv-home .rail-resume .resume-card{
+  transition:none!important;
+ }
+}
+
+/* v0.21 finishing polish: fade halo before the pseudo-element boundaries
+   (no rectangular plate behind center), overlap side cards beneath center. */
+#content .card::before{
+ inset:-45px -56px!important;
+ border-radius:50%!important;
+ background:radial-gradient(ellipse 50% 50% at 50% 50%,
+  rgba(171,115,202,.90) 0%,
+  rgba(124,70,159,.55) 44%,
+  rgba(95,58,126,.24) 73%,
+  rgba(95,58,126,0) 100%)!important;
+}
+.tv-home .rail-resume .resume-card{
+ margin-right:clamp(-92px,-7.2vw,-53px)!important;
+}
+.tv-home .rail-resume .resume-card.wheel-current::before{
+ inset:-25px -74px!important;
+ border-radius:50%!important;
+ background:radial-gradient(ellipse 50% 50% at center,
+  rgba(174,114,209,.67) 0%,
+  rgba(137,80,173,.43) 45%,
+  rgba(99,58,133,.16) 74%,
+  rgba(99,58,133,0) 100%)!important;
+}
+
+/* v0.21 WebView stability: the focused wheel has the SAME scale as its
+   selected state; the more general #content .card:focus was overriding it. */
+#content .tv-home .rail-resume .resume-card.wheel-current,
+#content .tv-home .rail-resume .resume-card.wheel-current:focus,
+#content .tv-home .rail-resume .resume-card.wheel-current:focus-visible{
+ transform:scale(1.28)!important;opacity:1!important;z-index:12!important;
+}
+#content .tv-home .rail-resume .resume-card:not(.wheel-current){
+ transform:scale(.73)!important;opacity:.7!important;
+}
+
+/* Do not render a large invisible shadow for EVERY tile: such pseudo
+   elements contributed to scrollWidth by >50px even at opacity zero. */
+#content .card::before{content:none!important}
+#content .card:focus::before,#content .card:focus-visible::before,
+#content .card:hover::before,
+#content .tv-home .rail-resume .resume-card.wheel-current::before{
+ content:""!important;
+}
+/* Keep focus glows at the TV viewport edge without generating a page-wide
+   horizontal scrollbar. Does not affect full-bleed resume wheel. */
+html,body{overflow-x:clip!important}
+
+/* Ultra TV 0.22 — a calmer graphite-plum backdrop, retaining the same
+   purple focus halo. No extra images, no blur or animation layers. */
+html{background:#19191f!important}
+body{
+ background-color:#1c1b22!important;
+ background-image:
+  radial-gradient(ellipse 105% 100% at 67% 36%,
+   rgba(76,70,83,.32) 0%,
+   rgba(40,37,48,.39) 49%,
+   rgba(18,17,24,.75) 100%),
+  linear-gradient(180deg,
+   rgba(32,29,39,.10),
+   rgba(19,18,25,.47)),
+  url('/tv-bg-graphite-v020.jpg')!important;
+}
+/* A neutral sidebar lets focused lilac elements stand out by contrast. */
+.tv-sidebar{
+ background:linear-gradient(90deg,
+   rgba(16,16,21,.86),
+   rgba(26,24,32,.65))!important;
+}
+/* Increase ONLY the selected poster on the lower My Series home grid:
+   the existing halo remains exactly the same shade and intensity.
+   Higher specificity is needed to override the shared focus rule. */
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus,
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus-visible{
+ transform:scale(1.105)!important;
+ z-index:9!important;
+}
+/* Don't modify the main centered resume wheel's scale or movement. */
+
+/* Ultra TV 0.26: fit existing original purple square logo to the full
+   width of the left column; suppress brightness slightly without changing
+   PNG files or adding expensive animated GPU filters. */
+.tv-sidebar-logo{
+ width:var(--tv-sidebar-width)!important;
+ height:var(--tv-sidebar-width)!important;
+ margin:0 auto clamp(12px,1.5vh,19px)!important;
+ padding:0!important;
+ flex:0 0 var(--tv-sidebar-width)!important;
+}
+.tv-sidebar-logo img{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ object-fit:contain!important;
+ filter:brightness(.89)!important;
+}
+
+/* Ultra TV v0.27. Single elegant detail page; soft plum focus, no cyan borders.
+   Scoped to .detail-v027 to leave the actual fullscreen player untouched. */
+#content .detail-v027{
+ display:grid;
+ grid-template-columns:clamp(178px,17vw,245px) minmax(0,1fr);
+ gap:clamp(22px,2.4vw,36px);
+ align-items:start;
+ width:100%;max-width:1440px;margin:0 auto;
+ padding:clamp(14px,2vw,27px) 0 28px;
+}
+#content .detail-v027 .detail-poster{min-width:0;width:100%}
+#content .detail-v027 .detail-art{
+ display:block;width:100%;max-width:none;
+ border:0!important;outline:0!important;
+ border-radius:16px;background:#282532;
+ box-shadow:0 16px 35px rgba(6,5,9,.30);
+}
+#content .detail-v027 .detail-info{
+ min-width:0;width:100%;min-height:0;
+ display:flex;flex-direction:column;align-items:stretch;
+ gap:clamp(9px,1vw,14px);
+ padding-top:0;
+}
+#content .detail-v027 h1{
+ font-size:clamp(28px,2.9vw,43px);
+ line-height:1.13;margin:0;
+ font-weight:730;letter-spacing:-.025em;
+}
+#content .detail-v027 .detail-metadata{
+ font-size:clamp(13px,1.2vw,16px);
+ line-height:1.3;color:#c2bec8;margin:0;
+ overflow-wrap:anywhere;
+}
+#content .detail-v027 .detail-genres{gap:7px}
+#content .detail-v027 .badge{
+ display:inline-block;margin:0;padding:5px 10px;
+ color:#c6becd;background:rgba(61,55,71,.65);
+ border:0!important;border-radius:8px;
+ font-size:12px;line-height:1.25;font-weight:500;
+}
+#content .detail-v027 .detail-description{
+ display:block;-webkit-line-clamp:unset;overflow:visible;
+ font-size:clamp(15px,1.22vw,17px);
+ line-height:1.43;color:#d4cfda;
+ margin:0;max-width:920px;
+}
+#content .detail-v027 .detail-commands{
+ display:flex;align-items:center;gap:10px;
+ flex-wrap:wrap;margin:6px 0 0;min-width:0;
+}
+#content .detail-v027 .detail-commands button,
+#content .detail-v027 .watch-edit,
+#content .detail-v027 .progress-editor button,
+#content .detail-v027 .source-panel button{
+ border:0!important;outline:0!important;
+ box-shadow:none!important;cursor:pointer;
+ background:#34303b!important;color:#ebe5f0!important;
+ border-radius:10px!important;
+ transition:background-color 120ms ease-out,transform 120ms ease-out;
+}
+#content .detail-v027 .detail-commands .primary{
+ min-height:50px;max-width:100%;
+ padding:10px 22px;font-size:clamp(15px,1.4vw,19px);
+ font-weight:700;line-height:1.2;white-space:normal;
+ background:#6b557a!important;color:#f9f4fb!important;
+}
+#content .detail-v027 .detail-options-button{
+ min-height:48px;padding:10px 16px;
+ font-size:clamp(13px,1.15vw,16px);
+ white-space:normal;font-weight:550;
+}
+#content .detail-v027 .detail-commands .icon-button{
+ width:48px;min-height:48px;
+ padding:0;font-size:23px;
+}
+#content .detail-v027 button:focus,
+#content .detail-v027 button:focus-visible{
+ background:#7b6090!important;
+ color:#fff!important;
+ outline:0!important;
+ box-shadow:0 0 0 3px rgba(190,156,212,.30),
+            0 6px 21px rgba(49,34,60,.36)!important;
+ transform:scale(1.035);
+ position:relative;z-index:2;
+}
+#content .detail-v027 .watch-status{
+ width:100%;max-width:100%;
+ margin:3px 0 0;padding:14px 17px;
+ display:grid;grid-template-columns:minmax(0,1fr) auto;
+ gap:8px 14px;min-height:0;
+ background:rgba(35,32,42,.89)!important;
+ border:0!important;border-radius:14px!important;
+ box-shadow:none!important;box-sizing:border-box;
+}
+#content .detail-v027 .watch-current{min-width:0}
+#content .detail-v027 .watch-caption{
+ display:block;font-size:12px;line-height:1.25;
+ text-transform:uppercase;letter-spacing:.055em;
+ color:#aca0b6;margin-bottom:5px;font-weight:650;
+}
+#content .detail-v027 .watch-values{
+ display:flex;align-items:center;flex-wrap:wrap;
+ gap:4px 12px;min-width:0;
+ color:#f3eef8;font-size:clamp(16px,1.6vw,21px);line-height:1.3;
+}
+#content .detail-v027 .watch-episode{white-space:nowrap}
+#content .detail-v027 .watch-episode strong{font-weight:750}
+#content .detail-v027 .watch-divider{color:#887f92}
+#content .detail-v027 .watch-timestamp{
+ padding:3px 9px;border-radius:7px;
+ background:#3e3448;color:#dbc9ea;
+ font-size:clamp(13px,1.2vw,16px);white-space:nowrap;
+}
+#content .detail-v027 .watch-pending{font-size:15px;color:#d9d3dd}
+#content .detail-v027 .watch-state{
+ color:#a99eb2;font-size:12px;line-height:1.38;
+ display:block;margin:5px 0 0;overflow-wrap:anywhere;
+}
+#content .detail-v027 .watch-edit{
+ justify-self:end;align-self:center;
+ min-height:40px;min-width:92px;
+ padding:9px 13px;font-size:14px;white-space:nowrap;
+}
+#content .detail-v027 .progress-editor{
+ grid-column:1/-1;
+ padding-top:12px;margin-top:5px;
+ border-top:1px solid rgba(190,170,204,.15);
+ display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+ min-width:0;
+}
+#content .detail-v027 .progress-editor-label{
+ width:100%;font-size:12px;color:#aca0b6;
+}
+#content .detail-v027 .progress-picker{
+ display:flex;align-items:center;flex-wrap:wrap;
+ gap:6px 8px;min-width:0;
+}
+#content .detail-v027 .progress-picker span{
+ font-size:14px;color:#c8bfcf;margin:0;
+}
+#content .detail-v027 .progress-picker span:not(:first-child){margin-left:9px}
+#content .detail-v027 .progress-picker b{
+ min-width:20px;text-align:center;font-size:17px;color:#eee;
+}
+#content .detail-v027 .progress-picker button{
+ min-height:38px;min-width:37px;padding:0 10px;font-size:19px;
+}
+#content .detail-v027 .progress-save{
+ min-height:40px;white-space:nowrap;
+ padding:8px 13px;font-size:14px;margin:0;
+}
+#content .detail-v027 .detail-source-current{
+ margin:0 0 0 3px;color:#afa5bb;
+ font-size:13px;line-height:1.35;overflow-wrap:anywhere;
+}
+#content .detail-v027 .detail-source-panel{
+ width:100%;max-width:none;
+ margin:2px 0 0;padding:15px 17px;
+ background:rgba(35,32,42,.91);
+ border:0!important;border-radius:14px;
+ box-sizing:border-box;
+}
+#content .detail-v027 .detail-source-panel h3{
+ color:#e9e2ef;font-size:16px;margin:0 0 10px;
+}
+#content .detail-v027 .detail-source-buttons{
+ display:flex;flex-wrap:wrap;gap:8px;
+}
+#content .detail-v027 .detail-source-buttons button{
+ min-height:38px;max-width:100%;
+ font-size:14px;padding:9px 13px;line-height:1.3;
+ white-space:normal;overflow-wrap:anywhere;
+ text-align:left;
+}
+#content .detail-v027 .detail-source-buttons button.selected{
+ background:#554765!important;
+ color:#f9f2ff!important;
+}
+#content .detail-v027 .detail-audio-note,
+#content .detail-v027 .detail-source-empty{
+ color:#b8aebf;font-size:13px;
+ line-height:1.4;margin:12px 0 0;overflow-wrap:anywhere;
+}
+@media(max-width:900px){
+ #content .detail-v027{grid-template-columns:clamp(115px,21vw,170px) minmax(0,1fr);gap:16px}
+ #content .detail-v027 .detail-info{gap:8px}
+ #content .detail-v027 .detail-commands .primary{min-height:44px}
+ #content .detail-v027 .watch-status{padding:11px 12px}
+ #content .detail-v027 .watch-edit{min-width:80px;padding:7px 10px}
+}
+@media(max-width:550px){
+ #content .detail-v027{grid-template-columns:1fr}
+ #content .detail-v027 .detail-art{max-width:190px}
+ #content .detail-v027 .watch-status{grid-template-columns:1fr}
+ #content .detail-v027 .watch-edit{justify-self:start}
+}
+@media(prefers-reduced-motion:reduce){
+ #content .detail-v027 button{transition:none!important}
+}
+
+/* Ultra TV 0.27 finishing pass: read-only season, episode and time.
+   No large framed progress editor or extra source line. */
+#content .detail-v027 .detail-info > h1,
+#content .detail-v027 .detail-info > p,
+#content .detail-v027 .detail-info > .detail-genres,
+#content .detail-v027 .detail-info > .detail-commands,
+#content .detail-v027 .detail-info > .watch-status,
+#content .detail-v027 .detail-info > .detail-source-panel{
+ margin-left:0!important;
+}
+#content .detail-v027 .badge{color:#f5f1f7!important}
+#content .detail-v027 .watch-status{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ gap:5px!important;
+ min-height:0!important;
+ padding:4px 0 0!important;
+ margin:9px 0 0!important;
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+}
+#content .detail-v027 .watch-caption{
+ font-size:13px!important;
+ text-transform:none!important;
+ letter-spacing:0!important;
+ font-weight:580!important;
+ color:#bcb4c4!important;
+ margin:0!important;
+}
+#content .detail-v027 .watch-values{
+ display:flex!important;
+ align-items:baseline!important;
+ flex-wrap:nowrap!important;
+ gap:7px 12px!important;
+ font-size:clamp(15px,1.48vw,20px)!important;
+}
+#content .detail-v027 .watch-timestamp{
+ display:inline!important;
+ padding:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ font-size:inherit!important;
+ color:#eee5f5!important;
+ white-space:nowrap;
+}
+#content .detail-v027 .watch-values strong{font-weight:720!important}
+#content .detail-v027 .watch-state{
+ margin:0!important;
+ font-size:12px!important;
+ color:#a99fac!important;
+}
+@media(max-width:900px){
+ #content .detail-v027 .watch-values{flex-wrap:wrap!important}
+}
+
+/* Ultra TV 0.28 — compact TV settings + schedule. Same graphite/purple
+   palette, no new image layers or animation; D-pad targets >= 42px. */
+#content .settings-box{
+ max-width:1120px!important;
+ padding:8px 22px 10px!important;
+ border:1px solid rgba(159,141,177,.13)!important;
+ background:rgba(35,30,42,.55)!important;
+ border-radius:14px!important;
+ line-height:1.35!important;
+}
+#content .settings-row{
+ grid-template-columns:minmax(0,1fr) auto!important;
+ gap:18px!important;
+ padding:11px 0!important;
+ border-bottom:1px solid rgba(191,174,199,.11)!important;
+ background:transparent!important;
+}
+#content .settings-row:last-of-type{border-bottom:0!important}
+#content .settings-row h2{font-size:18px!important;margin:0 0 4px!important}
+#content .settings-row p{font-size:14px!important;line-height:1.35!important;color:#bbb1c2!important}
+#content .settings-row button{
+ font-size:15px!important;min-height:44px!important;
+ padding:8px 13px!important;max-width:275px!important;
+ border-radius:9px!important;white-space:nowrap;
+}
+#content .settings-footer{margin:8px 0 0!important;font-size:12px!important}
+#content .schedule-filters{gap:9px!important;margin:7px 0 16px!important}
+#content .schedule-filters button{
+ min-height:43px!important;padding:8px 14px!important;
+ font-size:16px!important;border-radius:9px!important;
+ border:0!important;
+}
+#content .schedule-subtitle{font-size:22px!important;margin:17px 0 10px!important}
+#content .schedule-list{gap:6px!important}
+#content .schedule-entry{
+ min-height:58px!important;padding:8px 16px!important;
+ gap:15px!important;border-radius:10px!important;
+ border:1px solid rgba(178,158,194,.13)!important;
+}
+#content .episode-day{font-size:16px!important;color:#e8dfec!important}
+#content .episode-name strong{font-size:18px!important}
+#content .episode-name small{font-size:14px!important;margin-top:1px!important}
+#content .episode-code{font-size:15px!important}
+#content .episode-source{font-size:13px!important;padding:5px 8px!important}
+@media(max-width:940px){
+ #content .settings-row{grid-template-columns:1fr!important;gap:8px!important}
+ #content .settings-row button{max-width:100%!important;width:max-content}
+ #content .schedule-entry{gap:9px!important;padding:7px 12px!important}
+}
+
+/* Ultra TV v0.30 candidate: discreet plum border ONLY for My Series tiles.
+   Carousel cards deliberately stay borderless, as requested. */
+#content .tv-home .rail-my-series .poster-grid .poster-card{
+ border:1px solid rgba(94,61,119,.55)!important;
+ box-shadow:inset 0 0 0 1px rgba(61,40,77,.18)!important;
+}
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus,
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus-visible{
+ border-color:rgba(111,71,137,.92)!important;
+ box-shadow:inset 0 0 0 1px rgba(88,53,116,.30),0 7px 16px rgba(15,10,20,.38)!important;
+}
+/* Compact D-pad usable choice bar in the DETAILS card, not the player. */
+#content .detail-v030 .detail-control-strip{
+ display:flex;align-items:center;flex-wrap:wrap;gap:9px 14px;
+ padding:10px 0 3px;margin-top:2px;min-width:0;
+}
+#content .detail-v030 .detail-control{
+ display:flex;align-items:center;gap:6px;
+ color:#d3c8db;font-size:14px;white-space:nowrap;
+}
+#content .detail-v030 .detail-control-label{
+ color:#bcb0c4;font-weight:600;margin-right:3px;
+}
+#content .detail-v030 .detail-control strong{
+ min-width:25px;text-align:center;color:#eee7f5;font-size:17px;
+}
+#content .detail-v030 .detail-control button{
+ width:36px;height:39px;min-width:36px;min-height:39px;padding:0;
+ border-radius:9px;background:#38303f;color:#e7d9ee;font-size:22px;
+}
+#content .detail-v030 .detail-control button:disabled{opacity:.33}
+#content .detail-v030 .detail-source-toggle{
+ max-width:100%;min-height:41px;padding:7px 12px;font-size:14px;
+ white-space:normal;text-align:left;color:#e2d9eb;background:#38303f;
+ border-radius:9px;overflow-wrap:anywhere;
+}
+#content .detail-v030 .detail-control button:focus,
+#content .detail-v030 .detail-source-toggle:focus{
+ background:#51425d!important;
+ box-shadow:0 3px 10px rgba(0,0,0,.25)!important;
+}
+#content .detail-v030 .detail-selection-note{
+ display:block;margin:2px 0 0;color:#a99bab;font-size:12px;line-height:1.3;
+}
+#content .detail-v030 .detail-voice-row{
+ display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;
+ margin:12px 0 0;color:#c8bacc;font-size:14px;
+}
+#content .detail-v030 .detail-voice-choices{display:flex;gap:8px;flex-wrap:wrap}
+#content .detail-v030 .detail-voice-choices button{
+ min-height:40px;padding:7px 12px;border-radius:9px;background:#332e3b;
+}
+#content .detail-v030 .detail-voice-choices button.selected{
+ background:#51415c!important;color:#eee5f5!important;
+}
+@media(max-width:900px){
+ #content .detail-v030 .detail-control-strip{gap:8px 12px}
+ #content .detail-v030 .detail-source-toggle{width:100%}
+}
