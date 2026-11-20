@@ -1594,3 +1594,29 @@ body{
  #content .detail-v030 .detail-control-strip{gap:8px 12px}
  #content .detail-v030 .detail-source-toggle{width:100%}
 }
+
+/* 0.31: only the FOCUSED My Series tile has a dark plum 1px outline.
+   Reserve 1px transparent border for the others so focus changes no layout. */
+#content .tv-home .rail-my-series .poster-grid .poster-card{
+  border:1px solid transparent!important;
+  box-shadow:none!important;
+}
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus,
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus-visible{
+  border:1px solid #684878!important;
+  box-shadow:none!important;
+}
+/* Performance trial: suppress large pseudo-element radial shadow glows
+   that otherwise repaint around EVERY focus move. Keep native focus scale.
+   Current carousel stays centered and its D-pad behavior is unchanged. */
+#content .tv-home .rail-my-series .poster-grid .poster-card::before,
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus::before,
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus-visible::before,
+#content .tv-home .rail-resume .resume-card::before,
+#content .tv-home .rail-resume .resume-card.wheel-current::before,
+#content .tv-home .rail-resume .resume-card:focus::before,
+#content .tv-home .rail-resume .resume-card:focus-visible::before {
+  content:none!important;
+  opacity:0!important;
+  background:none!important;
+}

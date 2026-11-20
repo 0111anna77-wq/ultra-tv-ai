@@ -210,6 +210,9 @@ public final class UltraTvActivity extends Activity {
             @Override
             public void onHideCustomView() {
                 exitFullscreen();
+                // The native fullscreen overlay has gone: skip the obsolete
+                // intermediate player page and return to the show card.
+                returnFromPlayerOnNativeExit();
             }
         });
         container.addView(webView, new FrameLayout.LayoutParams(
@@ -600,14 +603,25 @@ public final class UltraTvActivity extends Activity {
         webView.requestFocus();
     }
 
+    private void returnFromPlayerOnNativeExit() {
+        if (webView == null) return;
+        webView.evaluateJavascript(
+                "if(window.UltraTVRemote&&window.UltraTVRemote.nativePlayerExited)" +
+                "window.UltraTVRemote.nativePlayerExited();", null);
+    }
+
     @Override
     public void onBackPressed() {
-        if (pointerMode) {
-            hideNativePointer(true);
-            return;
-        }
+        // Fullscreen must win over pointer-mode, otherwise one Back could
+        // merely hide the cursor and expose the redundant player screen.
         if (fullscreenView != null) {
             exitFullscreen();
+            returnFromPlayerOnNativeExit();
+            return;
+        }
+        if (pointerMode) {
+            hideNativePointer(false);
+            returnFromPlayerOnNativeExit();
             return;
         }
         if (webView == null) {

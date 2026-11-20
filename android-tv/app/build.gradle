@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 30
-        versionName '0.30-tv-detail-controls'
+        versionCode 31
+        versionName '0.31-tv-player-back-focus-fix'
     }
     buildTypes {
         release { minifyEnabled false }

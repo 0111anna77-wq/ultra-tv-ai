@@ -686,8 +686,16 @@ function refreshPlayer(){
  const el=$('[data-act=cursor]');if(el)el.focus({preventScroll:true});
 }
 function goBack(){
+ // v0.31: the inline player manager is NOT a navigation destination.
+ // One Back always closes playback and returns to the show detail card.
+ if(S.page==='player'){
+   const show=S.show;
+   S.directWatch=false;
+   if(S.cursor)stopCursor();
+   navigate('detail',show);
+   return true;
+ }
  if(S.cursor){stopCursor();return true;}
- if(S.page==='player'){S.directWatch=false;navigate('detail',S.show);return true;}
  if(S.page==='detail'){navigate('home');return true;}
  if(S.page!=='home'){navigate('home');return true;}
  return false;
@@ -1296,7 +1304,12 @@ async function loadSchedule(){
 window.addEventListener('resize',()=>{
  if(S.page==='home')updateResumeWheel(false);
 });
-window.UltraTVRemote={back:goBack,releaseCursor:stopCursor};
+window.UltraTVRemote={
+ back:goBack,releaseCursor:stopCursor,
+ // Called only when Android native fullscreen/custom view actually exits.
+ // Also safely does nothing if WebView already returned to details.
+ nativePlayerExited:()=>S.page==='player'?goBack():false
+};
 render();refresh(false);
 setInterval(()=>{if(!document.hidden)refresh(false)},30*60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(false)});
