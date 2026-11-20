@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 32
-        versionName '0.32-tv-direct-player-wheel'
+        versionCode 33
+        versionName '0.33-tv-nav-profiler'
     }
     buildTypes {
         release { minifyEnabled false }

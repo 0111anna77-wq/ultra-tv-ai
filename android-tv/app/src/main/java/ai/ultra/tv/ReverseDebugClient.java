@@ -121,7 +121,7 @@ final class ReverseDebugClient {
 
     private void uploadState() throws Exception {
         JSONObject state = new JSONObject();
-        state.put("appVersion", "0.29.2");
+        state.put("appVersion", "0.33");
         state.put("web", new JSONObject(diagnostics.getWebState()));
         state.put("lastJavaScriptError", activity.getLastJsError());
         state.put("lastNetworkError", activity.getLastNetworkError());

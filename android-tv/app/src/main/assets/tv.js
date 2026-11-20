@@ -41,13 +41,16 @@ const lastContentFocus=new Map();
 let resumeWheelKey=null;
 // Cache stable layout once per wheel DOM tree. Transforms do not affect offsetLeft.
 // Without this, each D-pad press synchronously reads layout of the carousel.
-let resumeWheelGeometry={track:null,stripWidth:0,centers:new Map()};
-const tvNavigationStats={wheelMs:0,navMs:0,lastMove:''};
+let resumeWheelGeometry={track:null,stripWidth:0,centers:new Map(),current:null};
+const tvNavigationStats={
+ wheelMs:0,navMs:0,lastMove:'',renderMs:0,renderMaxMs:0,navMaxMs:0
+};
 window.UltraTVDiagnostics=()=>({
  page:S.page,show:S.show,season:S.season,episode:S.episode,source:S.source,
  selectedForPlayback:!!S.detailSelectionPending,
  focus:document.activeElement?.getAttribute('data-focus')||'',
- wheelMs:tvNavigationStats.wheelMs,navMs:tvNavigationStats.navMs,lastMove:tvNavigationStats.lastMove
+ wheelMs:tvNavigationStats.wheelMs,navMs:tvNavigationStats.navMs,lastMove:tvNavigationStats.lastMove,
+ renderMs:tvNavigationStats.renderMs,renderMaxMs:tvNavigationStats.renderMaxMs,navMaxMs:tvNavigationStats.navMaxMs
 });
 function updateResumeWheel(animate=false){
  if(S.page!=='home')return;
@@ -62,13 +65,19 @@ function updateResumeWheel(animate=false){
    // Geometry changes when render() creates a new DOM tree or on resize.
    const centers=new Map();
    for(const el of cards)centers.set(el.dataset.key,el.offsetLeft+el.offsetWidth/2);
-   resumeWheelGeometry={track,stripWidth:strip.clientWidth,centers};
+   resumeWheelGeometry={track,stripWidth:strip.clientWidth,centers,current:null};
    if(strip.scrollLeft!==0)strip.scrollLeft=0;
  }
  const delta=resumeWheelGeometry.stripWidth/2-resumeWheelGeometry.centers.get(next.dataset.key);
  resumeWheelKey=next.dataset.key;
- // Shift the single strip; only the selected card changes compositor scale.
- for(const el of cards)el.classList.toggle('wheel-current',el===next);
+ // Invalidate CSS on just the OLD and NEW centered cards.
+ // Previous implementation wrote classes to every card on each key.
+ const prev=resumeWheelGeometry.current;
+ if(prev!==next){
+   if(prev)prev.classList.remove('wheel-current');
+   next.classList.add('wheel-current');
+   resumeWheelGeometry.current=next;
+ }
  track.style.transitionDuration=animate?'155ms':'0ms';
  track.style.transform='translate3d('+Math.round(delta)+'px,0,0)';
  tvNavigationStats.wheelMs=Math.round((performance.now()-started)*10)/10;
@@ -535,6 +544,7 @@ function player(){
  '</aside></div>';
 }
 function render(){
+ const renderStarted=performance.now();
  const names=['home','catalog','new','search','settings'];
  document.querySelectorAll('#nav button').forEach(b=>{
   const active=b.dataset.nav===S.page||((S.page==='detail'||S.page==='player')&&b.dataset.nav==='home');
@@ -557,6 +567,8 @@ function render(){
  if(!target&&prev)target=[...document.querySelectorAll('[data-focus]')].find(x=>x.dataset.focus===prev);
  if(target)target.focus({preventScroll:true});
  if(S.page==='player')bindNativeVideoProgress();
+ tvNavigationStats.renderMs=Math.round((performance.now()-renderStarted)*10)/10;
+ tvNavigationStats.renderMaxMs=Math.max(tvNavigationStats.renderMaxMs,tvNavigationStats.renderMs);
 }
 function bindNativeVideoProgress(){
  const video=$('#tv-video'),key=S.show;
@@ -937,7 +949,14 @@ function moveFocus(from,key){
       }
     }
     if(!target&&destination&&destination.id!=='nav'){
-      target=nearestFocusX(from,destination.items);
+      // When moving back UP to the centered carousel, its currently selected
+      // item is already known. Don't force 12 animated getBoundingClientRect()
+      // reads on the low-powered KION just to reselect that same item.
+      if(S.page==='home'&&destination.id==='home:rail:0'){
+        target=destination.items.find(e=>e.dataset.key===resumeWheelKey)||destination.items[0]||null;
+      }else{
+        target=nearestFocusX(from,destination.items);
+      }
       if(up&&destination.id===focusRowFirstContent()?.id)goTop=true;
     }else if(!target&&up){
       window.scrollTo(0,0);
@@ -956,9 +975,16 @@ function moveFocus(from,key){
     updateResumeWheel(true);
   }
   target.focus({preventScroll:true});
-  if(goTop){window.scrollTo(0,0);return true;}
-  bringFocusedIntoView(target);
+  if(goTop){
+    window.scrollTo(0,0);
+    tvNavigationStats.navMs=Math.round((performance.now()-moveStarted)*10)/10;
+    return true;
+  }
+  // Carousel is automatically centered by its compositor-only track.
+  // Reading its animated bounding box causes forced style/layout work.
+  if(!target.closest('.wheel-strip'))bringFocusedIntoView(target);
   tvNavigationStats.navMs=Math.round((performance.now()-moveStarted)*10)/10;
+  tvNavigationStats.navMaxMs=Math.max(tvNavigationStats.navMaxMs,tvNavigationStats.navMs);
   return true;
 }
 function bringFocusedIntoView(el){

@@ -312,7 +312,7 @@ final class RemoteDebugServer {
                         "title:(document.querySelector('#content h1')?.textContent||'').slice(0,100),"+
                         "scrollY:Math.round(window.scrollY),readyState:document.readyState,"+
                         "domNodes:document.getElementsByTagName('*').length,resources:performance.getEntriesByType('resource').length,"+
-                        "navMs:s.navMs||0,wheelMs:s.wheelMs||0,season:s.season||1,episode:s.episode||1,source:s.source||0});}catch(e){return '{}';}})()",
+                        "navMs:s.navMs||0,wheelMs:s.wheelMs||0,lastMove:s.lastMove||'',navMaxMs:s.navMaxMs||0,renderMs:s.renderMs||0,renderMaxMs:s.renderMaxMs||0,season:s.season||1,episode:s.episode||1,source:s.source||0});}catch(e){return '{}';}})()",
                         result -> { lastUiPingMs = SystemClock.elapsedRealtime() - started; value.set(result); done.countDown(); });
             } catch (Exception ignored) { done.countDown(); }
         });
