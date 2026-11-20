@@ -40,6 +40,7 @@ public final class UltraTvActivity extends Activity {
     private BundledSite bundledSite;
     private AppUpdateManager appUpdateManager;
     private RemoteDebugServer remoteDebugServer;
+    private ReverseDebugClient reverseDebugClient;
     private volatile String lastJsError = "";
     private volatile String lastNetworkError = "";
     private TvPointerOverlay pointerOverlay;
@@ -146,7 +147,7 @@ public final class UltraTvActivity extends Activity {
                             runOnUiThread(() -> showFilterDialog());
                             break;
                         case "remote-debug":
-                            runOnUiThread(() -> showRemoteDebugDialog());
+                            runOnUiThread(() -> showDebugModeDialog());
                             break;
                         case "app-update":
                             runOnUiThread(() -> appUpdateManager.check(true));
@@ -277,6 +278,87 @@ public final class UltraTvActivity extends Activity {
         }
     }
 
+    /** Choose the direction. Reverse mode works when inbound TV connections are VPN-blocked. */
+    private void showDebugModeDialog() {
+        if (reverseDebugClient != null && reverseDebugClient.isEnabled()) {
+            new AlertDialog.Builder(this)
+                .setTitle("Ultra TV · соединение с ПК")
+                .setMessage(reverseDebugClient.getStatus()
+                        + "\nАдрес ПК: " + reverseDebugClient.getHost()
+                        + "\n\nСеанс не дольше 15 минут. Только интерфейс Ultra TV.")
+                .setPositiveButton("Закрыть", null)
+                .setNegativeButton("Отключить", (dialog, which) -> reverseDebugClient.stop())
+                .show();
+            return;
+        }
+        if (remoteDebugServer != null && remoteDebugServer.isRunning()) {
+            showRemoteDebugDialog();
+            return;
+        }
+        String last = reverseDebugClient == null ? "" : reverseDebugClient.getStatus();
+        new AlertDialog.Builder(this)
+            .setTitle("Удалённая отладка · 0.29")
+            .setMessage("Доступ только к Ultra TV, не к Android. Временно на 15 минут."
+                    + ("Выключено".equals(last) || last.isEmpty() ? "" :
+                       "\n\nПоследний статус: " + last))
+            .setItems(new String[] {
+                    "Приставка → ПК (новый способ, через VPN)",
+                    "ПК → приставка (режим 0.28)"
+            }, (dialog, choice) -> {
+                if (choice == 0) showReverseDebugDialog();
+                else showRemoteDebugDialog();
+            })
+            .setNegativeButton("Отмена", null).show();
+    }
+
+    private void showReverseDebugDialog() {
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pad = (int)(18 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, 0, pad, 0);
+
+        android.widget.EditText host = new android.widget.EditText(this);
+        host.setSingleLine(true);
+        host.setHint("IP компьютера (например, 192.168.0.106)");
+        host.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        host.setText(getPreferences(MODE_PRIVATE).getString("last_pc_lan_ip", ""));
+        layout.addView(host);
+
+        android.widget.EditText code = new android.widget.EditText(this);
+        code.setSingleLine(true);
+        code.setHint("Шестизначный код из PowerShell");
+        code.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        code.setFilters(new android.text.InputFilter[] {
+                new android.text.InputFilter.LengthFilter(6)
+        });
+        layout.addView(code);
+
+        new AlertDialog.Builder(this)
+            .setTitle("Приставка → ПК · обратная отладка")
+            .setMessage("Сначала запустите на ПК relay.py. Введите IP компьютера"
+                    + " и временный код из окна PowerShell."
+                    + "\nИспользуется только домашняя сеть. Нет ADB или доступа к Android.")
+            .setView(layout)
+            .setPositiveButton("Подключиться", (dialog, which) -> {
+                if (remoteDebugServer != null) remoteDebugServer.stop();
+                if (remoteDebugServer == null)
+                    remoteDebugServer = new RemoteDebugServer(this, webView);
+                if (reverseDebugClient == null)
+                    reverseDebugClient = new ReverseDebugClient(this, remoteDebugServer);
+                String address = host.getText().toString().trim();
+                String pin = code.getText().toString().trim();
+                lastJsError = "";
+                lastNetworkError = "";
+                boolean launched = reverseDebugClient.start(address, pin);
+                if (launched) getPreferences(MODE_PRIVATE).edit()
+                        .putString("last_pc_lan_ip", address).apply();
+                Toast.makeText(this, launched ? "Соединение с ПК… Проверьте статус в настройках"
+                        : "Некорректный адрес или код", Toast.LENGTH_LONG).show();
+            })
+            .setNegativeButton("Отмена", null)
+            .show();
+    }
+
     /** Remote diagnostics are opt-in, LAN-only, app-only, and expire in 15 minutes. */
     private void showRemoteDebugDialog() {
         if (remoteDebugServer == null) remoteDebugServer = new RemoteDebugServer(this, webView);
@@ -344,7 +426,8 @@ public final class UltraTvActivity extends Activity {
         touchWebView(x, y);
     }
     private boolean isDebugging() {
-        return remoteDebugServer != null && remoteDebugServer.isRunning();
+        return (remoteDebugServer != null && remoteDebugServer.isRunning())
+                || (reverseDebugClient != null && reverseDebugClient.isRunning());
     }
 
     /**
@@ -550,6 +633,7 @@ public final class UltraTvActivity extends Activity {
     @Override
     protected void onStop() {
         if (remoteDebugServer != null) remoteDebugServer.stop();
+        if (reverseDebugClient != null) reverseDebugClient.stop();
         super.onStop();
     }
 
@@ -565,6 +649,7 @@ public final class UltraTvActivity extends Activity {
         remoteHandler.removeCallbacks(activatePointerOnLongOk);
         if (appUpdateManager != null) appUpdateManager.shutdown();
         if (remoteDebugServer != null) remoteDebugServer.stop();
+        if (reverseDebugClient != null) reverseDebugClient.stop();
         if (webView != null) {
             container.removeView(webView);
             webView.destroy();
