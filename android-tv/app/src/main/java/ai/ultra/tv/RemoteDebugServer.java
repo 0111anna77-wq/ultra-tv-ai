@@ -301,7 +301,7 @@ final class RemoteDebugServer {
         sendJson(client, 405, "method not allowed");
     }
 
-    private String getWebState() {
+    String getWebState() {
         CountDownLatch done = new CountDownLatch(1);
         AtomicReference<String> value = new AtomicReference<>("{}");
         final long started = SystemClock.elapsedRealtime();
@@ -323,7 +323,7 @@ final class RemoteDebugServer {
         } catch (Exception ignored) { return "{}"; }
     }
 
-    private byte[] screenshot() {
+    byte[] screenshot() {
         CountDownLatch done = new CountDownLatch(1);
         AtomicReference<byte[]> value = new AtomicReference<>();
         main.post(() -> {
