@@ -1,8 +1,28 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-20T00:55:58Z",
+  "updatedAt": "2026-11-20T23:21:44Z",
   "entries": [
+    {
+      "id": "e99bc91aa7f5f317fae4",
+      "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Владычица Лориена. (S03E05)",
+      "seriesRu": "Властелин колец: Кольца власти",
+      "seriesEn": "The Lord of the Rings: The Rings of Power",
+      "season": 3,
+      "episode": 5,
+      "published": "2026-11-20T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lord_of_the_Rings__The_Rings_of_Power/season_3/episode_5/"
+    },
+    {
+      "id": "34a947429fb50d0e7820",
+      "title": "Парижская полиция 1900 (Paris Police 1900). Четвертая серия. (S03E04)",
+      "seriesRu": "Парижская полиция 1900",
+      "seriesEn": "Paris Police 1900",
+      "season": 3,
+      "episode": 4,
+      "published": "2026-11-20T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Paris_Police_1900/season_3/episode_4/"
+    },
     {
       "id": "cc58267cddcecb94d97f",
       "title": "Парижская полиция 1900 (Paris Police 1900). Третья серия. (S03E03)",
