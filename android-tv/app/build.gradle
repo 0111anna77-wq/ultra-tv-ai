@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 28
-        versionName '0.28-tv-lan-diagnostics'
+        versionCode 29
+        versionName '0.29-tv-reverse-diagnostics'
     }
     buildTypes {
         release { minifyEnabled false }
