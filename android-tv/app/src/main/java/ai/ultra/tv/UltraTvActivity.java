@@ -146,6 +146,11 @@ public final class UltraTvActivity extends Activity {
                         case "settings":
                             runOnUiThread(() -> showFilterDialog());
                             break;
+                        case "exit":
+                            // Exit is invoked ONLY after user confirms in Ultra TV's
+                            // in-app modal. Default Back on Home never finishes.
+                            runOnUiThread(() -> finish());
+                            break;
                         case "remote-debug":
                             runOnUiThread(() -> showDebugModeDialog());
                             break;

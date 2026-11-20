@@ -1663,3 +1663,68 @@ body.tv-player-direct #tv-video{
   border:0!important;
   border-radius:0!important;
 }
+
+/* Ultra TV 0.34 — stronger raised GRAPHITE title fade on lower tiles ONLY.
+   It's a lightweight static gradient; no blur, animation or additional DOM. */
+#content .tv-home .rail-my-series .poster-grid .poster-card .art::after{
+ content:""!important;
+ position:absolute!important;
+ inset:26% 0 0!important;
+ pointer-events:none!important;
+ z-index:1!important;
+ background:linear-gradient(180deg,
+   rgba(19,18,24,0) 0%,
+   rgba(19,18,24,.12) 22%,
+   rgba(17,16,22,.56) 61%,
+   rgba(10,10,15,.93) 100%)!important;
+}
+#content .tv-home .rail-my-series .poster-grid .poster-card .poster-name{
+ z-index:2!important;
+ text-shadow:0 2px 4px rgba(0,0,0,.7)!important;
+}
+/* Small modal without expensive GPU blur or heavy box shadows. */
+.ultra-exit-backdrop{
+ position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+ z-index:9000;background:rgba(8,7,12,.78);padding:22px;
+}
+.ultra-exit-card{
+ width:min(470px,90vw);max-width:100%;padding:28px 29px 26px;
+ border:1px solid rgba(111,84,130,.66);
+ border-radius:19px;
+ background:linear-gradient(150deg,#282430,#1a1921 85%);
+ color:#f3edf7;
+ text-align:center;
+}
+.ultra-exit-symbol{
+ display:flex;align-items:center;justify-content:center;
+ width:45px;height:45px;margin:0 auto 16px;
+ border-radius:12px;background:rgba(117,83,139,.17);
+ color:#c5abd6;font-size:30px;font-weight:800;line-height:1;
+}
+.ultra-exit-card h2{
+ color:#f4eff7;font-size:25px;line-height:1.18;margin:0 0 10px;
+}
+.ultra-exit-card p{
+ color:#b9afc1;font-size:15px;line-height:1.4;margin:0 0 25px;
+}
+.ultra-exit-actions{
+ display:flex;align-items:stretch;justify-content:center;gap:11px;
+}
+.ultra-exit-actions button{
+ width:50%;min-height:49px;padding:11px 16px;border-radius:11px;
+ background:#34303b;border:1px solid rgba(100,91,110,.48);
+ color:#e8e1ed;font-size:18px;font-weight:650;
+ outline:0!important;outline-offset:0!important;
+ box-shadow:none!important;transition:none!important;
+}
+.ultra-exit-actions button:focus,.ultra-exit-actions button:focus-visible{
+ background:#52415e!important;
+ border-color:#795e8b!important;
+ color:#fff!important;
+ outline:0!important;
+ box-shadow:none!important;
+ transform:none!important;
+}
+.ultra-exit-actions .ultra-exit-confirm{
+ background:#27222d;
+}

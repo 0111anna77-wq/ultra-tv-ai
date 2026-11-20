@@ -20,6 +20,45 @@ const S={shows:store('tv-catalog-cache',[]),opts:store('tv-options-cache',{embed
   progress:store('tv-progress-v1',{}),progressDraft:{},
   ruSummaries:store('tv-summary-ru-cache',{}),initemLastWrite:0,initemAdPlaying:false};
 const root=$('#content');
+let cachedHome=null,homeDomDirty=false,homeReuseCount=0;
+let exitDialog=null,exitPreviousFocus=null;
+// Keep the existing home nodes (and their decoded images) when visiting a
+// series card or a section. Only reuse when neither catalogue nor playback
+// progress changed; otherwise rebuild the correct fresh home page.
+function invalidateHomeCache(force=false){
+ cachedHome=null;
+ // Background data updates while Home is visible are already reflected by
+ // its ordinary render/thumbnail refresh. Don't discard that warmed DOM.
+ // Progress writes are different: they must refresh the Resume badges/order.
+ if(force||S.page!=='home')homeDomDirty=true;
+}
+function showExitDialog(){
+ if(exitDialog)return;
+ exitPreviousFocus=document.activeElement;
+ const box=document.createElement('div');
+ box.id='ultra-exit-dialog';
+ box.className='ultra-exit-backdrop';
+ box.innerHTML='<section class="ultra-exit-card" role="dialog" aria-modal="true" '+
+  'aria-labelledby="ultra-exit-title" aria-describedby="ultra-exit-caption">'+
+  '<span class="ultra-exit-symbol" aria-hidden="true">U</span>'+
+  '<h2 id="ultra-exit-title">Выйти из Ultra TV?</h2>'+
+  '<p id="ultra-exit-caption">Вернуться к главному экрану приставки?</p>'+
+  '<div class="ultra-exit-actions">'+
+  '<button type="button" data-act="exit-cancel" class="ultra-exit-cancel">Отмена</button>'+
+  '<button type="button" data-act="exit-confirm" class="ultra-exit-confirm">Выйти</button>'+
+  '</div></section>';
+ document.body.appendChild(box);
+ exitDialog=box;
+ box.querySelector('[data-act="exit-cancel"]').focus({preventScroll:true});
+}
+function closeExitDialog(){
+ if(!exitDialog)return;
+ exitDialog.remove();
+ exitDialog=null;
+ const previously=exitPreviousFocus;
+ exitPreviousFocus=null;
+ if(previously?.isConnected)previously.focus({preventScroll:true});
+}
 
 // A missing CDN image must never leave a black resume card.
 root.addEventListener('error',event=>{
@@ -50,7 +89,8 @@ window.UltraTVDiagnostics=()=>({
  selectedForPlayback:!!S.detailSelectionPending,
  focus:document.activeElement?.getAttribute('data-focus')||'',
  wheelMs:tvNavigationStats.wheelMs,navMs:tvNavigationStats.navMs,lastMove:tvNavigationStats.lastMove,
- renderMs:tvNavigationStats.renderMs,renderMaxMs:tvNavigationStats.renderMaxMs,navMaxMs:tvNavigationStats.navMaxMs
+ renderMs:tvNavigationStats.renderMs,renderMaxMs:tvNavigationStats.renderMaxMs,navMaxMs:tvNavigationStats.navMaxMs,
+ homeReuseCount,homeDomDirty,homeCacheReady:!!cachedHome
 });
 function updateResumeWheel(animate=false){
  if(S.page!=='home')return;
@@ -122,6 +162,7 @@ const clock=seconds=>{
 function setProgress(key,updates){
  const prev=getProgress(key)||{};
  S.progress[key]={...prev,...updates};
+ invalidateHomeCache(true);
  save('tv-progress-v1',S.progress);
  // Refresh only the text. Rerendering the iframe would interrupt playback.
  if(S.page==='player'&&S.show===key){
@@ -550,12 +591,27 @@ function render(){
   const active=b.dataset.nav===S.page||((S.page==='detail'||S.page==='player')&&b.dataset.nav==='home');
   b.classList.toggle('nav-active',active);
  });
- const html=S.page==='home'?home():S.page==='catalog'?catalog():S.page==='new'?newShows():
+ // Avoid tearing down the carousel just because the user opened a card.
+ const restoreHome=S.page==='home'&&cachedHome!==null&&!homeDomDirty;
+ const html=restoreHome?'':S.page==='home'?home():S.page==='catalog'?catalog():S.page==='new'?newShows():
    S.page==='search'?searchUI():S.page==='settings'?settings():S.page==='detail'?detail():player();
  const activeBefore=document.activeElement;
  const oldSlot=focusSlots.get(activeBefore);
  const prev=focusKey;
- root.innerHTML=html;
+ if(S.page!=='home'&&root.firstElementChild?.classList.contains('tv-home')){
+   // Move, don't clone: keeps already loaded artwork instead of forcing new
+   // image decode and first-visit re-layout when returning to the carousel.
+   const previousHome=root.firstElementChild;
+   if(!homeDomDirty)cachedHome=previousHome;
+ }
+ if(restoreHome){
+   root.replaceChildren(cachedHome);
+   cachedHome=null;
+   homeReuseCount++;
+ }else{
+   root.innerHTML=html;
+ }
+ if(S.page==='home')homeDomDirty=false;
  buildFocusRows();
  if(S.page==='home')updateResumeWheel(false);
  let target=null;
@@ -710,6 +766,7 @@ function refreshPlayer(){
  const el=$('[data-act=cursor]');if(el)el.focus({preventScroll:true});
 }
 function goBack(){
+ if(exitDialog){closeExitDialog();return true;}
  // v0.31: the inline player manager is NOT a navigation destination.
  // One Back always closes playback and returns to the show detail card.
  if(S.page==='player'){
@@ -722,7 +779,8 @@ function goBack(){
  if(S.cursor){stopCursor();return true;}
  if(S.page==='detail'){navigate('home');return true;}
  if(S.page!=='home'){navigate('home');return true;}
- return false;
+ showExitDialog();
+ return true;
 }
 function signalNativePointer(enabled,x=.5,y=.5){
   const request=new Image();
@@ -1017,8 +1075,15 @@ document.addEventListener('focusin',e=>{
 },true);
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-nav],[data-act]');if(!b)return;
+ const act=b.dataset.act;
+ if(exitDialog){
+   if(!exitDialog.contains(b))return;
+   if(act==='exit-cancel'){closeExitDialog();return;}
+   if(act==='exit-confirm'){window.location.href='ultratv://exit';return;}
+   return;
+ }
  if(b.dataset.nav){navigate(b.dataset.nav);return;}
- const act=b.dataset.act,key=b.dataset.key||S.show;
+ const key=b.dataset.key||S.show;
  if(act==='sort-cycle'){
    const index=seriesSortModes.findIndex(x=>x.id===S.seriesSort);
    S.seriesSort=seriesSortModes[(index+1)%seriesSortModes.length].id;
@@ -1077,7 +1142,8 @@ document.addEventListener('click',e=>{
      S.added.push(x);save('tv-manual-added',S.added);
      S.tracked[x.key]=true;notify('Добавлено в коллекцию на приставке');
    }else S.tracked[x.key]=S.tracked[x.key]===false?true:false;
-   save('tv-tracked',S.tracked);render();
+   save('tv-tracked',S.tracked);
+   invalidateHomeCache();render();
  }
  if(act==='source'){S.source=Number(b.dataset.index)||0;S.sourceChoice[S.show]=S.source;save('tv-source-choice',S.sourceChoice);refreshPlayer();}
  if(act==='player-options'){
@@ -1129,6 +1195,24 @@ document.addEventListener('focusout',e=>{
  }
 });
 document.addEventListener('keydown',e=>{
+ if(exitDialog){
+   if(e.key==='Escape'||e.key==='Backspace'){
+     e.preventDefault();e.stopImmediatePropagation();closeExitDialog();return;
+   }
+   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){
+     e.preventDefault();e.stopImmediatePropagation();
+     if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+       const buttons=[...exitDialog.querySelectorAll('button')];
+       (buttons.find(x=>x!==document.activeElement)||buttons[0])?.focus({preventScroll:true});
+     }
+     return;
+   }
+   if(e.key==='Tab'){e.preventDefault();e.stopImmediatePropagation();
+     const buttons=[...exitDialog.querySelectorAll('button')];
+     (buttons.find(x=>x!==document.activeElement)||buttons[0])?.focus({preventScroll:true});
+     return;
+   }
+ }
  if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();goBack();return;}
  const isOk=e.key==='Enter'||e.key==='NumpadEnter'||e.key===' ';
  if(isOk&&document.activeElement?.dataset?.act==='frame'){
@@ -1176,11 +1260,13 @@ async function refresh(manual=false){
   const responses=await Promise.all([readShared('tv-catalog.json'),readShared('watch-options.json'),readShared('releases.json'),readShared('tv-discover.json'),readShared('tv-summaries-ru.json')]);
   const [c,o,r,d,ru]=responses;
   if(c?.data?.shows?.length){
+   invalidateHomeCache();
    S.shows=c.data.shows.filter(x=>x&&x.key&&x.ru).slice(0,500);
    save('tv-catalog-cache',S.shows);
   }
   if(o?.data?.embeds){S.opts=o.data;save('tv-options-cache',S.opts);}
   if(r?.data){
+   invalidateHomeCache();
    const data=r.data;S.releases=Array.isArray(data)?data:(data.entries||data.releases||data.items||[]);
    save('tv-release-cache',S.releases);
   }
@@ -1216,6 +1302,7 @@ async function loadPosters(force=false){
     return score(a)-score(b);
    })[0];
    if(!target)continue;
+   invalidateHomeCache();
    S.meta[x.key]={...(S.meta[x.key]||{}),id:target.id,imdb:target.externals?.imdb||x.imdb||null,
      image:target.image?.medium||target.image?.original||x.image||null,
      posterMedium:target.image?.medium||null,rating:target.rating?.average,
@@ -1275,6 +1362,7 @@ async function loadResumeBackdrops(){
    const images=await result.json();
    if(!Array.isArray(images))continue;
    const url=pickLandscape(images);
+   invalidateHomeCache();
    S.meta[key]={...meta(key),backdrop:url||null,backdropCheckedAt:Date.now()};
    save('tv-meta-cache',S.meta);
    if(url&&S.page==='home'){
