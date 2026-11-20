@@ -1728,3 +1728,18 @@ body.tv-player-direct #tv-video{
 .ultra-exit-actions .ultra-exit-confirm{
  background:#27222d;
 }
+
+/* Personal cloud catalog: Settings only, no effects on carousel or show tiles. */
+.settings-box .cloud-sync-row{display:block;padding:16px 20px;}
+#cloud-sync-tv{display:grid;grid-template-columns:1fr;gap:11px;width:100%;max-width:670px;color:#d4ced9}
+#cloud-sync-tv h3{margin:0;font-size:22px;color:#eee8f3}
+#cloud-sync-tv p{margin:0;font-size:15px;line-height:1.5;color:#bdb6c7}
+#cloud-sync-tv .cloud-status{color:#d8c6e5}
+#cloud-sync-tv .cloud-tip{font-size:13px;color:#a99eae}
+#cloud-sync-tv .cloud-pair-code strong{display:block;margin:10px 0;font-size:29px;letter-spacing:5px;color:#e7d6f0}
+#cloud-sync-tv input{max-width:370px;min-height:49px;background:#1b1a22;color:#eee6f4;
+ border:1px solid #595063;border-radius:10px;font-size:22px;padding:7px 12px}
+#cloud-sync-tv input:focus{border-color:#82668b;outline:0}
+#cloud-sync-tv .action{width:max-content;min-height:48px;padding:10px 17px;
+ border:1px solid #594a68;border-radius:10px;background:#322b3b;color:#ede8f4}
+#cloud-sync-tv .action:focus{background:#554465;border-color:#836c95;outline:0}

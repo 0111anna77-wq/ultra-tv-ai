@@ -60,6 +60,19 @@
 .tracking-notice{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 15px;margin:0 0 16px;border:1px solid #826c48;border-radius:12px;background:#312b20;color:#ffe4b6;font-size:13px;line-height:1.5}
 .tracking-notice button{margin-left:auto;white-space:nowrap}
 @media(max-width:560px){.tracking-notice button{margin-left:0}.tracking-tools button{width:100%}}
+
+/* Personal Cloud Library controls appear in settings only. */
+#cloud-sync-web{padding:20px 22px}
+#cloud-sync-web h3{margin:0 0 12px;font-size:20px;color:#eee5f4}
+#cloud-sync-web p{margin:8px 0;color:#c1bacd;line-height:1.55}
+#cloud-sync-web input{width:min(100%,385px);margin:8px 10px 8px 0;min-height:44px;padding:9px 12px;
+background:#1b1b24;border:1px solid #554a60;border-radius:9px;color:#f0e9f5;font-size:16px}
+#cloud-sync-web button{margin:7px 8px 7px 0}
+#cloud-sync-web .cloud-status{color:#dbcae7}
+#cloud-sync-web .cloud-pair-code strong{display:block;font-size:28px;letter-spacing:4px;margin:9px 0;color:#e7d4f3}
+#cloud-sync-web .cloud-pair-code small{display:block;font-size:13px}
+#cloud-sync-web .cloud-tip{display:block;color:#9f9aa7;margin-top:10px}
+
 </style>
 <link rel="stylesheet" href="./player.css?v=16">
 </head>
@@ -70,6 +83,7 @@
 <main class="main"><div class="top"><span>Твои сериалы · все новые эпизоды в одной ленте</span><span class="badge">● Личный каталог</span><span id="date-now"></span></div><div id="main-content"></div><footer class="footer">Эпизоды, постеры, рейтинги TVmaze: <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a> (CC BY-SA). Релизы LostFilm поступают из открытой RSS-ленты; публикация серии не гарантирует, что у неё есть встроенный плеер или подтверждённая аудиодорожка. Видео на сайте не хранятся.</footer></main></div>
 <div id="dialog-root"></div>
 <div id="player-root"></div>
+<script src="./sync-client.js?v=1"></script>
 <script>
 (()=>{
 'use strict';
@@ -271,13 +285,14 @@ function draw(){const el=$('#main-content'),track=entries(),feed=getFeed();$$('.
   const catNotice=view==='catalog'&&trackingNotice?'<div class="tracking-notice" role="status">«'+esc(trackingNotice.name)+'» больше не отслеживается. Сериал не удалён, история просмотра сохранена. <button type="button" class="btn sm" data-action="tracking-undo">↶ Вернуть в мои</button></div>':'';
   el.innerHTML=`<div class="row"><div><h2>${view==='catalog'?'Мой каталог':'Подборка 2026 года'}</h2><p>${view==='catalog'?'Управляй подписками: отключённые сериалы не удаляются и доступны по кнопке «Показать все»':'Подборка из предыдущего обсуждения — все 25 названий'}</p></div><div class="actions"><button class="btn ghost sm" data-action="refresh">↻ Обновить</button><button class="btn primary sm" data-view="search">＋ Добавить</button></div></div>${filters()}${catTools}${catNotice}<div id="status" class="panelnote" ${busy||failures?'':'hidden'}>${busy?'Загружаем данные о сериалах…':`Обновление недоступно для ${failures} сериалов. Список сохранён.`}</div><div class="grid">${items.length?items.map(hCard).join(''):empty('Ничего не найдено','Измени фильтр жанра или поисковую фразу.')}</div>`;return;}
  if(view==='search'){el.innerHTML=`<div class="row"><div><h2>Добавить сериал</h2><p>Поиск по TVmaze (английские названия работают надёжнее)</p></div></div><div class="filters"><input id="remote-search" class="field" placeholder="Например, Severance или The Last of Us" style="flex:1"><button class="btn primary" data-action="lookup">Найти</button></div><div id="remote-results">${empty('Ищи по названию','Выбери сериал в результатах и добавь в каталог.')}</div>`;return;}
- if(view==='settings'){el.innerHTML=`<div class="setting"><h3>Новые эпизоды — в начало списка</h3>При первом добавлении сериалов все серии получают одну дату импорта, поэтому внутри этой даты порядок определяется датой премьеры. Когда позже появляется новая серия и каталог обновляется, она получает новую дату добавления и поднимается наверх. Даты сохраняются в браузере.</div><div class="setting"><h3>Озвучка</h3>По умолчанию: <b>LostFilm → полноценный профессиональный дубляж</b>. Многоголосый закадровый перевод не считаем дубляжом. Из RSS автоматически отмечаем опубликованные переводы LostFilm, а доступность соответствующей дорожки в плеере проверяется отдельно. Другие переводы пока можно отмечать вручную. Через кнопку «Смотреть» можно добавить свои ссылки на видео и выбрать источник.</div><div class="setting"><h3>Сохранение коллекции</h3><p>Пока каталог сохраняется в браузере отдельно на каждом устройстве. Автоматической синхронизации между приставками ещё нет.</p><button class="btn primary" data-action="export">↓ Скачать резервную копию</button> <button class="btn ghost" data-action="import">↑ Восстановить копию</button><input id="import-json" type="file" accept=".json,application/json" hidden></div><div class="setting"><h3>Данные и обновления</h3>Данные о расписании поступают из TVmaze при открытии каталога и при нажатии кнопки обновления. RSS-новости LostFilm собираются отдельно по расписанию GitHub Actions (при включённых Actions), независимо от телевизора или ПК. Из RSS не извлекаются видео и плееры. Даты премьер — из TVmaze.</div>`;$('#import-json').addEventListener('change',importFile);}
+ if(view==='settings'){el.innerHTML=`<div class="setting"><h3>Новые эпизоды — в начало списка</h3>При первом добавлении сериалов все серии получают одну дату импорта, поэтому внутри этой даты порядок определяется датой премьеры. Когда позже появляется новая серия и каталог обновляется, она получает новую дату добавления и поднимается наверх. Даты сохраняются в браузере.</div><div class="setting"><h3>Озвучка</h3>По умолчанию: <b>LostFilm → полноценный профессиональный дубляж</b>. Многоголосый закадровый перевод не считаем дубляжом. Из RSS автоматически отмечаем опубликованные переводы LostFilm, а доступность соответствующей дорожки в плеере проверяется отдельно. Другие переводы пока можно отмечать вручную. Через кнопку «Смотреть» можно добавить свои ссылки на видео и выбрать источник.</div><div class="setting"><h3>Сохранение коллекции</h3><p>Каталог остаётся в браузере; личные добавления можно синхронизировать с приставкой через защищённую облачную библиотеку.</p><button class="btn primary" data-action="export">↓ Скачать резервную копию</button> <button class="btn ghost" data-action="import">↑ Восстановить копию</button><input id="import-json" type="file" accept=".json,application/json" hidden><br><button class="btn ghost" data-action="merge-catalog">＋ Объединить сериалы из резервной копии</button><input id="merge-json" type="file" accept=".json,application/json" hidden></div><div class="setting" id="cloud-sync-web"></div><div class="setting"><h3>Данные и обновления</h3>Данные о расписании поступают из TVmaze при открытии каталога и при нажатии кнопки обновления. RSS-новости LostFilm собираются отдельно по расписанию GitHub Actions (при включённых Actions), независимо от телевизора или ПК. Из RSS не извлекаются видео и плееры. Даты премьер — из TVmaze.</div>`;$('#import-json').addEventListener('change',importFile);$('#merge-json').addEventListener('change',mergeFile);window.UltraTVCloud?.render();}
 }
 function toggleFollow(key){
   const x=getEntry(key);if(!x)return;
   const wasTracked=state.tracked[key]!==false;
   state.tracked[key]=!wasTracked;
   persist();
+  if(state.extras[key])window.UltraTVCloud?.enqueue({...state.extras[key],tracked:state.tracked[key]!==false},state.tracked[key]!==false);
   if(view==='catalog'){
     if(wasTracked){catalogShowAll=true;trackingNotice={key,name:x.ru};}
     else trackingNotice=null;
@@ -312,10 +327,27 @@ function closeDetail(){$('#dialog-root').innerHTML=''}
 async function lookup(){const q=$('#remote-search')?.value.trim();if(!q)return;$('#remote-results').innerHTML=empty('Ищем…','Загрузка результатов.');try{const res=await request('/search/shows?q='+encodeURIComponent(q));if(!res?.length){$('#remote-results').innerHTML=empty('Не найдено','Попробуй оригинальное название.');return;}
  $('#remote-results').innerHTML=`<div class="grid">${res.slice(0,15).map(z=>{const s=z.show;const pic=safeImage(s.image?.medium);return `<button class="card" data-add="${s.id}" data-name="${esc(s.name)}" data-year="${esc((s.premiered||'').slice(0,4))}">${pic?`<img class="poster" src="${esc(pic)}" alt="">`:'<span class="poster empty">▶</span>'}<h3>${esc(s.name)}</h3><small>${esc(s.premiered?.slice(0,4)||'—')} · ★ ${esc(s.rating?.average||'—')}</small><span class="tag">＋ Добавить в каталог</span></button>`}).join('')}</div>`;
  }catch(e){$('#remote-results').innerHTML=empty('Не удалось выполнить поиск',e.message)}}
-async function addCustom(id,name,year){const existing=all().find(x=>showInfo(x.key)?.id===id);if(existing){state.tracked[existing.key]=true;persist();window.UltraTVPlayer?.open(existing.key);return}const key='user-'+id;const x={key,ru:name,en:name,genres:['drama'],year:Number(year)||2026};state.extras[key]=x;state.tracked[key]=true;persist();setView('catalog');try{await fetchShow(x);persist();draw();}catch(e){setStatus('Сериал добавлен, но сведения о сериях пока недоступны. Нажми «Обновить».')}}
-function saveFile(){const blob=new Blob([JSON.stringify({version:2,state},null,2)],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='ultra-tv-collection.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+async function addCustom(id,name,year){const existing=all().find(x=>showInfo(x.key)?.id===id);if(existing){state.tracked[existing.key]=true;persist();window.UltraTVPlayer?.open(existing.key);return}const key='user-'+id;const x={key,ru:name,en:name,genres:['drama'],year:Number(year)||2026,tvmazeId:Number(id)};state.extras[key]=x;state.tracked[key]=true;persist();window.UltraTVCloud?.enqueue(x,true);setView('catalog');try{await fetchShow(x);persist();draw();}catch(e){setStatus('Сериал добавлен, но сведения о сериях пока недоступны. Нажми «Обновить».')}}
+function saveFile(){const blob=new Blob([JSON.stringify({version:2,state},null,2)],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=URL.createObjectURL(blob);a.download='ultra-tv-collection.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
+async function mergeFile(e){
+ const f=e.target.files?.[0];if(!f)return;
+ try{
+  const json=JSON.parse(await f.text());
+  if(json.version!==2||!json.state||typeof json.state.extras!=='object')throw Error('Нужна резервная копия Ultra TV v2.');
+  let count=0;
+  for(const [key,raw] of Object.entries(json.state.extras)){
+   if(!/^[a-zA-Z0-9_-]{1,80}$/.test(key)||!raw?.ru||!raw?.en||state.extras[key])continue;
+   const show={key,ru:String(raw.ru),en:String(raw.en),genres:Array.isArray(raw.genres)?raw.genres:['drama'],year:Number(raw.year)||2026,
+    tvmazeId:Number(raw.tvmazeId)||Number((/^user-(\d+)$/.exec(key)||[])[1])||null};
+   state.extras[key]=show;state.tracked[key]=json.state.tracked?.[key]!==false;
+   window.UltraTVCloud?.enqueue(show,state.tracked[key]!==false);count++;
+  }
+  persist();draw();setStatus('Из резервной копии добавлено сериалов: '+count+'. Старые данные сохранены.');
+ }catch(err){alert('Не удалось объединить: '+err.message)}
+ finally{e.target.value=''}
+}
 async function importFile(e){const f=e.target.files?.[0];if(!f)return;try{const j=JSON.parse(await f.text());if(j.version!==2||!j.state||!j.state.tracked)throw Error('Несовместимый формат');if(!confirm('Заменить текущую коллекцию резервной копией?'))return;state={...base,...j.state};persist();setView('feed')}catch(err){alert('Импорт не удался: '+err.message)}}
-document.addEventListener('click',e=>{const n=e.target.closest('[data-view]');if(n){setView(n.dataset.view);return}const a=e.target.closest('[data-action]');if(a){const act=a.dataset.action;if(act==='close')closeDetail();if(act==='refresh'){loadReleaseFeed();refresh(true)}if(act==='more'){feedLimit+=50;draw()}if(act==='lookup')lookup();if(act==='export')saveFile();if(act==='import')$('#import-json')?.click();if(act==='clear-recent'){state.recent={};persist();draw()}if(act==='catalog-toggle-hidden'){catalogShowAll=!catalogShowAll;trackingNotice=null;draw()}if(act==='tracking-undo'&&trackingNotice){state.tracked[trackingNotice.key]=true;trackingNotice=null;persist();draw()}if(act==='toggle-track'){toggleFollow(a.dataset.key);closeDetail()}return}
+document.addEventListener('click',e=>{const n=e.target.closest('[data-view]');if(n){setView(n.dataset.view);return}const a=e.target.closest('[data-action]');if(a){const act=a.dataset.action;if(act==='close')closeDetail();if(act==='refresh'){loadReleaseFeed();refresh(true)}if(act==='more'){feedLimit+=50;draw()}if(act==='lookup')lookup();if(act==='export')saveFile();if(act==='import')$('#import-json')?.click();if(act==='merge-catalog')$('#merge-json')?.click();if(act==='clear-recent'){state.recent={};persist();draw()}if(act==='catalog-toggle-hidden'){catalogShowAll=!catalogShowAll;trackingNotice=null;draw()}if(act==='tracking-undo'&&trackingNotice){state.tracked[trackingNotice.key]=true;trackingNotice=null;persist();draw()}if(act==='toggle-track'){toggleFollow(a.dataset.key);closeDetail()}return}
  const follow=e.target.closest('[data-toggle-follow]');if(follow){toggleFollow(follow.dataset.toggleFollow);return}
  const b=e.target.closest('[data-watch]');if(b){state.watched[b.dataset.watch]=!state.watched[b.dataset.watch];persist();const dialog=$('#dialog-root .dialog');if(dialog){const cur=dialog.querySelector('#season').value;const k=dialog.querySelector('[data-action="toggle-track"]').dataset.key;openDetail(k);$('#season').value=cur;$('#season').dispatchEvent(new Event('change'));}draw();return}
  const open=e.target.closest('[data-open]');if(open){if(window.UltraTVPlayer)window.UltraTVPlayer.open(open.dataset.open,open.dataset.episode);else openDetail(open.dataset.open,open.dataset.episode);return}
@@ -326,6 +358,21 @@ document.addEventListener('input',e=>{if(e.target.id==='filter-q'){const value=e
 document.addEventListener('keydown',e=>{if($('#player-root').innerHTML)return;if(e.key==='Escape'&&$('#dialog-root').innerHTML){closeDetail();return}if(e.key==='Enter'&&document.activeElement?.id==='remote-search'){lookup();return}const t=document.activeElement;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)||!t||['INPUT','TEXTAREA','SELECT'].includes(t.tagName))return;
  const context=$('#dialog-root .dialog')||document;const active=$$('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled)',context).filter(el=>el.getClientRects().length);let best=null,score=Infinity;const r=t.getBoundingClientRect();if(!r.width)return;for(const el of active){if(el===t)continue;const b=el.getBoundingClientRect(),dx=b.left+b.width/2-r.left-r.width/2,dy=b.top+b.height/2-r.top-r.height/2,dir=e.key.replace('Arrow','');if((dir==='Right'&&dx<=6)||(dir==='Left'&&dx>=-6)||(dir==='Down'&&dy<=6)||(dir==='Up'&&dy>=-6))continue;const main=dir==='Left'||dir==='Right'?Math.abs(dx):Math.abs(dy),cross=dir==='Left'||dir==='Right'?Math.abs(dy):Math.abs(dx),val=main+cross*2;if(val<score){score=val;best=el}}if(best){e.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:'nearest',behavior:'smooth'})}});
 window.UltraTV={get state(){return state},get releases(){return releaseData},persist,draw,recordOpen,getEntry,showInfo,idKey,epCode,released,openDetail,closeDetail};
+window.UltraTVCloud?.register({
+ list:()=>Object.values(state.extras).map(show=>({...show,tracked:state.tracked[show.key]!==false})),
+ merge:records=>{
+  let count=0;
+  for(const entry of records){
+   const x=entry?.show;
+   if(!x?.key||!x.ru||!x.en)continue;
+   if(!seeds.some(show=>show.key===x.key)){
+    if(JSON.stringify(state.extras[x.key])!==JSON.stringify(x)){state.extras[x.key]=x;count++}
+   }
+   if(state.tracked[x.key]!==entry.tracked){state.tracked[x.key]=entry.tracked;count++}
+  }
+  if(count){persist();draw()}
+ }
+});
  async function syncSharedCatalog(){
    try{
      const response=await fetch('./tv-catalog.json?v='+Date.now(),{cache:'no-store'});

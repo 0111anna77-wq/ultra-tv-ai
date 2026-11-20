@@ -9,8 +9,8 @@ android {
         applicationId 'ai.ultra.tv'
         minSdk 23
         targetSdk 32
-        versionCode 34
-        versionName '0.34-tv-exit-gradient-home-cache'
+        versionCode 33
+        versionName '0.33-tv-nav-profiler'
     }
     buildTypes {
         release { minifyEnabled false }

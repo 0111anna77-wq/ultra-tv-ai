@@ -424,8 +424,9 @@ function settings(){
  '<button class="action" data-act="adsettings">⚙ AdBlock</button></div>'+
  '<div class="settings-row"><div><h2>Удалённая отладка</h2><p>До 2 часов, только по локальной сети. Снимок экрана, кнопки пульта и ошибки.</p></div>'+
  '<button class="action" data-act="remote-debug" data-focus="remote-debug">Подключить ПК</button></div>'+
- '<div class="settings-row"><div><h2>Управление</h2><p>Стрелки — выбор, OK — действие; удержание OK в видео — указатель. Назад — выйти из просмотра.</p></div></div>'+
- '<p class="settings-footer">Общий каталог синхронизируется с сайтом. Сохранённые на приставке добавления пока локальные.</p></section>';
+ '<div class="settings-row"><div><h2>Управление</h2><p>Стрелки — выбор, OK — действие; удержание OK в видео — указатель. Назад — выйти из просмотра.</p></div></div>'+ 
+ '<div class="settings-row cloud-sync-row"><div id="cloud-sync-tv" class="cloud-sync-tv" aria-label="Синхронизация с сайтом"></div></div>'+
+ '<p class="settings-footer">Общий каталог доступен всем устройствам. Личные добавления синхронизируются после привязки к облаку; локальная коллекция остаётся на приставке.</p></section>';
 }
 
 function progressUI(x){
@@ -612,6 +613,7 @@ function render(){
    root.innerHTML=html;
  }
  if(S.page==='home')homeDomDirty=false;
+ if(S.page==='settings')window.UltraTVCloud?.render();
  buildFocusRows();
  if(S.page==='home')updateResumeWheel(false);
  let target=null;
@@ -1143,6 +1145,7 @@ document.addEventListener('click',e=>{
      S.tracked[x.key]=true;notify('Добавлено в коллекцию на приставке');
    }else S.tracked[x.key]=S.tracked[x.key]===false?true:false;
    save('tv-tracked',S.tracked);
+   if(S.added.some(y=>y.key===x.key))window.UltraTVCloud?.enqueue({...x,tvmazeId:Number(meta(x.key).id)||x.tvmazeId||null},S.tracked[x.key]!==false);
    invalidateHomeCache();render();
  }
  if(act==='source'){S.source=Number(b.dataset.index)||0;S.sourceChoice[S.show]=S.source;save('tv-source-choice',S.sourceChoice);refreshPlayer();}
@@ -1437,6 +1440,31 @@ window.UltraTVRemote={
  // Also safely does nothing if WebView already returned to details.
  nativePlayerExited:()=>S.page==='player'?goBack():false
 };
+window.UltraTVCloud?.register({
+ list:()=>S.added.map(x=>({...x,tvmazeId:Number(meta(x.key).id)||Number(x.tvmazeId)||null,
+   imdbId:meta(x.key).imdb||x.imdbId||null,tracked:S.tracked[x.key]!==false})),
+ merge:records=>{
+  let changes=0;
+  for(const entry of records){
+   const x=entry?.show;
+   if(!x?.key||!x.ru||!x.en)continue;
+   let local=S.added.find(y=>y.key===x.key||Number(x.tvmazeId)>0&&
+      Number(y.tvmazeId||meta(y.key).id)===Number(x.tvmazeId));
+   const builtin=S.shows.find(y=>y.key===x.key);
+   if(!local&&!builtin){
+    S.added.push({...x});changes++;local=x;
+   }
+   const localKey=local?.key||builtin?.key||x.key;
+   if(S.tracked[localKey]!==entry.tracked){S.tracked[localKey]=entry.tracked;changes++;}
+  }
+  if(changes){
+    save('tv-manual-added',S.added);save('tv-tracked',S.tracked);
+    invalidateHomeCache(true);
+    if(S.page!=='player')render();
+    loadPosters(false).catch(()=>{});
+  }
+ }
+});
 render();refresh(false);
 setInterval(()=>{if(!document.hidden)refresh(false)},30*60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(false)});
