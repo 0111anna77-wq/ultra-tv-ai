@@ -1620,3 +1620,46 @@ body{
   opacity:0!important;
   background:none!important;
 }
+
+/* v0.32: More pronounced FOCUSED grid tile only. Compositor-only scale,
+   no shadow/blur and no layout shifts. The wheel keeps its own scale. */
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus,
+#content .tv-home .rail-my-series .poster-grid .poster-card:focus-visible {
+  transform:scale(1.18)!important;
+  z-index:15!important;
+}
+#content .tv-home .rail-my-series .poster-grid{
+  overflow:visible!important;
+}
+/* Cover the entire viewport immediately on Watch/Continue. The first visual
+   frame is the video area itself, even on KION when native fullscreen
+   transitions take several frames. Keep real iframe/player (and controls)
+   untouched. This class is cleared when navigating back to details. */
+body.tv-player-direct #tv-video-frame,
+body.tv-player-direct .player-frame.tv-maximized{
+  position:fixed!important;
+  inset:0!important;
+  margin:0!important;
+  padding:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  max-width:none!important;
+  max-height:none!important;
+  min-width:100vw!important;
+  min-height:100vh!important;
+  aspect-ratio:auto!important;
+  transform:none!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:#000!important;
+  overflow:hidden!important;
+  z-index:2000!important;
+}
+body.tv-player-direct #tv-player-iframe,
+body.tv-player-direct #tv-video{
+  width:100%!important;
+  height:100%!important;
+  border:0!important;
+  border-radius:0!important;
+}

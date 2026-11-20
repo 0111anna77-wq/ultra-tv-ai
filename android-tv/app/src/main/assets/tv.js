@@ -39,6 +39,9 @@ let focusKey=null,refreshTimer=0;
 let focusRows=[],focusSlots=new WeakMap(),focusMemory=new Map(),lastRepeatAt=0;
 const lastContentFocus=new Map();
 let resumeWheelKey=null;
+// Cache stable layout once per wheel DOM tree. Transforms do not affect offsetLeft.
+// Without this, each D-pad press synchronously reads layout of the carousel.
+let resumeWheelGeometry={track:null,stripWidth:0,centers:new Map()};
 const tvNavigationStats={wheelMs:0,navMs:0,lastMove:''};
 window.UltraTVDiagnostics=()=>({
  page:S.page,show:S.show,season:S.season,episode:S.episode,source:S.source,
@@ -55,15 +58,19 @@ function updateResumeWheel(animate=false){
  if(!cards.length)return;
  const started=performance.now();
  const next=cards.find(x=>x.dataset.key===resumeWheelKey)||cards[0];
- // Read layout before changing wheel-current classes; on slower KION GPUs
- // the old order caused a synchronous reflow at every carousel movement.
- const delta=strip.clientWidth/2-next.offsetLeft-next.offsetWidth/2;
- const resetScroll=strip.scrollLeft!==0;
+ if(resumeWheelGeometry.track!==track){
+   // Geometry changes when render() creates a new DOM tree or on resize.
+   const centers=new Map();
+   for(const el of cards)centers.set(el.dataset.key,el.offsetLeft+el.offsetWidth/2);
+   resumeWheelGeometry={track,stripWidth:strip.clientWidth,centers};
+   if(strip.scrollLeft!==0)strip.scrollLeft=0;
+ }
+ const delta=resumeWheelGeometry.stripWidth/2-resumeWheelGeometry.centers.get(next.dataset.key);
  resumeWheelKey=next.dataset.key;
+ // Shift the single strip; only the selected card changes compositor scale.
  for(const el of cards)el.classList.toggle('wheel-current',el===next);
- track.style.transitionDuration=animate?'175ms':'0ms';
+ track.style.transitionDuration=animate?'155ms':'0ms';
  track.style.transform='translate3d('+Math.round(delta)+'px,0,0)';
- if(resetScroll)strip.scrollLeft=0;
  tvNavigationStats.wheelMs=Math.round((performance.now()-started)*10)/10;
 }
 
@@ -154,6 +161,8 @@ function changeProgressDraft(key,field,direction){
 }
 function navigate(page,key){
   if(S.cursor)stopCursor();
+  // Remove the direct-play viewport cover BEFORE rendering the details page.
+  if(page!=='player')document.body.classList.remove('tv-player-direct');
   S.page=page; S.show=key||null;S.optionsOpen=false;S.progressEditOpen=false;S.detailSelectionPending=false;
   focusKey=null;focusMemory.clear(); render();
   window.scrollTo(0,0);
@@ -676,8 +685,11 @@ function watch(key){
    kind:src?.kind==='video'||/\.(mp4|webm)(?:\?|$)/i.test(src?.url||'')?
      'direct':src?.platform==='initem'?'initem':'embed'});
  S.directWatch=true;
+ // The player manager is only an internal backing DOM. For a valid video
+ // source, cover the viewport BEFORE it gets rendered. This prevents a frame
+ // of the obsolete sidebar/episode picker flashing while fullscreen opens.
+ document.body.classList.toggle('tv-player-direct',Boolean(src?.url));
  navigate('player',x.key);loadEpisodes(x.key);
- // The click/OK user gesture goes straight to fullscreen with no extra view.
  startCursor();
 }
 function refreshPlayer(){
@@ -1302,7 +1314,8 @@ async function loadSchedule(){
  if(S.page==='catalog')render();
 }
 window.addEventListener('resize',()=>{
- if(S.page==='home')updateResumeWheel(false);
+  resumeWheelGeometry.track=null;
+  if(S.page==='home')updateResumeWheel(false);
 });
 window.UltraTVRemote={
  back:goBack,releaseCursor:stopCursor,
