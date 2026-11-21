@@ -4,7 +4,7 @@
  */
 (function(){
 "use strict";
-const siteMode=location.pathname!=="/tv.html";
+const siteMode=!/(?:^|\/)tv(?:\.html)?$/i.test(location.pathname);
 const PREFIX=siteMode?"ultra-cloud-web-v1":"ultra-cloud-tv-v1";
 const json=(k,defaultValue)=>{try{return JSON.parse(localStorage.getItem(PREFIX+k))??defaultValue}catch{return defaultValue}};
 const put=(k,value)=>{try{localStorage.setItem(PREFIX+k,JSON.stringify(value))}catch{}};
