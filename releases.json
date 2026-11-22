@@ -1,8 +1,38 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-20T23:21:44Z",
+  "updatedAt": "2026-11-22T00:20:22Z",
   "entries": [
+    {
+      "id": "e266441d736862940b7a",
+      "title": "Подноготная (The Lowdown). Горячие сосиски!. (S02E07)",
+      "seriesRu": "Подноготная",
+      "seriesEn": "The Lowdown",
+      "season": 2,
+      "episode": 7,
+      "published": "2026-11-21T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lowdown/season_2/episode_7/"
+    },
+    {
+      "id": "44d7afeb9bec31724048",
+      "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Из Валинора. (S03E06)",
+      "seriesRu": "Властелин колец: Кольца власти",
+      "seriesEn": "The Lord of the Rings: The Rings of Power",
+      "season": 3,
+      "episode": 6,
+      "published": "2026-11-21T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lord_of_the_Rings__The_Rings_of_Power/season_3/episode_6/"
+    },
+    {
+      "id": "64c03c2d138279f2b6fe",
+      "title": "9-1-1 (9-1-1). И ты?. (S10E06)",
+      "seriesRu": "9-1-1",
+      "seriesEn": "",
+      "season": 10,
+      "episode": 6,
+      "published": "2026-11-21T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/9-1-1/season_10/episode_6/"
+    },
     {
       "id": "e99bc91aa7f5f317fae4",
       "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Владычица Лориена. (S03E05)",
