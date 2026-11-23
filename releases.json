@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-23T01:49:07Z",
+  "updatedAt": "2026-11-23T22:15:42Z",
   "entries": [
+    {
+      "id": "4e73c6630fffd8a6cd4f",
+      "title": "Ноктюрн (Nocturne). Одиночество. (S01E05)",
+      "seriesRu": "Ноктюрн",
+      "seriesEn": "Nocturne",
+      "season": 1,
+      "episode": 5,
+      "published": "2026-11-23T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Nocturne/season_1/episode_5/"
+    },
     {
       "id": "7a99226e21ccbbcdb969",
       "title": "12 12 12 (12 12 12). Просто зашибись. (S01E03)",
