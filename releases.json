@@ -1,8 +1,68 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-22T00:20:22Z",
+  "updatedAt": "2026-11-23T01:49:07Z",
   "entries": [
+    {
+      "id": "7a99226e21ccbbcdb969",
+      "title": "12 12 12 (12 12 12). Просто зашибись. (S01E03)",
+      "seriesRu": "12 12 12",
+      "seriesEn": "",
+      "season": 1,
+      "episode": 3,
+      "published": "2026-11-22T20:59:00Z",
+      "link": "https://www.lostfilm.download/mr/series/12_12_12/season_1/episode_3/"
+    },
+    {
+      "id": "fc5e47f9f607d309dc96",
+      "title": "Перси Джексон и Олимпийцы (Percy Jackson and The Olympians). Моя спасательная операция идёт наперекосяк. (S03E01)",
+      "seriesRu": "Перси Джексон и Олимпийцы",
+      "seriesEn": "Percy Jackson and The Olympians",
+      "season": 3,
+      "episode": 1,
+      "published": "2026-11-22T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Percy_Jackson_and_The_Olympians/season_3/episode_1/"
+    },
+    {
+      "id": "6e2418c9c2f4a14d4e07",
+      "title": "Гангстерлэнд (MobLand). Королева мертва. (S02E10)",
+      "seriesRu": "Гангстерлэнд",
+      "seriesEn": "MobLand",
+      "season": 2,
+      "episode": 10,
+      "published": "2026-11-22T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/MobLand/season_2/episode_10/"
+    },
+    {
+      "id": "56609d2d9248dce0287f",
+      "title": "Декстер: Воскрешение (Dexter: Resurrection). Свежая кровь. (S02E04)",
+      "seriesRu": "Декстер: Воскрешение",
+      "seriesEn": "Dexter: Resurrection",
+      "season": 2,
+      "episode": 4,
+      "published": "2026-11-22T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Dexter_Resurrection/season_2/episode_4/"
+    },
+    {
+      "id": "32559fa88f473ea15dca",
+      "title": "Король Талсы (Tulsa King). Игорный дом. (S04E06)",
+      "seriesRu": "Король Талсы",
+      "seriesEn": "Tulsa King",
+      "season": 4,
+      "episode": 6,
+      "published": "2026-11-22T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Tulsa_King/season_4/episode_6/"
+    },
+    {
+      "id": "19bac478f08e1e3aaf69",
+      "title": "Шершни (Yellowjackets). Коллективный разум. (S04E01)",
+      "seriesRu": "Шершни",
+      "seriesEn": "Yellowjackets",
+      "season": 4,
+      "episode": 1,
+      "published": "2026-11-22T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Yellowjackets/season_4/episode_1/"
+    },
     {
       "id": "e266441d736862940b7a",
       "title": "Подноготная (The Lowdown). Горячие сосиски!. (S02E07)",
