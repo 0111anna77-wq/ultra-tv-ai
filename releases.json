@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-23T22:15:42Z",
+  "updatedAt": "2026-11-24T06:06:37Z",
   "entries": [
+    {
+      "id": "0a8e3660659c77860aa6",
+      "title": "Перси Джексон и Олимпийцы (Percy Jackson and The Olympians). Нас посещает старая мёртвая знакомая. (S03E02)",
+      "seriesRu": "Перси Джексон и Олимпийцы",
+      "seriesEn": "Percy Jackson and The Olympians",
+      "season": 3,
+      "episode": 2,
+      "published": "2026-11-23T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Percy_Jackson_and_The_Olympians/season_3/episode_2/"
+    },
     {
       "id": "4e73c6630fffd8a6cd4f",
       "title": "Ноктюрн (Nocturne). Одиночество. (S01E05)",
