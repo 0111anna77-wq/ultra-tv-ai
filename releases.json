@@ -1,8 +1,28 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-24T06:06:37Z",
+  "updatedAt": "2026-11-25T01:37:17Z",
   "entries": [
+    {
+      "id": "1f9931f56b478cecbd7c",
+      "title": "Институт (Institute). Обман. (S02E03)",
+      "seriesRu": "Институт",
+      "seriesEn": "Institute",
+      "season": 2,
+      "episode": 3,
+      "published": "2026-11-24T20:57:00Z",
+      "link": "https://www.lostfilm.download/mr/series/Institute/season_2/episode_3/"
+    },
+    {
+      "id": "ce6793dad8eef26b9ae3",
+      "title": "Маршалы (Marshals). Под влиянием. (S02E07)",
+      "seriesRu": "Маршалы",
+      "seriesEn": "Marshals",
+      "season": 2,
+      "episode": 7,
+      "published": "2026-11-24T20:34:36Z",
+      "link": "https://www.lostfilm.download/mr/series/Marshals/season_2/episode_7/"
+    },
     {
       "id": "0a8e3660659c77860aa6",
       "title": "Перси Джексон и Олимпийцы (Percy Jackson and The Olympians). Нас посещает старая мёртвая знакомая. (S03E02)",
