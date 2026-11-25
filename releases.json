@@ -1,8 +1,28 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-25T01:37:17Z",
+  "updatedAt": "2026-11-25T20:12:46Z",
   "entries": [
+    {
+      "id": "f57d50740a7ba8d20150",
+      "title": "Парижская полиция 1900 (Paris Police 1900). Пятая серия. (S03E05)",
+      "seriesRu": "Парижская полиция 1900",
+      "seriesEn": "Paris Police 1900",
+      "season": 3,
+      "episode": 5,
+      "published": "2026-11-25T17:47:38Z",
+      "link": "https://www.lostfilm.download/mr/series/Paris_Police_1900/season_3/episode_5/"
+    },
+    {
+      "id": "fdad365468d8f2860a14",
+      "title": "Город Бога: Борьба накаляется (City of God: The Fight Rages On). Эпизод 3. (S02E03)",
+      "seriesRu": "Город Бога: Борьба накаляется",
+      "seriesEn": "City of God: The Fight Rages On",
+      "season": 2,
+      "episode": 3,
+      "published": "2026-11-25T15:46:26Z",
+      "link": "https://www.lostfilm.download/mr/series/City_of_God_The_Fight_Rages_On/season_2/episode_3/"
+    },
     {
       "id": "1f9931f56b478cecbd7c",
       "title": "Институт (Institute). Обман. (S02E03)",
