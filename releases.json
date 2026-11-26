@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-25T20:12:46Z",
+  "updatedAt": "2026-11-26T12:32:52Z",
   "entries": [
+    {
+      "id": "6a02af997cb582453754",
+      "title": "Парижская полиция 1900 (Paris Police 1900). Шестая серия. (S03E06)",
+      "seriesRu": "Парижская полиция 1900",
+      "seriesEn": "Paris Police 1900",
+      "season": 3,
+      "episode": 6,
+      "published": "2026-11-26T11:35:34Z",
+      "link": "https://www.lostfilm.download/mr/series/Paris_Police_1900/season_3/episode_6/"
+    },
     {
       "id": "f57d50740a7ba8d20150",
       "title": "Парижская полиция 1900 (Paris Police 1900). Пятая серия. (S03E05)",
