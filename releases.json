@@ -1,8 +1,18 @@
 {
   "version": 1,
   "source": "LostFilm.tv RSS",
-  "updatedAt": "2026-11-26T12:32:52Z",
+  "updatedAt": "2026-11-27T22:43:01Z",
   "entries": [
+    {
+      "id": "882d26d170f713e4cca8",
+      "title": "Властелин колец: Кольца власти (The Lord of the Rings: The Rings of Power). Ородруин. (S03E07)",
+      "seriesRu": "Властелин колец: Кольца власти",
+      "seriesEn": "The Lord of the Rings: The Rings of Power",
+      "season": 3,
+      "episode": 7,
+      "published": "2026-11-27T20:58:00Z",
+      "link": "https://www.lostfilm.download/mr/series/The_Lord_of_the_Rings__The_Rings_of_Power/season_3/episode_7/"
+    },
     {
       "id": "6a02af997cb582453754",
       "title": "Парижская полиция 1900 (Paris Police 1900). Шестая серия. (S03E06)",
